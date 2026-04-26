@@ -56,12 +56,12 @@ object GunModImplEvents {
 
 		if (!isBullet && !isPlayer) return
 
-		val attacker : ServerPlayer = event.entity as ServerPlayer
+		val attacker = event.source.entity as? ServerPlayer ?: return
 
 		val data : PersistentData = PersistentData.get(victim.serverLevel())
-		val victimFaction : Faction = data.getFactionByPlayer(victim.uuid)
-		val attackerFaction : Faction = data.getFactionByPlayer(attacker.uuid)
-		if (!victimFaction.name.equals(attackerFaction.name, true)) return
+		val victimFaction : Faction? = data.getFactionByPlayer(victim.uuid)
+		val attackerFaction : Faction? = data.getFactionByPlayer(attacker.uuid)
+		if (!victimFaction?.name.equals(attackerFaction?.name, true)) return
 
 		event.isCanceled = true
 		attacker.sendSystemMessage(PrefixUtil.error("You cannot attack your own faction members!"));

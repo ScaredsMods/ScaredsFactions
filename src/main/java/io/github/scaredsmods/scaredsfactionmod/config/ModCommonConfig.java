@@ -17,10 +17,16 @@
 package io.github.scaredsmods.scaredsfactionmod.config;
 
 import io.github.scaredsmods.scaredsfactionmod.ScaredsFactionMod;
+import io.github.scaredsmods.scaredsfactionmod.faction.Faction;
+import io.github.scaredsmods.scaredsfactionmod.faction.PersistentData;
 import me.fzzyhmstrs.fzzy_config.annotations.Comment;
 import me.fzzyhmstrs.fzzy_config.api.FileType;
 import me.fzzyhmstrs.fzzy_config.config.Config;
+import me.fzzyhmstrs.fzzy_config.event.api.ServerUpdateContext;
 import me.fzzyhmstrs.fzzy_config.validation.misc.ValidatedBoolean;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 
 public class ModCommonConfig extends Config {
@@ -46,4 +52,23 @@ public class ModCommonConfig extends Config {
 		return FileType.TOML;
 	}
 
+	@Override
+	public void onUpdateServer(@NotNull ServerUpdateContext context) {
+		super.onUpdateServer(context);
+
+		var server = context.getServer();
+        PersistentData data = PersistentData.get(server.overworld());
+
+		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+			Faction faction = data.getFactionByPlayer(player.getUUID());
+			if (faction == null) continue;
+			if (!data.hasBeacon(faction.getName())) continue;
+
+			if (respawnPlayerAtFactionBeacon.get()) {
+				player.setRespawnPosition(Level.OVERWORLD, data.getBeaconPos(faction.getName()).above(), 0.0F, true, true);
+			} else {
+				player.setRespawnPosition(Level.OVERWORLD, null, 0.0F, false, true);
+			}
+		}
+	}
 }

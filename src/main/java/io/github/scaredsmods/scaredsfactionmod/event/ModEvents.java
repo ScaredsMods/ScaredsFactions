@@ -74,9 +74,8 @@ public class ModEvents {
 
 		if (!(ModConfigs.commonConfig.enableVanillaFriendlyFire.get())) {
 			event.setCanceled(true);
+			attacker.sendSystemMessage(PrefixUtil.error("You cannot attack your own faction members!"));
 		}
-
-		attacker.sendSystemMessage(PrefixUtil.error("You cannot attack your own faction members!"));
 	}
 
 
@@ -111,17 +110,9 @@ public class ModEvents {
 		BlockPos pos = event.getPos();
 		data.setBeacon(faction.getName(), pos);
 
-
-		if (ModConfigs.commonConfig.respawnPlayerAtFactionBeacon.get() == true){
-			player.setRespawnPosition(Level.OVERWORLD, pos.above(), 0.0F, true, false);
-		}
-
 		for (UUID memberUUID : faction.getMembers()) {
 			ServerPlayer member = player.getServer().getPlayerList().getPlayer(memberUUID);
 			if (member != null) {
-				if (ModConfigs.commonConfig.respawnPlayerAtFactionBeacon.get() == true) {
-					member.setRespawnPosition(Level.OVERWORLD, pos.above(), 0.0F, true, false);
-				}
 				member.sendSystemMessage(PrefixUtil.success("Your faction's respawn beacon has been placed!"));
 			}
 		}
@@ -151,22 +142,16 @@ public class ModEvents {
 			player.sendSystemMessage(PrefixUtil.error("You cannot move your own faction's beacon!"));
 			return;
 		}
-
+		event.setCanceled(true);
 		ServerLevel level = (ServerLevel) event.getLevel();
 		level.setBlock(event.getPos(), Blocks.AIR.defaultBlockState(), 3);
 
 		data.removeBeacon(beaconFactionName);
 		data.addHardcored(beaconFactionName);
 
-		if (ModConfigs.commonConfig.respawnPlayerAtFactionBeacon.get() == true) {
-			player.setRespawnPosition(Level.OVERWORLD, null, 0.0F, false, false);
-		}
 		for (UUID memberUUID : beaconFaction.getMembers()) {
 			ServerPlayer member = player.getServer().getPlayerList().getPlayer(memberUUID);
 			if (member != null) {
-				if (ModConfigs.commonConfig.respawnPlayerAtFactionBeacon.get() == true) {
-					member.setRespawnPosition(Level.OVERWORLD, null, 0.0F, false, false);
-				}
 				member.sendSystemMessage(PrefixUtil.error("Your faction's respawn beacon was destroyed! You are on your last life!"));
 			}
 		}
@@ -184,6 +169,7 @@ public class ModEvents {
 	@SubscribeEvent
 	public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
 		if (!(event.getEntity() instanceof ServerPlayer player)) return;
+		if (event.isEndConquered()) return;
 
 		PersistentData data = PersistentData.get(player.serverLevel());
 		Faction faction = data.getFactionByPlayer(player.getUUID());
@@ -220,6 +206,15 @@ public class ModEvents {
 		if (data.isEliminated(player.getUUID())) {
 			player.setGameMode(GameType.SPECTATOR);
 			player.sendSystemMessage(PrefixUtil.error("Your faction's beacon was destroyed. You have no lifeline. Go on to spectate your team!"));
+			return;
+		}
+
+		if (data.hasBeacon(faction.getName())) {
+			if (ModConfigs.commonConfig.respawnPlayerAtFactionBeacon.get()) {
+				player.setRespawnPosition(Level.OVERWORLD, data.getBeaconPos(faction.getName()).above(), 0.0F, true, true);
+			} else {
+				player.setRespawnPosition(Level.OVERWORLD, null, 0.0F, false, true);
+			}
 		}
 	}
 }

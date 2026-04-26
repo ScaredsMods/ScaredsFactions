@@ -98,7 +98,7 @@ public class PersistentData extends SavedData {
 		for (UUID uuid : eliminatedPlayers) {
 			CompoundTag eliminatedPlayersTag = new CompoundTag();
 			eliminatedPlayersTag.putUUID("uuid", uuid);
-			hardcoredList.add(eliminatedPlayersTag);
+			eliminatedPlayerList.add(eliminatedPlayersTag);
 		}
 		tag.put("eliminated", eliminatedPlayerList);
 		tag.put("hardcored", hardcoredList);
