@@ -9,19 +9,8 @@
     </loaded-modules>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="12ea3ecb-d1ed-4cca-a259-4a87451ff3a4" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/COPYING.LESSER" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/HEADER" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitattributes" beforeDir="false" afterPath="$PROJECT_DIR$/.gitattributes" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CREDITS.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/LICENSE" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LICENSE.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/changelog.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/io/github/scaredsmods/scaredsfactionmod/config/ModCommonConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/github/scaredsmods/scaredsfactionmod/config/ModCommonConfig.java" afterDir="false" />
+    <list default="true" id="12ea3ecb-d1ed-4cca-a259-4a87451ff3a4" name="Changes" comment="Fix .gitignore and licensing">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -356,9 +345,23 @@
       <option name="presentableId" value="Default" />
       <updated>1776761560515</updated>
     </task>
+    <task id="LOCAL-00001" summary="Fix .gitignore and licensing">
+      <option name="closed" value="true" />
+      <created>1777216896040</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1777216896040</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Initial commit" />
+    <MESSAGE value="Fix .gitignore and licensing" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix .gitignore and licensing" />
   </component>
 </project>
