@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: software.bernie.geckolib:geckolib-forge-1.20.1:4.4.6" external-system-id="GRADLE">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/software.bernie.geckolib/geckolib-forge-1.20.1/4.4.6/9eecf927e5291926dd78b1df4680ebeddfe04a55/geckolib-forge-1.20.1-4.4.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/software.bernie.geckolib/geckolib-forge-1.20.1/4.4.6/359c4d9d9d1155e14fb033e761931856fc100b78/geckolib-forge-1.20.1-4.4.6-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

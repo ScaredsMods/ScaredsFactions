@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="Gradle: thedarkcolour:kfflib:4.11.0" type="java-imported" external-system-id="GRADLE">
+    <properties groupId="thedarkcolour" artifactId="kfflib" version="4.11.0" baseVersion="4.11.0" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/thedarkcolour/kfflib/4.11.0/4fa4c8f9f8f09cc3da3166500dade61366f5516a/kfflib-4.11.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/thedarkcolour/kfflib/4.11.0/8dca13931f5019e85a5055bd3d87b0e113011bab/kfflib-4.11.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="Gradle: curse.maven:superb-warfare-1218165:7292685-sources-7292686" type="java-imported" external-system-id="GRADLE">
+    <properties groupId="curse.maven" artifactId="superb-warfare-1218165" version="7292685-sources-7292686" baseVersion="7292685-sources-7292686" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/curse.maven/superb-warfare-1218165/7292685-sources-7292686/93e14d39c3328b88eb54e6018e5f2f88f32cdb73/superb-warfare-1218165-7292685-sources-7292686.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/curse.maven/superb-warfare-1218165/7292685-sources-7292686/b3f4f475ec916e1f1f6fade3f401ef634a0335f6/superb-warfare-1218165-7292685-sources-7292686-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
