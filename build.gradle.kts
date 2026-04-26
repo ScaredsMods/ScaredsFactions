@@ -1,13 +1,14 @@
+import com.diffplug.gradle.spotless.JavaExtension
 import net.minecraftforge.gradle.common.util.ModConfig
 import net.minecraftforge.gradle.common.util.RunConfig
 
 plugins {
     id("org.jetbrains.kotlin.jvm") version "2.0.0"
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0"
     id("java")
     id("idea")
     id("net.minecraftforge.gradle") version "[6.0,6.2)"
     id("org.parchmentmc.librarian.forgegradle") version "1.2.0"
+    id("com.diffplug.spotless") version("6.19.0")
 }
 
 val modId : String by project
@@ -189,5 +190,21 @@ tasks {
     }
 }
 
+spotless {
+    java {
+        licenseHeaderFile(file("HEADER"))
+        removeUnusedImports()
+        indentWithTabs()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    kotlin {
+        licenseHeaderFile(file("HEADER"))
+        indentWithTabs()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+
+}
 
 

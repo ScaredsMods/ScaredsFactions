@@ -1,3 +1,19 @@
+/*
+*  Copyright (C) 2025 ScaredRabbitNL
+*
+*  This program is free software: you can redistribute it and/or modify
+*  it under the terms of the GNU Lesser General Public License as published by
+*  the Free Software Foundation, either version 3 of the License, or
+*  (at your option) any later version.
+*
+*  This program is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU Lesser General Public License for more details.
+*
+*  You should have received a copy of the GNU Lesser General Public License
+*  along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
 package io.github.scaredsmods.scaredsfactionmod.event;
 
 
@@ -34,176 +50,176 @@ import java.util.UUID;
 @Mod.EventBusSubscriber(modid = ScaredsFactionMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ModEvents {
 
-    @SubscribeEvent
-    public static void onCommandsRegister(RegisterCommandsEvent event) {
-        FactionCommand.register(event.getDispatcher());
-    }
+	@SubscribeEvent
+	public static void onCommandsRegister(RegisterCommandsEvent event) {
+		FactionCommand.register(event.getDispatcher());
+	}
 
-    @SubscribeEvent
-    public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-        InviteManager.removeInvite(event.getEntity().getUUID());
-    }
+	@SubscribeEvent
+	public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+		InviteManager.removeInvite(event.getEntity().getUUID());
+	}
 
-    @SubscribeEvent
-    public static void disableInFactionVanillaFriendlyFire(LivingHurtEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer victim)) return;
-        if (!(event.getSource().getEntity() instanceof ServerPlayer attacker)) return;
+	@SubscribeEvent
+	public static void disableInFactionVanillaFriendlyFire(LivingHurtEvent event) {
+		if (!(event.getEntity() instanceof ServerPlayer victim)) return;
+		if (!(event.getSource().getEntity() instanceof ServerPlayer attacker)) return;
 
-        PersistentData data = PersistentData.get(victim.serverLevel());
-        Faction victimFaction = data.getFactionByPlayer(victim.getUUID());
-        Faction attackerFaction = data.getFactionByPlayer(attacker.getUUID());
+		PersistentData data = PersistentData.get(victim.serverLevel());
+		Faction victimFaction = data.getFactionByPlayer(victim.getUUID());
+		Faction attackerFaction = data.getFactionByPlayer(attacker.getUUID());
 
-        if (victimFaction == null || attackerFaction == null) return;
-        if (!victimFaction.getName().equals(attackerFaction.getName())) return;
+		if (victimFaction == null || attackerFaction == null) return;
+		if (!victimFaction.getName().equals(attackerFaction.getName())) return;
 
-        if (!(ModConfigs.commonConfig.enableVanillaFriendlyFire.get())) {
-            event.setCanceled(true);
-        }
+		if (!(ModConfigs.commonConfig.enableVanillaFriendlyFire.get())) {
+			event.setCanceled(true);
+		}
 
-        attacker.sendSystemMessage(PrefixUtil.error("You cannot attack your own faction members!"));
-    }
-
-
-    @SubscribeEvent
-    public static void onBeaconInteract(PlayerInteractEvent.RightClickBlock event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        if (event.getLevel().getBlockState(event.getPos()).getBlock() != Blocks.BEACON) return;
-
-        PersistentData data = PersistentData.get(player.serverLevel());
-        if (data.getBeaconFaction(event.getPos()) == null) return;
-
-        event.setCanceled(true);
-    }
-
-    @SubscribeEvent
-    public static void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        if (event.getPlacedBlock().getBlock() != Blocks.BEACON) return;
-        if (!(player.serverLevel().dimension().equals(Level.OVERWORLD))) {
-            event.setCanceled(true);
-            player.sendSystemMessage(PrefixUtil.error("You can only place your beacon in the overworld!"));
-            return;
-        }
-
-        PersistentData data = PersistentData.get(player.serverLevel());
-        Faction faction = data.getFactionByPlayer(player.getUUID());
-
-        if (faction == null) return;
-        if (!faction.getOwner().equals(player.getUUID())) return;
-        if (data.hasBeacon(faction.getName())) return;
-
-        BlockPos pos = event.getPos();
-        data.setBeacon(faction.getName(), pos);
+		attacker.sendSystemMessage(PrefixUtil.error("You cannot attack your own faction members!"));
+	}
 
 
-        if (ModConfigs.commonConfig.respawnPlayerAtFactionBeacon.get() == true){
-            player.setRespawnPosition(Level.OVERWORLD, pos.above(), 0.0F, true, false);
-        }
+	@SubscribeEvent
+	public static void onBeaconInteract(PlayerInteractEvent.RightClickBlock event) {
+		if (!(event.getEntity() instanceof ServerPlayer player)) return;
+		if (event.getLevel().getBlockState(event.getPos()).getBlock() != Blocks.BEACON) return;
 
-        for (UUID memberUUID : faction.getMembers()) {
-            ServerPlayer member = player.getServer().getPlayerList().getPlayer(memberUUID);
-            if (member != null) {
-                if (ModConfigs.commonConfig.respawnPlayerAtFactionBeacon.get() == true) {
-                    member.setRespawnPosition(Level.OVERWORLD, pos.above(), 0.0F, true, false);
-                }
-                member.sendSystemMessage(PrefixUtil.success("Your faction's respawn beacon has been placed!"));
-            }
-        }
-    }
+		PersistentData data = PersistentData.get(player.serverLevel());
+		if (data.getBeaconFaction(event.getPos()) == null) return;
 
-    @SubscribeEvent
-    public static void onBlockBreak(BlockEvent.BreakEvent event) {
-        if (!(event.getPlayer() instanceof ServerPlayer player)) return;
-        if (event.getState().getBlock() != Blocks.BEACON) return;
+		event.setCanceled(true);
+	}
 
-        PersistentData data = PersistentData.get(player.serverLevel());
-        String beaconFactionName = data.getBeaconFaction(event.getPos());
+	@SubscribeEvent
+	public static void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
+		if (!(event.getEntity() instanceof ServerPlayer player)) return;
+		if (event.getPlacedBlock().getBlock() != Blocks.BEACON) return;
+		if (!(player.serverLevel().dimension().equals(Level.OVERWORLD))) {
+			event.setCanceled(true);
+			player.sendSystemMessage(PrefixUtil.error("You can only place your beacon in the overworld!"));
+			return;
+		}
 
-        if (beaconFactionName == null) return;
+		PersistentData data = PersistentData.get(player.serverLevel());
+		Faction faction = data.getFactionByPlayer(player.getUUID());
 
-        Faction beaconFaction = data.getFaction(beaconFactionName);
-        Faction breakerFaction = data.getFactionByPlayer(player.getUUID());
+		if (faction == null) return;
+		if (!faction.getOwner().equals(player.getUUID())) return;
+		if (data.hasBeacon(faction.getName())) return;
 
-        if (breakerFaction == null) {
-            event.setCanceled(true);
-            player.sendSystemMessage(PrefixUtil.error("You aren't in a faction! You are considered neutral and cannot break a faction's beacon!"));
-            return;
-        }
-
-        if (breakerFaction.getName().equals(beaconFactionName)) {
-            event.setCanceled(true);
-            player.sendSystemMessage(PrefixUtil.error("You cannot move your own faction's beacon!"));
-            return;
-        }
-
-        ServerLevel level = (ServerLevel) event.getLevel();
-        level.setBlock(event.getPos(), Blocks.AIR.defaultBlockState(), 3);
-
-        data.removeBeacon(beaconFactionName);
-        data.addHardcored(beaconFactionName);
-
-        if (ModConfigs.commonConfig.respawnPlayerAtFactionBeacon.get() == true) {
-            player.setRespawnPosition(Level.OVERWORLD, null, 0.0F, false, false);
-        }
-        for (UUID memberUUID : beaconFaction.getMembers()) {
-            ServerPlayer member = player.getServer().getPlayerList().getPlayer(memberUUID);
-            if (member != null) {
-                if (ModConfigs.commonConfig.respawnPlayerAtFactionBeacon.get() == true) {
-                    member.setRespawnPosition(Level.OVERWORLD, null, 0.0F, false, false);
-                }
-                member.sendSystemMessage(PrefixUtil.error("Your faction's respawn beacon was destroyed! You are on your last life!"));
-            }
-        }
-
-        for (ServerPlayer onlinePlayer : player.getServer().getPlayerList().getPlayers()) {
-            onlinePlayer.sendSystemMessage(PrefixUtil.formattedMessage(
-                    String.format("%s's beacon has been broken! Finish them!", beaconFactionName),
-                    ChatFormatting.AQUA, ChatFormatting.BOLD));
-        }
-
-        player.sendSystemMessage(PrefixUtil.success(String.format("You just destroyed %s's beacon. Kill them to knock them out!", beaconFactionName)));
-    }
+		BlockPos pos = event.getPos();
+		data.setBeacon(faction.getName(), pos);
 
 
-    @SubscribeEvent
-    public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+		if (ModConfigs.commonConfig.respawnPlayerAtFactionBeacon.get() == true){
+			player.setRespawnPosition(Level.OVERWORLD, pos.above(), 0.0F, true, false);
+		}
 
-        PersistentData data = PersistentData.get(player.serverLevel());
-        Faction faction = data.getFactionByPlayer(player.getUUID());
+		for (UUID memberUUID : faction.getMembers()) {
+			ServerPlayer member = player.getServer().getPlayerList().getPlayer(memberUUID);
+			if (member != null) {
+				if (ModConfigs.commonConfig.respawnPlayerAtFactionBeacon.get() == true) {
+					member.setRespawnPosition(Level.OVERWORLD, pos.above(), 0.0F, true, false);
+				}
+				member.sendSystemMessage(PrefixUtil.success("Your faction's respawn beacon has been placed!"));
+			}
+		}
+	}
 
-        if (faction == null) return;
-        if (!data.isHardcored(faction.getName())) return;
+	@SubscribeEvent
+	public static void onBlockBreak(BlockEvent.BreakEvent event) {
+		if (!(event.getPlayer() instanceof ServerPlayer player)) return;
+		if (event.getState().getBlock() != Blocks.BEACON) return;
 
-        data.eliminatePlayer(player.getUUID());
-        player.setGameMode(GameType.SPECTATOR);
-        player.sendSystemMessage(PrefixUtil.error("Your faction's beacon was destroyed. You have no lifeline. Go on to spectate your team!"));
-    }
+		PersistentData data = PersistentData.get(player.serverLevel());
+		String beaconFactionName = data.getBeaconFaction(event.getPos());
+
+		if (beaconFactionName == null) return;
+
+		Faction beaconFaction = data.getFaction(beaconFactionName);
+		Faction breakerFaction = data.getFactionByPlayer(player.getUUID());
+
+		if (breakerFaction == null) {
+			event.setCanceled(true);
+			player.sendSystemMessage(PrefixUtil.error("You aren't in a faction! You are considered neutral and cannot break a faction's beacon!"));
+			return;
+		}
+
+		if (breakerFaction.getName().equals(beaconFactionName)) {
+			event.setCanceled(true);
+			player.sendSystemMessage(PrefixUtil.error("You cannot move your own faction's beacon!"));
+			return;
+		}
+
+		ServerLevel level = (ServerLevel) event.getLevel();
+		level.setBlock(event.getPos(), Blocks.AIR.defaultBlockState(), 3);
+
+		data.removeBeacon(beaconFactionName);
+		data.addHardcored(beaconFactionName);
+
+		if (ModConfigs.commonConfig.respawnPlayerAtFactionBeacon.get() == true) {
+			player.setRespawnPosition(Level.OVERWORLD, null, 0.0F, false, false);
+		}
+		for (UUID memberUUID : beaconFaction.getMembers()) {
+			ServerPlayer member = player.getServer().getPlayerList().getPlayer(memberUUID);
+			if (member != null) {
+				if (ModConfigs.commonConfig.respawnPlayerAtFactionBeacon.get() == true) {
+					member.setRespawnPosition(Level.OVERWORLD, null, 0.0F, false, false);
+				}
+				member.sendSystemMessage(PrefixUtil.error("Your faction's respawn beacon was destroyed! You are on your last life!"));
+			}
+		}
+
+		for (ServerPlayer onlinePlayer : player.getServer().getPlayerList().getPlayers()) {
+			onlinePlayer.sendSystemMessage(PrefixUtil.formattedMessage(
+					String.format("%s's beacon has been broken! Finish them!", beaconFactionName),
+					ChatFormatting.AQUA, ChatFormatting.BOLD));
+		}
+
+		player.sendSystemMessage(PrefixUtil.success(String.format("You just destroyed %s's beacon. Kill them to knock them out!", beaconFactionName)));
+	}
 
 
-    @SubscribeEvent
-    public static void dropPlayerHeadOnDeath(LivingDeathEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        GameProfile profile = player.getGameProfile();
-        CompoundTag nbt = new CompoundTag();
-        nbt.put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), profile));
-        ItemStack stack = new ItemStack(Items.PLAYER_HEAD, 1);
-        stack.setTag(nbt);
-        player.drop(stack, false);
-    }
+	@SubscribeEvent
+	public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
+		if (!(event.getEntity() instanceof ServerPlayer player)) return;
 
-    @SubscribeEvent
-    public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+		PersistentData data = PersistentData.get(player.serverLevel());
+		Faction faction = data.getFactionByPlayer(player.getUUID());
 
-        PersistentData data = PersistentData.get(player.serverLevel());
-        Faction faction = data.getFactionByPlayer(player.getUUID());
+		if (faction == null) return;
+		if (!data.isHardcored(faction.getName())) return;
 
-        if (faction == null) return;
+		data.eliminatePlayer(player.getUUID());
+		player.setGameMode(GameType.SPECTATOR);
+		player.sendSystemMessage(PrefixUtil.error("Your faction's beacon was destroyed. You have no lifeline. Go on to spectate your team!"));
+	}
 
-        if (data.isEliminated(player.getUUID())) {
-            player.setGameMode(GameType.SPECTATOR);
-            player.sendSystemMessage(PrefixUtil.error("Your faction's beacon was destroyed. You have no lifeline. Go on to spectate your team!"));
-        }
-    }
+
+	@SubscribeEvent
+	public static void dropPlayerHeadOnDeath(LivingDeathEvent event) {
+		if (!(event.getEntity() instanceof ServerPlayer player)) return;
+		GameProfile profile = player.getGameProfile();
+		CompoundTag nbt = new CompoundTag();
+		nbt.put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), profile));
+		ItemStack stack = new ItemStack(Items.PLAYER_HEAD, 1);
+		stack.setTag(nbt);
+		player.drop(stack, false);
+	}
+
+	@SubscribeEvent
+	public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
+		if (!(event.getEntity() instanceof ServerPlayer player)) return;
+
+		PersistentData data = PersistentData.get(player.serverLevel());
+		Faction faction = data.getFactionByPlayer(player.getUUID());
+
+		if (faction == null) return;
+
+		if (data.isEliminated(player.getUUID())) {
+			player.setGameMode(GameType.SPECTATOR);
+			player.sendSystemMessage(PrefixUtil.error("Your faction's beacon was destroyed. You have no lifeline. Go on to spectate your team!"));
+		}
+	}
 }
