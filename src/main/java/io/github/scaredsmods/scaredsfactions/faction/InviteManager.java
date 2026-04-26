@@ -14,29 +14,28 @@
 *  You should have received a copy of the GNU Lesser General Public License
 *  along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-package io.github.scaredsmods.scaredsfactionmod;
+package io.github.scaredsmods.scaredsfactions.faction;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
-import com.mojang.logging.LogUtils;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.slf4j.Logger;
+public class InviteManager {
+	private static final Map<UUID, String> pendingInvites = new HashMap<>();
 
-
-@Mod(ScaredsFactionMod.MOD_ID)
-public class ScaredsFactionMod
-{
-	public static final String MOD_ID = "factions";
-	private static final Logger LOGGER = LogUtils.getLogger();
-
-
-	public ScaredsFactionMod(FMLJavaModLoadingContext context)
-	{
-		ModConfigs.init();
-	}
-	public static ResourceLocation id(String name) {
-		return ResourceLocation.fromNamespaceAndPath(MOD_ID, name);
+	public static void addInvite(UUID playerUUID, String factionName) {
+		pendingInvites.put(playerUUID, factionName);
 	}
 
+	public static boolean hasInvite(UUID playerUUID, String factionName) {
+		return factionName.equals(pendingInvites.get(playerUUID));
+	}
+
+	public static void removeInvite(UUID playerUUID) {
+		pendingInvites.remove(playerUUID);
+	}
+
+	public static String getInvite(UUID playerUUID) {
+		return pendingInvites.get(playerUUID);
+	}
 }

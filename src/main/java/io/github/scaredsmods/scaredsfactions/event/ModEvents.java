@@ -14,17 +14,17 @@
 *  You should have received a copy of the GNU Lesser General Public License
 *  along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-package io.github.scaredsmods.scaredsfactionmod.event;
+package io.github.scaredsmods.scaredsfactions.event;
 
 
 import com.mojang.authlib.GameProfile;
-import io.github.scaredsmods.scaredsfactionmod.ModConfigs;
-import io.github.scaredsmods.scaredsfactionmod.ScaredsFactionMod;
-import io.github.scaredsmods.scaredsfactionmod.command.FactionCommand;
-import io.github.scaredsmods.scaredsfactionmod.faction.Faction;
-import io.github.scaredsmods.scaredsfactionmod.faction.InviteManager;
-import io.github.scaredsmods.scaredsfactionmod.faction.PersistentData;
-import io.github.scaredsmods.scaredsfactionmod.util.PrefixUtil;
+import io.github.scaredsmods.scaredsfactions.ModConfigs;
+import io.github.scaredsmods.scaredsfactions.ScaredsFactionMod;
+import io.github.scaredsmods.scaredsfactions.command.FactionCommand;
+import io.github.scaredsmods.scaredsfactions.faction.Faction;
+import io.github.scaredsmods.scaredsfactions.faction.InviteManager;
+import io.github.scaredsmods.scaredsfactions.faction.PersistentData;
+import io.github.scaredsmods.scaredsfactions.util.PrefixUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;

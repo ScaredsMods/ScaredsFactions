@@ -14,9 +14,9 @@
 *  You should have received a copy of the GNU Lesser General Public License
 *  along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-package io.github.scaredsmods.scaredsfactionmod;
+package io.github.scaredsmods.scaredsfactions;
 
-import io.github.scaredsmods.scaredsfactionmod.config.ModCommonConfig;
+import io.github.scaredsmods.scaredsfactions.config.ModCommonConfig;
 import me.fzzyhmstrs.fzzy_config.api.ConfigApiJava;
 import me.fzzyhmstrs.fzzy_config.api.RegisterType;
 

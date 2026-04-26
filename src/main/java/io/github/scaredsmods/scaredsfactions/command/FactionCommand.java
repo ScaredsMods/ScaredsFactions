@@ -14,18 +14,18 @@
 *  You should have received a copy of the GNU Lesser General Public License
 *  along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-package io.github.scaredsmods.scaredsfactionmod.command;
+package io.github.scaredsmods.scaredsfactions.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import io.github.scaredsmods.scaredsfactionmod.faction.Faction;
-import io.github.scaredsmods.scaredsfactionmod.faction.FactionRank;
-import io.github.scaredsmods.scaredsfactionmod.faction.InviteManager;
-import io.github.scaredsmods.scaredsfactionmod.faction.PersistentData;
-import io.github.scaredsmods.scaredsfactionmod.util.PrefixUtil;
+import io.github.scaredsmods.scaredsfactions.faction.Faction;
+import io.github.scaredsmods.scaredsfactions.faction.FactionRank;
+import io.github.scaredsmods.scaredsfactions.faction.InviteManager;
+import io.github.scaredsmods.scaredsfactions.faction.PersistentData;
+import io.github.scaredsmods.scaredsfactions.util.PrefixUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;

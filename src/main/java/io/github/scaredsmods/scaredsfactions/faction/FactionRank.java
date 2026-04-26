@@ -14,28 +14,10 @@
 *  You should have received a copy of the GNU Lesser General Public License
 *  along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-package io.github.scaredsmods.scaredsfactionmod.faction;
+package io.github.scaredsmods.scaredsfactions.faction;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-public class InviteManager {
-	private static final Map<UUID, String> pendingInvites = new HashMap<>();
-
-	public static void addInvite(UUID playerUUID, String factionName) {
-		pendingInvites.put(playerUUID, factionName);
-	}
-
-	public static boolean hasInvite(UUID playerUUID, String factionName) {
-		return factionName.equals(pendingInvites.get(playerUUID));
-	}
-
-	public static void removeInvite(UUID playerUUID) {
-		pendingInvites.remove(playerUUID);
-	}
-
-	public static String getInvite(UUID playerUUID) {
-		return pendingInvites.get(playerUUID);
-	}
+public enum FactionRank {
+	GENERAL,
+	SERGEANT,
+	PRIVATE
 }

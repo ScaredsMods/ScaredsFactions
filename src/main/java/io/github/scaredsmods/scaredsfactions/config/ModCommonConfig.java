@@ -14,11 +14,11 @@
 *  You should have received a copy of the GNU Lesser General Public License
 *  along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-package io.github.scaredsmods.scaredsfactionmod.config;
+package io.github.scaredsmods.scaredsfactions.config;
 
-import io.github.scaredsmods.scaredsfactionmod.ScaredsFactionMod;
-import io.github.scaredsmods.scaredsfactionmod.faction.Faction;
-import io.github.scaredsmods.scaredsfactionmod.faction.PersistentData;
+import io.github.scaredsmods.scaredsfactions.ScaredsFactionMod;
+import io.github.scaredsmods.scaredsfactions.faction.Faction;
+import io.github.scaredsmods.scaredsfactions.faction.PersistentData;
 import me.fzzyhmstrs.fzzy_config.annotations.Comment;
 import me.fzzyhmstrs.fzzy_config.api.FileType;
 import me.fzzyhmstrs.fzzy_config.config.Config;

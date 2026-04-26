@@ -14,10 +14,29 @@
 *  You should have received a copy of the GNU Lesser General Public License
 *  along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-package io.github.scaredsmods.scaredsfactionmod.faction;
+package io.github.scaredsmods.scaredsfactions;
 
-public enum FactionRank {
-	GENERAL,
-	SERGEANT,
-	PRIVATE
+
+import com.mojang.logging.LogUtils;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import org.slf4j.Logger;
+
+
+@Mod(ScaredsFactionMod.MOD_ID)
+public class ScaredsFactionMod
+{
+	public static final String MOD_ID = "scaredsfactions";
+	private static final Logger LOGGER = LogUtils.getLogger();
+
+
+	public ScaredsFactionMod(FMLJavaModLoadingContext context)
+	{
+		ModConfigs.init();
+	}
+	public static ResourceLocation id(String name) {
+		return ResourceLocation.fromNamespaceAndPath(MOD_ID, name);
+	}
+
 }
