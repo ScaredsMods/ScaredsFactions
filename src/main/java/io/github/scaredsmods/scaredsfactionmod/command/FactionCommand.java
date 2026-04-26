@@ -41,6 +41,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class FactionCommand {
 
@@ -342,12 +343,12 @@ public class FactionCommand {
 				.append(PrefixUtil.PREFIX_PLAIN)
 				.append(Component.literal(" ======").withStyle(ChatFormatting.DARK_GRAY));
 
-		StringBuilder sb = new StringBuilder("\n Factions: ");
-		for (Faction faction : data.getFactions().values()) {
-			sb.append("- ").append(faction.getName()).append(" (").append(faction.getMembers().size()).append(" members)\n");
-		}
+		String factionList = data.getFactions().values().stream()
+				.map(faction -> faction.getName() + " (" + faction.getMembers().size() + " members)")
+				.collect(Collectors.joining(", "));
+
 		ctx.getSource().sendSuccess(() -> divider, false);
-		ctx.getSource().sendSuccess(() -> Component.literal(sb.toString()).withStyle(ChatFormatting.GRAY), false);
+		ctx.getSource().sendSuccess(() -> Component.literal(factionList).withStyle(ChatFormatting.GRAY), false);
 		ctx.getSource().sendSuccess(() -> divider, false);
 		return 1;
 	}
