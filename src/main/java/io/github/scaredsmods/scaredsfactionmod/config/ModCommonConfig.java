@@ -26,7 +26,6 @@ import me.fzzyhmstrs.fzzy_config.event.api.ServerUpdateContext;
 import me.fzzyhmstrs.fzzy_config.validation.misc.ValidatedBoolean;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 
 public class ModCommonConfig extends Config {
@@ -57,7 +56,7 @@ public class ModCommonConfig extends Config {
 		super.onUpdateServer(context);
 
 		var server = context.getServer();
-        PersistentData data = PersistentData.get(server.overworld());
+		PersistentData data = PersistentData.get(server.overworld());
 
 		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 			Faction faction = data.getFactionByPlayer(player.getUUID());

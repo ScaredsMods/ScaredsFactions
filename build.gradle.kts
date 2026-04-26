@@ -1,4 +1,3 @@
-import com.diffplug.gradle.spotless.JavaExtension
 import net.minecraftforge.gradle.common.util.ModConfig
 import net.minecraftforge.gradle.common.util.RunConfig
 
@@ -30,7 +29,7 @@ version = modVersion
 group = modGroupId
 
 base {
-    archivesName.set(modId)
+    archivesName.set(modName)
 }
 
 
