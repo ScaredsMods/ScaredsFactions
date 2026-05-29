@@ -22,6 +22,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -29,6 +30,7 @@ public class PersistentData extends SavedData {
 
 	private final Map<String, Faction> factions = new HashMap<>();
 	private static final String DATA_NAME = "factions";
+
 	public static PersistentData get(ServerLevel level) {
 		return level.getDataStorage().computeIfAbsent(
 				PersistentData::load,
@@ -37,11 +39,14 @@ public class PersistentData extends SavedData {
 		);
 	}
 
+	private final Map<UUID, Long> homeCooldowns = new HashMap<>();
 	private final Map<String, BlockPos> beaconPositions = new HashMap<>();
 	private final Set<String> hardcoredFactions = new HashSet<>();
 	private final Set<UUID> eliminatedPlayers = new HashSet<>();
+	private final Map<String, String> alliedFactions = new HashMap<>();
+
 	@Override
-	public CompoundTag save(CompoundTag tag) {
+	public @NotNull CompoundTag save(@NotNull CompoundTag tag) {
 		ListTag factionList = new ListTag();
 		for (Faction faction : factions.values()) {
 			CompoundTag factionTag = new CompoundTag();
@@ -57,7 +62,7 @@ public class PersistentData extends SavedData {
 			factionTag.put("members", memberList);
 
 			ListTag rankList = new ListTag();
-			for (Map.Entry<UUID, FactionRank> entry : faction.getRanks().entrySet()) {
+			for (Map.Entry<UUID, Faction.Rank> entry : faction.getRanks().entrySet()) {
 				CompoundTag rankTag = new CompoundTag();
 				rankTag.putUUID("uuid", entry.getKey());
 				rankTag.putString("rank", entry.getValue().name());
@@ -85,7 +90,7 @@ public class PersistentData extends SavedData {
 			beaconTag.putInt("z", entry.getValue().getZ());
 			beaconList.add(beaconTag);
 		}
-		tag.put("beacons", beaconList);
+
 
 		ListTag hardcoredList = new ListTag();
 		for (String faction : hardcoredFactions) {
@@ -100,13 +105,32 @@ public class PersistentData extends SavedData {
 			eliminatedPlayersTag.putUUID("uuid", uuid);
 			eliminatedPlayerList.add(eliminatedPlayersTag);
 		}
+
+		ListTag cooldownList = new ListTag();
+		for (Map.Entry<UUID, Long> entry : homeCooldowns.entrySet()) {
+			CompoundTag cooldownTag = new CompoundTag();
+			cooldownTag.putUUID("uuid", entry.getKey());
+			cooldownTag.putLong("time", entry.getValue());
+			cooldownList.add(cooldownTag);
+		}
+
+		ListTag alliedList = new ListTag();
+		for (Map.Entry<String, String> entry : alliedFactions.entrySet()) {
+			CompoundTag alliedTag = new CompoundTag();
+			alliedTag.putString(entry.getKey(), entry.getValue());
+			alliedList.add(alliedTag);
+		}
+		tag.put("beacons", beaconList);
+		tag.put("cooldowns", cooldownList);
 		tag.put("eliminated", eliminatedPlayerList);
 		tag.put("hardcored", hardcoredList);
 		tag.put("factions", factionList);
+		tag.put("allied", alliedList);
 		return tag;
 	}
 
-	public static PersistentData load(CompoundTag tag) {
+
+	public static PersistentData load(@NotNull CompoundTag tag) {
 		PersistentData data = new PersistentData();
 		ListTag factionList = tag.getList("factions", Tag.TAG_COMPOUND);
 		for (int i = 0; i < factionList.size(); i++) {
@@ -124,7 +148,7 @@ public class PersistentData extends SavedData {
 			ListTag rankList = factionTag.getList("ranks", Tag.TAG_COMPOUND);
 			for (int j = 0; j < rankList.size(); j++) {
 				CompoundTag rankTag = rankList.getCompound(j);
-				faction.getRanks().put(rankTag.getUUID("uuid"), FactionRank.valueOf(rankTag.getString("rank")));
+				faction.getRanks().put(rankTag.getUUID("uuid"), Faction.Rank.valueOf(rankTag.getString("rank")));
 			}
 
 			ListTag allyList = factionTag.getList("allies", Tag.TAG_COMPOUND);
@@ -149,6 +173,18 @@ public class PersistentData extends SavedData {
 		ListTag eliminatedList = tag.getList("eliminated", Tag.TAG_COMPOUND);
 		for (int i = 0; i < eliminatedList.size(); i++) {
 			data.eliminatedPlayers.add(eliminatedList.getCompound(i).getUUID("uuid"));
+		}
+
+		ListTag cooldownList = tag.getList("cooldowns", Tag.TAG_COMPOUND);
+		for (int i = 0; i < cooldownList.size(); i++) {
+			CompoundTag cooldownTag = cooldownList.getCompound(i);
+			data.homeCooldowns.put(cooldownTag.getUUID("uuid"), cooldownTag.getLong("time"));
+		}
+
+		ListTag alliedList = tag.getList("allied", Tag.TAG_COMPOUND);
+		for (int i = 0; i < alliedList.size(); i++) {
+			CompoundTag alliedTag = alliedList.getCompound(i);
+			data.alliedFactions.put(alliedTag.getString("faction"), alliedTag.toString());
 		}
 		return data;
 	}
@@ -223,4 +259,18 @@ public class PersistentData extends SavedData {
 	public boolean isEliminated(UUID uuid) {
 		return eliminatedPlayers.contains(uuid);
 	}
+
+	public void setHomeCooldown(UUID uuid, long time) {
+		homeCooldowns.put(uuid, time);
+		setDirty();
+	}
+
+	public Long getHomeCooldown(UUID uuid) {
+		return homeCooldowns.get(uuid);
+	}
+
+	public boolean isFactionAllied(Faction faction) {
+		return alliedFactions.containsKey(faction);
+	}
+
 }

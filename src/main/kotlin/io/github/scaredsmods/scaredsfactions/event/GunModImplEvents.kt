@@ -20,7 +20,7 @@ import io.github.scaredsmods.scaredsfactions.ModConfigs
 import io.github.scaredsmods.scaredsfactions.ScaredsFactionMod
 import io.github.scaredsmods.scaredsfactions.faction.Faction
 import io.github.scaredsmods.scaredsfactions.faction.PersistentData
-import io.github.scaredsmods.scaredsfactions.util.PrefixUtil
+import io.github.scaredsmods.scaredsfactions.util.MessageUtil
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.tags.TagKey
 import net.minecraft.world.damagesource.DamageType
@@ -64,7 +64,7 @@ object GunModImplEvents {
 		if (!victimFaction?.name.equals(attackerFaction?.name, true)) return
 
 		event.isCanceled = true
-		attacker.sendSystemMessage(PrefixUtil.error("You cannot attack your own faction members!"));
+		attacker.sendSystemMessage(MessageUtil.Prefix.error("You cannot attack your own faction members!"));
 	}
 
 

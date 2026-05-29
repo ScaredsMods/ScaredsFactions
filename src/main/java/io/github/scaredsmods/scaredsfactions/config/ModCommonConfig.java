@@ -20,14 +20,18 @@ import io.github.scaredsmods.scaredsfactions.ScaredsFactionMod;
 import io.github.scaredsmods.scaredsfactions.faction.Faction;
 import io.github.scaredsmods.scaredsfactions.faction.PersistentData;
 import me.fzzyhmstrs.fzzy_config.annotations.Comment;
+import me.fzzyhmstrs.fzzy_config.annotations.Version;
 import me.fzzyhmstrs.fzzy_config.api.FileType;
 import me.fzzyhmstrs.fzzy_config.config.Config;
 import me.fzzyhmstrs.fzzy_config.event.api.ServerUpdateContext;
 import me.fzzyhmstrs.fzzy_config.validation.misc.ValidatedBoolean;
+import me.fzzyhmstrs.fzzy_config.validation.number.ValidatedLong;
+import me.fzzyhmstrs.fzzy_config.validation.number.ValidatedNumber;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
+@Version(version = 1)
 public class ModCommonConfig extends Config {
 
 	public ModCommonConfig() {
@@ -45,6 +49,15 @@ public class ModCommonConfig extends Config {
 
 	@Comment("Whether the player respawns at their faction's beacon.")
 	public ValidatedBoolean respawnPlayerAtFactionBeacon = new ValidatedBoolean(true);
+
+	@Comment("Whether the /faction home command has a cooldown.")
+	public ValidatedBoolean enableHomeCommandCooldown = new ValidatedBoolean(true);
+
+	@Comment("The cooldown in seconds for the /faction home command if the enableHomeCommandCooldown setting above is set to true.")
+	public ValidatedLong homeCommandCooldown = new ValidatedLong(10800, 86400, 3600, ValidatedNumber.WidgetType.SLIDER);
+
+	@Comment("Determines whether a team must have at least one player online for their beacon to be destroyed.")
+	public ValidatedBoolean lastManOnline = new ValidatedBoolean(true);
 
 	@Override
 	public @NotNull FileType fileType() {

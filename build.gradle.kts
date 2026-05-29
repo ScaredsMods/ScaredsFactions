@@ -24,6 +24,7 @@ val forgeVersionRange : String by project
 val loaderVersionRange : String by project
 val kffVersion : String by project
 val fzzyConfigVersion : String by project
+val tabVersion : String by project
 
 version = modVersion
 group = modGroupId
@@ -41,9 +42,10 @@ tasks.named<Wrapper>("wrapper").configure {
 // Java 17
 java {
     toolchain {
-        // Mojang ships Java 21 to end users starting in 1.20.5, so mods should target Java 21.
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 
@@ -80,6 +82,8 @@ repositories {
         url = uri("https://maven.fzzyhmstrs.me/")
     }
 
+    maven("https://jitpack.io")
+
 }
 
 
@@ -108,6 +112,7 @@ minecraft {
 
         val server : RunConfig by creating {
             property("forge.enabledGameTestNamespaces", modId)
+            workingDirectory(project.file("server"))
             args("--nogui")
         }
 
@@ -157,6 +162,7 @@ dependencies {
     compileOnly(("top.theillusivec4.curios:curios-forge:5.4.2+1.20.1:api"))
     compileOnly("software.bernie.geckolib:geckolib-forge-1.20.1:4.4.6")
     compileOnly("curse.maven:superb-warfare-1218165:7292685-sources-7292686")
+    compileOnly(fg.deobf("com.github.NEZNAMY:TAB-API:${tabVersion}"))
 
     implementation("thedarkcolour:kotlinforforge:${kffVersion}")
     implementation(fg.deobf("me.fzzyhmstrs:fzzy_config:$fzzyConfigVersion+$minecraftVersion+forge"))

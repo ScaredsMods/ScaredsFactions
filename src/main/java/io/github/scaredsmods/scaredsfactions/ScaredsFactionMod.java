@@ -18,7 +18,10 @@ package io.github.scaredsmods.scaredsfactions;
 
 
 import com.mojang.logging.LogUtils;
+import io.github.scaredsmods.scaredsfactions.compat.tab.PlaceholderHandler;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
@@ -30,11 +33,12 @@ public class ScaredsFactionMod
 	public static final String MOD_ID = "scaredsfactions";
 	private static final Logger LOGGER = LogUtils.getLogger();
 
-
-	public ScaredsFactionMod(FMLJavaModLoadingContext context)
-	{
+	public ScaredsFactionMod(FMLJavaModLoadingContext context) {
+		IEventBus modEventBus = context.getModEventBus();
 		ModConfigs.init();
+		MinecraftForge.EVENT_BUS.register(PlaceholderHandler.class);
 	}
+
 	public static ResourceLocation id(String name) {
 		return ResourceLocation.fromNamespaceAndPath(MOD_ID, name);
 	}

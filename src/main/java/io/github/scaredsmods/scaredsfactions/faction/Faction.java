@@ -17,6 +17,9 @@
 package io.github.scaredsmods.scaredsfactions.faction;
 
 
+import com.mojang.serialization.Codec;
+import net.minecraft.util.StringRepresentable;
+
 import java.util.*;
 
 public class Faction {
@@ -24,7 +27,7 @@ public class Faction {
 	private final String name;
 	private UUID owner;
 	private final List<UUID> members = new ArrayList<>();
-	private final Map<UUID, FactionRank> ranks = new HashMap<>();
+	private final Map<UUID, Rank> ranks = new HashMap<>();
 	private final List<String> allies = new ArrayList<>();
 
 	public Faction(String name, UUID owner) {
@@ -45,7 +48,7 @@ public class Faction {
 		return this.name;
 	}
 
-	public Map<UUID, FactionRank> getRanks() {
+	public Map<UUID, Rank> getRanks() {
 		return this.ranks;
 	}
 
@@ -62,12 +65,44 @@ public class Faction {
 		setOwnerRank(owner);
 	}
 
-	public void setPlayerRank(UUID uuid, FactionRank rank) {
+	public void setPlayerRank(UUID uuid, Rank rank) {
 		this.ranks.put(uuid, rank);
 	}
 
 	private void setOwnerRank(UUID uuid) {
-		this.ranks.put(uuid, FactionRank.GENERAL);
+		this.ranks.put(uuid, Rank.GENERAL);
+	}
+
+
+	public enum Rank implements StringRepresentable {
+		STADHOUDER("Stadhouder", 4),
+		FIELD_MARSHALL("Field Marshall", 3),
+		GENERAL("General", 2),
+		SERGEANT("Sergeant", 1),
+		PRIVATE("Private", 0),;
+
+
+		private final String name;
+		private final int id;
+		public static final Codec<Rank> CODEC = StringRepresentable.fromEnum(Rank::values);
+
+		Rank(String name, int id) {
+			this.name = name;
+			this.id = id;
+		}
+
+		public int getId() {
+			return this.id;
+		}
+
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public String getSerializedName() {
+			return this.getName();
+		}
 	}
 
 
