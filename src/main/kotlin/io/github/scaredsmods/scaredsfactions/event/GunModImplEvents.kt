@@ -19,7 +19,6 @@ package io.github.scaredsmods.scaredsfactions.event;
 import io.github.scaredsmods.scaredsfactions.ModConfigs
 import io.github.scaredsmods.scaredsfactions.ScaredsFactionMod
 import io.github.scaredsmods.scaredsfactions.faction.Faction
-import io.github.scaredsmods.scaredsfactions.faction.PersistentData
 import io.github.scaredsmods.scaredsfactions.util.MessageUtil
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.tags.TagKey
@@ -58,9 +57,9 @@ object GunModImplEvents {
 
 		val attacker = event.source.entity as? ServerPlayer ?: return
 
-		val data : PersistentData = PersistentData.get(victim.serverLevel())
-		val victimFaction : Faction? = data.getFactionByPlayer(victim.uuid)
-		val attackerFaction : Faction? = data.getFactionByPlayer(attacker.uuid)
+		val data : Faction.FactionSavedData = Faction.FactionSavedData.getSavedData(victim.serverLevel())
+		val victimFaction : Faction? = data.getFactionFromPlayer(victim.uuid)
+		val attackerFaction : Faction? = data.getFactionFromPlayer(attacker.uuid)
 		if (!victimFaction?.name.equals(attackerFaction?.name, true)) return
 
 		event.isCanceled = true

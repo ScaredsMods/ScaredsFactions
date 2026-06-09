@@ -42,10 +42,10 @@ tasks.named<Wrapper>("wrapper").configure {
 // Java 17
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(17)
     }
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 
@@ -163,6 +163,7 @@ dependencies {
     compileOnly("software.bernie.geckolib:geckolib-forge-1.20.1:4.4.6")
     compileOnly("curse.maven:superb-warfare-1218165:7292685-sources-7292686")
     compileOnly(fg.deobf("com.github.NEZNAMY:TAB-API:${tabVersion}"))
+    compileOnly("net.luckperms:api:5.5")
 
     implementation("thedarkcolour:kotlinforforge:${kffVersion}")
     implementation(fg.deobf("me.fzzyhmstrs:fzzy_config:$fzzyConfigVersion+$minecraftVersion+forge"))
@@ -197,6 +198,7 @@ tasks {
 
 spotless {
     java {
+        targetExclude("src/main/java/io/github/scaredsmods/scaredsfactions/compat/luckperms/LuckPermsAPICompat.java")
         licenseHeaderFile(file("HEADER"))
         removeUnusedImports()
         indentWithTabs()

@@ -18,13 +18,13 @@ package io.github.scaredsmods.scaredsfactions.config;
 
 import io.github.scaredsmods.scaredsfactions.ScaredsFactionMod;
 import io.github.scaredsmods.scaredsfactions.faction.Faction;
-import io.github.scaredsmods.scaredsfactions.faction.PersistentData;
 import me.fzzyhmstrs.fzzy_config.annotations.Comment;
 import me.fzzyhmstrs.fzzy_config.annotations.Version;
 import me.fzzyhmstrs.fzzy_config.api.FileType;
 import me.fzzyhmstrs.fzzy_config.config.Config;
 import me.fzzyhmstrs.fzzy_config.event.api.ServerUpdateContext;
 import me.fzzyhmstrs.fzzy_config.validation.misc.ValidatedBoolean;
+import me.fzzyhmstrs.fzzy_config.validation.misc.ValidatedEnum;
 import me.fzzyhmstrs.fzzy_config.validation.number.ValidatedLong;
 import me.fzzyhmstrs.fzzy_config.validation.number.ValidatedNumber;
 import net.minecraft.server.level.ServerPlayer;
@@ -54,10 +54,14 @@ public class ModCommonConfig extends Config {
 	public ValidatedBoolean enableHomeCommandCooldown = new ValidatedBoolean(true);
 
 	@Comment("The cooldown in seconds for the /faction home command if the enableHomeCommandCooldown setting above is set to true.")
-	public ValidatedLong homeCommandCooldown = new ValidatedLong(10800, 86400, 3600, ValidatedNumber.WidgetType.SLIDER);
+	public ValidatedLong homeCommandCooldown =
+			ValidatedNumber.withIncrement(new ValidatedLong(10800, 86400, 3600, ValidatedNumber.WidgetType.TEXTBOX_WITH_BUTTONS), 900L);
 
 	@Comment("Determines whether a team must have at least one player online for their beacon to be destroyed.")
 	public ValidatedBoolean lastManOnline = new ValidatedBoolean(true);
+
+	@Comment("Whether the highest rank a faction can have is Stadhouder (Highest Dutch army commander in the 16th century) or Generalissimus (Latin for the Italian Generalissimo, formerly used by France, Italy, the USSR and more).")
+	public ValidatedEnum<LanguageOptions> highestRank = new ValidatedEnum<>(LanguageOptions.class);
 
 	@Override
 	public @NotNull FileType fileType() {
@@ -69,15 +73,15 @@ public class ModCommonConfig extends Config {
 		super.onUpdateServer(context);
 
 		var server = context.getServer();
-		PersistentData data = PersistentData.get(server.overworld());
+		Faction.FactionSavedData data = Faction.FactionSavedData.getSavedData(server.overworld());
 
 		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-			Faction faction = data.getFactionByPlayer(player.getUUID());
+			Faction faction = data.getFactionFromPlayer(player.getUUID());
 			if (faction == null) continue;
 			if (!data.hasBeacon(faction.getName())) continue;
 
 			if (respawnPlayerAtFactionBeacon.get()) {
-				player.setRespawnPosition(Level.OVERWORLD, data.getBeaconPos(faction.getName()).above(), 0.0F, true, true);
+				player.setRespawnPosition(Level.OVERWORLD, data.getBeaconPosition(faction.getName()).above(), 0.0F, true, true);
 			} else {
 				player.setRespawnPosition(Level.OVERWORLD, null, 0.0F, false, true);
 			}
