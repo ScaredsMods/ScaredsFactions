@@ -43,4 +43,8 @@ public class ScaredsFactionMod
 		return ResourceLocation.fromNamespaceAndPath(MOD_ID, name);
 	}
 
+	public static String permission(String name) {
+		return "scaredsfactions." + name;
+	}
+
 }

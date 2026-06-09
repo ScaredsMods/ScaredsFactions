@@ -17,7 +17,6 @@
 package io.github.scaredsmods.scaredsfactions.compat.tab;
 
 import io.github.scaredsmods.scaredsfactions.faction.Faction;
-import io.github.scaredsmods.scaredsfactions.faction.PersistentData;
 import me.neznamy.tab.api.TabAPI;
 import me.neznamy.tab.api.event.plugin.TabLoadEvent;
 import me.neznamy.tab.api.placeholder.PlaceholderManager;
@@ -45,8 +44,8 @@ public class PlaceholderHandler {
 		PlaceholderManager placeholderManager = api.getPlaceholderManager();
 		placeholderManager.registerPlayerPlaceholder("%player-faction%", 500, player -> {
 			ServerPlayer serverplayer = (ServerPlayer) player.getPlayer();
-			PersistentData data = PersistentData.get(serverplayer.serverLevel());
-			Faction faction = data.getFactionByPlayer(player.getUniqueId());
+			Faction.FactionSavedData data = Faction.FactionSavedData.getSavedData(serverplayer.serverLevel());
+			Faction faction = data.getFactionFromPlayer(player.getUniqueId());
 			return faction == null ? "" : "&7[" + String.format("&r%s" ,faction.getName()) + "&7]" ;
 		});
 	}
