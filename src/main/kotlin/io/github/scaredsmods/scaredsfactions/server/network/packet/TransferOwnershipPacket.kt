@@ -1,0 +1,49 @@
+/*
+*  Copyright (C) 2026 ScaredRabbitNL
+*
+*  This program is free software: you can redistribute it and/or modify
+*  it under the terms of the GNU Lesser General Public License as published by
+*  the Free Software Foundation, either version 3 of the License, or
+*  (at your option) any later version.
+*
+*  This program is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU Lesser General Public License for more details.
+*
+*  You should have received a copy of the GNU Lesser General Public License
+*  along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+package io.github.scaredsmods.scaredsfactions.server.network.packet
+
+import io.github.scaredsmods.scaredsfactions.faction.Faction.FactionSavedData
+import net.minecraft.network.FriendlyByteBuf
+import net.minecraftforge.network.NetworkEvent
+import java.util.*
+import java.util.function.Supplier
+
+class TransferOwnershipPacket(private val target: UUID): AbstractFactionPacket<TransferOwnershipPacket> {
+	override fun encode(packet: TransferOwnershipPacket, buf: FriendlyByteBuf) {
+		buf.writeUUID(packet.target)
+	}
+
+	override fun handle(packet: TransferOwnershipPacket, ctx: Supplier<NetworkEvent.Context>) {
+		ctx.get().enqueueWork {
+			val player = ctx.get().getSender() ?: return@enqueueWork
+			val data = FactionSavedData.getSavedData(player.serverLevel())
+			val faction = data.getFactionFromPlayer(player.getUUID()) ?: return@enqueueWork
+			if (faction.owner != player.getUUID()) return@enqueueWork
+			if (!faction.members.containsKey(packet.target)) return@enqueueWork
+			faction.owner = packet.target
+			data.setDirty()
+		}
+		ctx.get().packetHandled = true
+	}
+
+	companion object : AbstractFactionPacket.Decoder<TransferOwnershipPacket> {
+		override fun decode(buf: FriendlyByteBuf): TransferOwnershipPacket {
+			return TransferOwnershipPacket(buf.readUUID())
+		}
+
+	}
+}

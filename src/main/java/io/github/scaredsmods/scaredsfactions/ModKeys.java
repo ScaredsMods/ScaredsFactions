@@ -14,9 +14,13 @@
 *  You should have received a copy of the GNU Lesser General Public License
 *  along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-package io.github.scaredsmods.scaredsfactions.config;
+package io.github.scaredsmods.scaredsfactions;
 
-public enum LanguageOptions {
-	PREFER_STADHOUDER,
-	PREFER_GENERALISSIMUS
+import io.github.scaredsmods.scaredsfactions.faction.setting.AbstractFactionSetting;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+
+public class ModKeys {
+
+	public static final ResourceKey<Registry<AbstractFactionSetting<?>>> FACTION_SETTING_REGISTRY_KEY = ResourceKey.createRegistryKey(ScaredsFactionMod.id("faction_settings"));
 }

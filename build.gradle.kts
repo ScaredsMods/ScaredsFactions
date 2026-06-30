@@ -83,7 +83,7 @@ repositories {
     }
 
     maven("https://jitpack.io")
-
+    maven { url = uri("https://api.modrinth.com/maven") }
 }
 
 

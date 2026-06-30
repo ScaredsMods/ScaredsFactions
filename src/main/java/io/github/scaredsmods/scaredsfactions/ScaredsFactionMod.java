@@ -1,5 +1,5 @@
 /*
-*  Copyright (C) 2025 ScaredRabbitNL
+*  Copyright (C) 2026 ScaredRabbitNL
 *
 *  This program is free software: you can redistribute it and/or modify
 *  it under the terms of the GNU Lesser General Public License as published by
@@ -18,7 +18,10 @@ package io.github.scaredsmods.scaredsfactions;
 
 
 import com.mojang.logging.LogUtils;
+import io.github.scaredsmods.scaredsfactions.client.screen.menu.ModMenuTypes;
 import io.github.scaredsmods.scaredsfactions.compat.tab.PlaceholderHandler;
+import io.github.scaredsmods.scaredsfactions.faction.FactionSettings;
+import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -34,8 +37,11 @@ public class ScaredsFactionMod
 	private static final Logger LOGGER = LogUtils.getLogger();
 
 	public ScaredsFactionMod(FMLJavaModLoadingContext context) {
+		FactionSettings.init();
 		IEventBus modEventBus = context.getModEventBus();
 		ModConfigs.init();
+		ModNetworks.register();
+		ModMenuTypes.register(modEventBus);
 		MinecraftForge.EVENT_BUS.register(PlaceholderHandler.class);
 	}
 

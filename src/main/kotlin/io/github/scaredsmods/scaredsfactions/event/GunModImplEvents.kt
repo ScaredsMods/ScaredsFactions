@@ -1,5 +1,5 @@
 /*
-*  Copyright (C) 2025 ScaredRabbitNL
+*  Copyright (C) 2026 ScaredRabbitNL
 *
 *  This program is free software: you can redistribute it and/or modify
 *  it under the terms of the GNU Lesser General Public License as published by
@@ -19,6 +19,8 @@ package io.github.scaredsmods.scaredsfactions.event;
 import io.github.scaredsmods.scaredsfactions.ModConfigs
 import io.github.scaredsmods.scaredsfactions.ScaredsFactionMod
 import io.github.scaredsmods.scaredsfactions.faction.Faction
+import io.github.scaredsmods.scaredsfactions.faction.setting.AbstractFactionSetting
+import io.github.scaredsmods.scaredsfactions.faction.setting.BooleanFactionSetting
 import io.github.scaredsmods.scaredsfactions.util.MessageUtil
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.tags.TagKey
@@ -62,8 +64,12 @@ object GunModImplEvents {
 		val attackerFaction : Faction? = data.getFactionFromPlayer(attacker.uuid)
 		if (!victimFaction?.name.equals(attackerFaction?.name, true)) return
 
-		event.isCanceled = true
+
+		// If these lines get reached, it doesn't matter which faction is used for getting the setting because they are the same
+		val isModdedPvpEnabled : Boolean? = victimFaction?.getBooleanSettingByModId(modId)
+		if (isModdedPvpEnabled == false) return
 		attacker.sendSystemMessage(MessageUtil.Prefix.error("You cannot attack your own faction members!"));
+		event.isCanceled = true
 	}
 
 
