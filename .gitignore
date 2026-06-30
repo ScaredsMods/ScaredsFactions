@@ -46,7 +46,8 @@ bin/
 .DS_Store
 
 ### Rest ###
-run
-run2
+run/
+run2/
+server/
 .git
 *TODO*.*

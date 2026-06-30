@@ -16,7 +16,6 @@
 */
 package io.github.scaredsmods.scaredsfactions.faction;
 
-import io.github.scaredsmods.scaredsfactions.ModKeys;
 import io.github.scaredsmods.scaredsfactions.ScaredsFactionMod;
 import io.github.scaredsmods.scaredsfactions.faction.setting.AbstractFactionSetting;
 import io.github.scaredsmods.scaredsfactions.faction.setting.BooleanFactionSetting;
@@ -28,9 +27,6 @@ import java.util.List;
 public class FactionSettings {
 
 	public static List<AbstractFactionSetting<?>> settings = new ArrayList<>();
-
-	public static final DeferredRegister<AbstractFactionSetting<?>> SETTINGS =
-			DeferredRegister.create(ModKeys.FACTION_SETTING_REGISTRY_KEY, ScaredsFactionMod.MOD_ID);
 
 	public static final BooleanFactionSetting INFO_VISIBLE = register(new BooleanFactionSetting(true, "isInfoVisible", "Show Faction Info", "When set to true, this faction is discoverable with /faction list and /faction info <name>."));
 	public static final BooleanFactionSetting VANILLA_FRIENDLY_FIRE = register(new BooleanFactionSetting(false, "enableVanillaFriendlyFire", "Enable Vanilla Friendly Fire", "When set to true, vanilla pvp (axes, swords, etc) within this faction will be enabled.", "This setting is dependent on the mod configuration!"));
