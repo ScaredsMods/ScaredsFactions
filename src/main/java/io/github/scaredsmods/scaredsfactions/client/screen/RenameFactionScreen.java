@@ -21,7 +21,7 @@ import io.github.scaredsmods.scaredsfactions.ScaredsFactionMod;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.RenameFactionMenu;
 import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenS2CPacket;
+import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenC2SPacket;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.RenameFactionPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -65,12 +65,12 @@ public class RenameFactionScreen extends AbstractContainerScreen<RenameFactionMe
 		this.confirm = Button.builder(Component.literal("Confirm").withStyle(ChatFormatting.GREEN), btn -> {
 			String newName = this.name.getValue();
 			ModNetworks.CHANNEL.sendToServer(new RenameFactionPacket(this.name.getValue()));
-			ModNetworks.CHANNEL.sendToServer(new OpenScreenS2CPacket(ModScreens.MANAGE_FACTION, Component.literal(newName.replace("&", "§"))));
-		}).bounds(165, 90, 45, 15).build();
+			ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.MANAGE_FACTION, Component.literal(newName.replace("&", "§"))));
+		}).bounds(leftPos + 165, topPos + 90, 45, 15).build();
 
 		this.back = Button.builder(Component.literal("Back").withStyle(ChatFormatting.RED), btn -> {
 			this.onClose();
-		}).bounds(215, 90, 45,15).build();
+		}).bounds(leftPos + 215, topPos + 90, 45,15).build();
 
 		this.addRenderableWidget(this.back);
 		this.addRenderableWidget(this.confirm);

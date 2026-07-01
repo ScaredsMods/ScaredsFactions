@@ -16,10 +16,8 @@
 */
 package io.github.scaredsmods.scaredsfactions.faction;
 
-import io.github.scaredsmods.scaredsfactions.ScaredsFactionMod;
 import io.github.scaredsmods.scaredsfactions.faction.setting.AbstractFactionSetting;
 import io.github.scaredsmods.scaredsfactions.faction.setting.BooleanFactionSetting;
-import net.minecraftforge.registries.DeferredRegister;
 
 import java.util.ArrayList;
 import java.util.List;

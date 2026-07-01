@@ -22,7 +22,7 @@ import io.github.scaredsmods.scaredsfactions.client.screen.menu.ViewMembersMenu;
 import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.DemotePlayerPacket;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenS2CPacket;
+import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenC2SPacket;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.PromotePlayerPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -78,10 +78,10 @@ public class ViewMembersScreen extends AbstractContainerScreen<ViewMembersMenu> 
 			if (targetProfile != null) {
 				if (pButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
 					ModNetworks.CHANNEL.sendToServer(new PromotePlayerPacket(targetProfile.getId()));
-					ModNetworks.CHANNEL.sendToServer(new OpenScreenS2CPacket(ModScreens.VIEW_MEMBERS, Component.literal("View Members")));
+					ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.VIEW_MEMBERS, Component.literal("View Members")));
 				} else if (pButton == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
 					ModNetworks.CHANNEL.sendToServer(new DemotePlayerPacket(targetProfile.getId()));
-					ModNetworks.CHANNEL.sendToServer(new OpenScreenS2CPacket(ModScreens.VIEW_MEMBERS, Component.literal("View Members")));
+					ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.VIEW_MEMBERS, Component.literal("View Members")));
 
 				}
 			}

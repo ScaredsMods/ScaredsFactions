@@ -44,7 +44,8 @@ object ModNetworks {
 		register(PromotePlayerPacket::class.java, PromotePlayerPacket)
 		register(DemotePlayerPacket::class.java, DemotePlayerPacket)
 		register(UpdateFactionSettingsPacket::class.java, UpdateFactionSettingsPacket)
-		register(OpenScreenS2CPacket::class.java, OpenScreenS2CPacket)
+		register(OpenScreenC2SPacket::class.java, OpenScreenC2SPacket)
+		register(PendingOwnershipTransferC2SPacket::class.java, PendingOwnershipTransferC2SPacket)
 	}
 
 	@Suppress("INFERRED_INVISIBLE_RETURN_TYPE_WARNING")

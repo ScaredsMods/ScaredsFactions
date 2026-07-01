@@ -22,7 +22,7 @@ import io.github.scaredsmods.scaredsfactions.faction.setting.AbstractFactionSett
 import io.github.scaredsmods.scaredsfactions.faction.setting.BooleanFactionSetting;
 import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenS2CPacket;
+import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenC2SPacket;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.UpdateFactionSettingsPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -93,7 +93,7 @@ public class FactionSettingsScreen extends AbstractContainerScreen<FactionSettin
 			CompoundTag tag = new CompoundTag();
 			setting.save(tag);
 			ModNetworks.CHANNEL.sendToServer(new UpdateFactionSettingsPacket(setting.getNbtId(), tag));
-			ModNetworks.CHANNEL.sendToServer(new OpenScreenS2CPacket(
+			ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(
 					ModScreens.FACTION_SETTINGS,
 					Component.literal("Settings")
 			));

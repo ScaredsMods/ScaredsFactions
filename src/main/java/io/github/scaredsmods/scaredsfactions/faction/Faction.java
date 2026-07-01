@@ -39,6 +39,7 @@ public class Faction {
 	private final Map<UUID, Rank> members = new HashMap<>();
 	private final List<String> allies = new ArrayList<>();
 	private final List<AbstractFactionSetting<?>> settings;
+	private UUID pendingTransfer = null;
 
 	public Faction(String name, UUID owner, List<AbstractFactionSetting<?>> settings) {
 		this.name = name;
@@ -82,6 +83,9 @@ public class Faction {
 		this.members.put(target, Rank.getRankById(id));
 	}
 
+	public UUID getPendingTransfer() { return pendingTransfer; }
+	public void setPendingTransfer(UUID uuid) { this.pendingTransfer = uuid; }
+
 	public static List<AbstractFactionSetting<?>> createDefaultSettings() {
 		return FactionSettings.settings.stream()
 				.map(AbstractFactionSetting::copy)
@@ -117,6 +121,8 @@ public class Faction {
 		}
 		return false;
 	}
+
+
 
 	public static class FactionSavedData extends SavedData {
 

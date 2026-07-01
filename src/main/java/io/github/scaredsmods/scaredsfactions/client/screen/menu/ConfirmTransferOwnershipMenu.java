@@ -22,14 +22,20 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.UUID;
+
 public class ConfirmTransferOwnershipMenu extends AbstractContainerMenu {
 
-	public ConfirmTransferOwnershipMenu(int containerId, Inventory inventory) {
-		super(ModMenuTypes.RENAME_FACTION.get(), containerId);
+
+	private final UUID target;
+
+	public ConfirmTransferOwnershipMenu(int containerId, Inventory inventory, UUID target) {
+		super(ModMenuTypes.CONFIRM_TRANSFER_OWNERSHIP.get(), containerId);
+		this.target = target;
 	}
 
 	public ConfirmTransferOwnershipMenu(int pContainerId, Inventory pPlayerInventory, FriendlyByteBuf buf) {
-		this(pContainerId, pPlayerInventory);
+		this(pContainerId, pPlayerInventory, buf.readUUID());
 	}
 
 	@Override
@@ -40,5 +46,9 @@ public class ConfirmTransferOwnershipMenu extends AbstractContainerMenu {
 	@Override
 	public boolean stillValid(Player pPlayer) {
 		return true;
+	}
+
+	public UUID getTarget() {
+		return target;
 	}
 }

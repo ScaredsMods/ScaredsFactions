@@ -50,4 +50,4 @@ run/
 run2/
 server/
 .git
-*TODO*.*
+*.txt

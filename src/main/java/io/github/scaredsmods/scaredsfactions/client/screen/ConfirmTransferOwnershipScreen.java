@@ -21,7 +21,7 @@ import io.github.scaredsmods.scaredsfactions.ScaredsFactionMod;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ConfirmTransferOwnershipMenu;
 import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenS2CPacket;
+import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenC2SPacket;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.TransferOwnershipPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -34,15 +34,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-import java.util.UUID;
-
 public class ConfirmTransferOwnershipScreen extends AbstractContainerScreen<ConfirmTransferOwnershipMenu> {
 
 	private static final ResourceLocation TEXTURE = ScaredsFactionMod.id("textures/gui/container/confirm_transfer.png");
 	public Screen parent;
 	private Button confirm;
 	private Button back;
-	public static UUID target;
 
 	public ConfirmTransferOwnershipScreen(ConfirmTransferOwnershipMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
 		super(pMenu, pPlayerInventory, pTitle);
@@ -54,11 +51,11 @@ public class ConfirmTransferOwnershipScreen extends AbstractContainerScreen<Conf
 		super.init();
 
 		this.confirm = Button.builder(Component.literal("Confirm").withStyle(ChatFormatting.GREEN), btn -> {
-			ModNetworks.CHANNEL.sendToServer(new TransferOwnershipPacket(getTarget()));
-			ModNetworks.CHANNEL.sendToServer(new OpenScreenS2CPacket(ModScreens.CLOSE, Component.literal("")));
-		}).bounds(165, 90, 45, 15).build();
+			ModNetworks.CHANNEL.sendToServer(new TransferOwnershipPacket(this.menu.getTarget()));
+			ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.CLOSE, Component.literal("")));
+		}).bounds(leftPos + 165, topPos + 75, 45, 15).build();
 
-		this.back = Button.builder(Component.literal("Back").withStyle(ChatFormatting.RED), btn -> this.onClose()).bounds(215, 90, 45,15).build();
+		this.back = Button.builder(Component.literal("Back").withStyle(ChatFormatting.RED), btn -> this.onClose()).bounds(leftPos + 215, topPos + 75, 45,15).build();
 
 		this.addRenderableWidget(this.back);
 		this.addRenderableWidget(this.confirm);
@@ -93,11 +90,4 @@ public class ConfirmTransferOwnershipScreen extends AbstractContainerScreen<Conf
 		this.minecraft.setScreen(this.parent);
 	}
 
-	public static void setTarget(UUID target) {
-		ConfirmTransferOwnershipScreen.target = target;
-	}
-
-	public static UUID getTarget() {
-		return target;
-	}
 }

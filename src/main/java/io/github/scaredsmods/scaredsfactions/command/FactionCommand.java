@@ -30,6 +30,7 @@ import io.github.scaredsmods.scaredsfactions.faction.Faction;
 import io.github.scaredsmods.scaredsfactions.faction.FactionSettings;
 import io.github.scaredsmods.scaredsfactions.faction.InviteManager;
 import io.github.scaredsmods.scaredsfactions.faction.setting.AbstractFactionSetting;
+import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
 import io.github.scaredsmods.scaredsfactions.util.MessageUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -47,6 +48,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.network.NetworkHooks;
+import net.minecraftforge.server.command.EnumArgument;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -120,6 +122,11 @@ public class FactionCommand {
 						.requires(source -> LuckPermsAPICompat.hasPermission(source, ModPermissions.CAN_CREATE_FACTION) || LuckPermsAPICompat.hasPermission(source, ModPermissions.ALL))
 						.then(Commands.argument("name", StringArgumentType.greedyString())
 								.executes(ctx -> createFaction(ctx, StringArgumentType.getString(ctx, "name")))))
+				.then(Commands.literal("debug")
+						.requires(source -> LuckPermsAPICompat.hasPermission(source, ModPermissions.CAN_DEBUG) || LuckPermsAPICompat.hasPermission(source, ModPermissions.ALL) || source.hasPermission(4))
+						.then(Commands.literal("open_screen")
+								.then(Commands.argument("screen", EnumArgument.enumArgument(ModScreens.class))
+										.executes(ctx -> openScreenDebugCommand(ctx, ctx.getArgument("screen", ModScreens.class))))))
 				.then(Commands.literal("demote")
 						.requires(source -> LuckPermsAPICompat.hasPermission(source, ModPermissions.CAN_DEMOTE_PLAYER) || LuckPermsAPICompat.hasPermission(source, ModPermissions.ALL))
 						.then(Commands.argument("target", EntityArgument.player())
@@ -157,6 +164,25 @@ public class FactionCommand {
 								.suggests(SUGGEST_PLAYERS_WITHIN_FACTION)
 								.executes(ctx -> promotePlayer(ctx, EntityArgument.getPlayer(ctx, "target")))))
 		);
+	}
+
+	private static int openScreenDebugCommand(CommandContext<CommandSourceStack> ctx, ModScreens screen) {
+		ServerPlayer player = ctx.getSource().getPlayer();
+		if (player == null) {
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You must be a player to execute this command!"));
+			return 0;
+		}
+
+		if (screen == ModScreens.CLOSE) {
+			player.closeContainer();
+			return 1;
+		}
+
+		NetworkHooks.openScreen(player, new SimpleMenuProvider(
+				(id, inv, p) -> screen.createMenu(id, inv, (ServerPlayer) p),
+				screen.getTitle()
+		), buf -> screen.writeBuf(player, buf));
+		return 1;
 	}
 
 	private static int manage(CommandContext<CommandSourceStack> ctx) {
@@ -679,5 +705,16 @@ public class FactionCommand {
 		//ctx.getSource().sendSuccess(() -> MessageUtil.info("/faction unally <name> - Terminate the formal alliance"), false);
 		ctx.getSource().sendSuccess(() -> divider, false);
 		return 1;
+	}
+
+	private static void openScreen(ServerPlayer player, ModScreens screen) {
+		if (screen == ModScreens.CLOSE) {
+			player.closeContainer();
+			return;
+		}
+		NetworkHooks.openScreen(player, new SimpleMenuProvider(
+				(id, inv, p) -> screen.createMenu(id, inv, player),
+				screen.getTitle()
+		), buf -> screen.writeBuf(player, buf));
 	}
 }

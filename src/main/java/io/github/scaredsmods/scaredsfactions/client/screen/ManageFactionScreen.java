@@ -20,7 +20,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ManageFactionMenu;
 import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenS2CPacket;
+import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenC2SPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -78,10 +78,10 @@ public class ManageFactionScreen extends AbstractContainerScreen<ManageFactionMe
 
 	private void onSlotClick(int index) {
 		switch (index) {
-			case 0 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenS2CPacket(ModScreens.RENAME_FACTION, Component.literal("Rename Faction")));
-			case 1 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenS2CPacket(ModScreens.TRANSFER_OWNERSHIP, Component.literal("Transfer Ownership")));
-			case 2 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenS2CPacket(ModScreens.VIEW_MEMBERS, Component.literal("View Members")));
-			case 3 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenS2CPacket(ModScreens.FACTION_SETTINGS, Component.literal("Settings")));
+			case 0 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.RENAME_FACTION, Component.literal("Rename Faction")));
+			case 1 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.TRANSFER_OWNERSHIP, Component.literal("Transfer Ownership")));
+			case 2 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.VIEW_MEMBERS, Component.literal("View Members")));
+			case 3 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.FACTION_SETTINGS, Component.literal("Settings")));
 			case 8 -> this.onClose();
 		}
 	}

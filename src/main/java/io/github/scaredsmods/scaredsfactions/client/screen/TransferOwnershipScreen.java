@@ -21,7 +21,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.TransferOwnershipMenu;
 import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenS2CPacket;
+import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenC2SPacket;
+import io.github.scaredsmods.scaredsfactions.server.network.packet.PendingOwnershipTransferC2SPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -88,10 +89,8 @@ public class TransferOwnershipScreen extends AbstractContainerScreen<TransferOwn
 		GameProfile target = getProfileForSlot(index);
 		if (target == null) return;
 		if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-
-			ConfirmTransferOwnershipScreen.setTarget(target.getId());
-			ModNetworks.CHANNEL.sendToServer(new OpenScreenS2CPacket(ModScreens.CONFIRM_TRANSFER, Component.literal("Confirm Ownership Transfer?")));
-			this.close();
+			ModNetworks.CHANNEL.sendToServer(new PendingOwnershipTransferC2SPacket(target.getId()));
+			ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.CONFIRM_TRANSFER, Component.literal("Confirm Ownership Transfer?")));
 		}
 
 	}
