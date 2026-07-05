@@ -46,6 +46,7 @@ public class ViewMembersScreen extends AbstractContainerScreen<ViewMembersMenu> 
 	public ViewMembersScreen(ViewMembersMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
 		super(pMenu, pPlayerInventory, pTitle);
 		this.parent = ManageFactionScreen.INSTANCE;
+		this.imageWidth = 176;
 		this.imageHeight = 222;
 		this.inventoryLabelY = this.imageHeight - 94;
 	}

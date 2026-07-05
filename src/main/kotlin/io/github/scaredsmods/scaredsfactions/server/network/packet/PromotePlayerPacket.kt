@@ -16,8 +16,11 @@
 */
 package io.github.scaredsmods.scaredsfactions.server.network.packet
 
-import io.github.scaredsmods.scaredsfactions.faction.Faction
-import io.github.scaredsmods.scaredsfactions.faction.Faction.Rank
+import io.github.scaredsmods.scaredsfactions.api.server.network.packet.IAbstractFactionPacket
+import io.github.scaredsmods.scaredsfactions.api.server.network.packet.UUIDPacket
+import io.github.scaredsmods.scaredsfactions.common.faction.Faction
+import io.github.scaredsmods.scaredsfactions.common.faction.Faction.Rank
+import io.github.scaredsmods.scaredsfactions.common.faction.FactionSavedData
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.server.level.ServerPlayer
 import net.minecraftforge.network.NetworkEvent
@@ -25,24 +28,20 @@ import java.util.UUID
 import java.util.function.Supplier
 import kotlin.collections.set
 
-class PromotePlayerPacket(private val target: UUID) : AbstractFactionPacket<PromotePlayerPacket> {
+class PromotePlayerPacket(private val target: UUID) : UUIDPacket<PromotePlayerPacket>(target) {
 
 
-	companion object : AbstractFactionPacket.Decoder<PromotePlayerPacket> {
+	companion object : IAbstractFactionPacket.Decoder<PromotePlayerPacket> {
 		override fun decode(buf: FriendlyByteBuf): PromotePlayerPacket {
 			return PromotePlayerPacket(buf.readUUID())
 		}
 
 	}
 
-	override fun encode(packet: PromotePlayerPacket, buf: FriendlyByteBuf) {
-		buf.writeUUID(packet.target)
-	}
-
 	override fun handle(packet: PromotePlayerPacket, ctx: Supplier<NetworkEvent.Context>) {
 		ctx.get().enqueueWork {
 			val player : ServerPlayer = ctx.get().sender ?: return@enqueueWork
-			val data : Faction.FactionSavedData = Faction.FactionSavedData.getSavedData(player.serverLevel())
+			val data : FactionSavedData = FactionSavedData.getSavedData(player.serverLevel())
 			val faction : Faction = data.getFactionFromPlayer(player.uuid)
 			if (!faction.members.containsKey(packet.target)) return@enqueueWork
 
@@ -57,7 +56,7 @@ class PromotePlayerPacket(private val target: UUID) : AbstractFactionPacket<Prom
 			if (!listOf(*playerRank.manageableRanks).contains(newRank)) return@enqueueWork
 
 			faction.members[packet.target] = newRank
-			data.setDirty()
+			data.markDirty(player.serverLevel())
 		}
 
 		ctx.get().packetHandled = true

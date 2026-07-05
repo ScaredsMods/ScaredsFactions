@@ -31,6 +31,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
@@ -45,6 +46,7 @@ public class TransferOwnershipScreen extends AbstractContainerScreen<TransferOwn
 	public TransferOwnershipScreen(TransferOwnershipMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
 		super(pMenu, pPlayerInventory, pTitle);
 		this.parent = ManageFactionScreen.INSTANCE;
+		this.imageWidth = 176;
 		this.imageHeight = 222;
 		this.inventoryLabelY = this.imageHeight - 94;
 	}
@@ -81,7 +83,7 @@ public class TransferOwnershipScreen extends AbstractContainerScreen<TransferOwn
 	}
 
 	private void onSlotClick(int index, int button) {
-		if (index >= 45) {
+		if (index == 49) {
 			this.onClose();
 			return;
 		}
@@ -98,7 +100,8 @@ public class TransferOwnershipScreen extends AbstractContainerScreen<TransferOwn
 	public Screen getParent() {
 		return parent;
 	}
-	private GameProfile getProfileForSlot(int index) {
+
+	private @Nullable GameProfile getProfileForSlot(int index) {
 		List<GameProfile> slots = this.menu.getSlots();
 		if (index < 0 || index >= slots.size()) return null;
 		return slots.get(index);

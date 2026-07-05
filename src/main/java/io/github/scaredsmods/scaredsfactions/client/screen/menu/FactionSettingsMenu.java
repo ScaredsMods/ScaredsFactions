@@ -16,9 +16,8 @@
 */
 package io.github.scaredsmods.scaredsfactions.client.screen.menu;
 
-import io.github.scaredsmods.scaredsfactions.faction.FactionSettings;
-import io.github.scaredsmods.scaredsfactions.faction.setting.AbstractFactionSetting;
-import io.github.scaredsmods.scaredsfactions.faction.setting.BooleanFactionSetting;
+import io.github.scaredsmods.scaredsfactions.common.faction.FactionSettings;
+import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.AbstractFactionSetting;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -38,17 +37,16 @@ import java.util.List;
 
 public class FactionSettingsMenu extends AbstractContainerMenu {
 
-	private final List<AbstractFactionSetting<?>> settings;
+	private final List<AbstractFactionSetting<?,?>> settings;
 
 	public FactionSettingsMenu(int containerId, Inventory playerInventory, FriendlyByteBuf buf) {
 		this(containerId, playerInventory, readSettingsFromBuf(buf));
 	}
 
-	public FactionSettingsMenu(int containerId, Inventory playerInventory, List<AbstractFactionSetting<?>> settings) {
+	public FactionSettingsMenu(int containerId, Inventory playerInventory, List<AbstractFactionSetting<?, ?>> settings) {
 		super(ModMenuTypes.FACTION_SETTINGS.get(), containerId);
 		this.settings = settings;
 		SimpleContainer container = new SimpleContainer(54);
-
 
 		for (int i = 0; i < container.getContainerSize(); i++) {
 			ItemStack pane = new ItemStack(Items.BLACK_STAINED_GLASS_PANE);
@@ -56,46 +54,38 @@ public class FactionSettingsMenu extends AbstractContainerMenu {
 			container.setItem(i, pane);
 		}
 
+
 		ItemStack back = new ItemStack(Items.RED_WOOL);
 		back.setHoverName(Component.literal("Back").withStyle(style -> style.withColor(ChatFormatting.DARK_RED).withBold(true).withItalic(false)));
 		container.setItem(49, back);
 
+
 		for (int i = 0; i < this.settings.size(); i++) {
 			if (i == 49) continue;
-			AbstractFactionSetting<?> setting = settings.get(i);
+			AbstractFactionSetting<?, ?> setting = settings.get(i);
+
 			ItemStack settingStack = new ItemStack(Items.PAPER);
 			CompoundTag display = settingStack.getOrCreateTagElement("display");
-			settingStack.setHoverName(Component.literal(setting.getDisplayName()).withStyle(style -> style.withColor(ChatFormatting.YELLOW).withItalic(false)));
+
+			display.putString("Name", Component.Serializer.toJson(Component.literal(setting.getDisplayName()).withStyle(style -> style.withColor(ChatFormatting.YELLOW).withItalic(false))));
 
 			ListTag lore = new ListTag();
 			for (String loreLine : setting.getLore()) {
-				lore.add(StringTag.valueOf(Component.Serializer.toJson(
-						Component.literal(loreLine)
-								.withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false))
-				)));
-			}
-
-			if (setting instanceof BooleanFactionSetting boolSetting) {
-				boolean currentValue = boolSetting.get();
-				lore.add(StringTag.valueOf(Component.Serializer.toJson(
-						Component.literal("Current value: ")
-								.withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false))
-								.append(Component.literal(String.valueOf(currentValue))
-										.withStyle(style -> style
-												.withColor(currentValue ? ChatFormatting.GREEN : ChatFormatting.RED)
-												.withItalic(false)))
-				)));
+				lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.literal(loreLine).withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false)))));
 			}
 
 			lore.add(StringTag.valueOf(Component.Serializer.toJson(
-					Component.literal("Click to change setting!")
+					Component.literal("Current value: ")
 							.withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false))
+							.append(setting.getCurrentValueAsComponent())
 			)));
+
+			lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.literal("Click to change setting!").withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false)))));
 			display.put("Lore", lore);
 			container.setItem(i, settingStack);
 		}
 
-
+		// Actually player head slots
 		for (int j = 0; j < 6; j++) {
 			for (int k = 0; k < 9; k++) {
 				this.addSlot(new Slot(container, k + j * 9, 8 + k * 18, 18 + j * 18) {
@@ -107,29 +97,35 @@ public class FactionSettingsMenu extends AbstractContainerMenu {
 			}
 		}
 
+		// Player inventory
 		for (int row = 0; row < 3; row++) {
 			for (int col = 0; col < 9; col++) {
 				this.addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 140 + row * 18));
 			}
 		}
 
+		// Hotbar
 		for (int col = 0; col < 9; col++) {
 			this.addSlot(new Slot(playerInventory, col, 8 + col * 18, 198));
 		}
 	}
 
-	public List<AbstractFactionSetting<?>> getSettings() {
+	public List<AbstractFactionSetting<?, ?>> getSettings() {
 		return this.settings;
 	}
 
-	private static List<AbstractFactionSetting<?>> readSettingsFromBuf(FriendlyByteBuf buf) {
-		List<AbstractFactionSetting<?>> result = new ArrayList<>();
-		for (AbstractFactionSetting<?> template : FactionSettings.settings) {
-			if (template instanceof BooleanFactionSetting) {
-				BooleanFactionSetting copy = (BooleanFactionSetting) template.copy();
-				copy.set(buf.readBoolean());
-				result.add(copy);
-			}
+	private static List<AbstractFactionSetting<?, ?>> readSettingsFromBuf(FriendlyByteBuf buf) {
+		int size = buf.readVarInt();
+		List<AbstractFactionSetting<?, ?>> result = new ArrayList<>();
+		for (int i = 0; i < size; i++) {
+			String nbtId = buf.readUtf();
+			CompoundTag tag = buf.readNbt();
+			FactionSettings.settings.stream()
+					.filter(s -> s.getNbtId().equals(nbtId))
+					.findFirst()
+					.ifPresent(match -> {
+						if (tag != null) result.add(match.load(tag));
+					});
 		}
 		return result;
 	}

@@ -18,10 +18,11 @@ package io.github.scaredsmods.scaredsfactions.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.FactionSettingsMenu;
-import io.github.scaredsmods.scaredsfactions.faction.setting.AbstractFactionSetting;
-import io.github.scaredsmods.scaredsfactions.faction.setting.BooleanFactionSetting;
+import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.AbstractFactionSetting;
+import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.StringFactionSetting;
 import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
+import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenEditStringSettingC2SPacket;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenC2SPacket;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.UpdateFactionSettingsPacket;
 import net.minecraft.client.gui.GuiGraphics;
@@ -44,6 +45,7 @@ public class FactionSettingsScreen extends AbstractContainerScreen<FactionSettin
 		super(pMenu, pPlayerInventory, pTitle);
 		this.parent = ManageFactionScreen.INSTANCE;
 		this.imageHeight = 222;
+		this.imageWidth = 176;
 		this.inventoryLabelY = this.imageHeight - 94;
 	}
 
@@ -71,13 +73,13 @@ public class FactionSettingsScreen extends AbstractContainerScreen<FactionSettin
 	public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
 		Slot slot = this.getSlotUnderMouse();
 		if (slot != null){
-			onSlotClick(slot.index);
+			onSlotClick(slot.index, pButton);
 			return true;
 		}
 		return super.mouseClicked(pMouseX, pMouseY, pButton);
 	}
 
-	private void onSlotClick(int index) {
+	private void onSlotClick(int index, int buttonId) {
 		if (index == 49) {
 			if (this.minecraft == null) return;
 			this.minecraft.setScreen(this.parent);
@@ -86,20 +88,21 @@ public class FactionSettingsScreen extends AbstractContainerScreen<FactionSettin
 
 		var settings = this.menu.getSettings();
 		if (index >= settings.size()) return;
-		AbstractFactionSetting<?> setting = settings.get(index);
 
-		if (setting instanceof BooleanFactionSetting boolSetting) {
-			boolean newValue = !boolSetting.get();
-			CompoundTag tag = new CompoundTag();
-			setting.save(tag);
-			ModNetworks.CHANNEL.sendToServer(new UpdateFactionSettingsPacket(setting.getNbtId(), tag));
-			ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(
-					ModScreens.FACTION_SETTINGS,
-					Component.literal("Settings")
-			));
+		AbstractFactionSetting<?, ?> setting = settings.get(index);
+
+		if (setting instanceof StringFactionSetting) {
+			ModNetworks.CHANNEL.sendToServer(new OpenEditStringSettingC2SPacket(setting.getNbtId()));
+			return;
 		}
 
+		setting.onClick(buttonId, () -> {
+			CompoundTag tag = new CompoundTag();
+			setting.save(tag);
 
+			ModNetworks.CHANNEL.sendToServer(new UpdateFactionSettingsPacket(setting.getNbtId(), tag));
+			ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.FACTION_SETTINGS, Component.literal("Settings")));
+		});
 	}
 
 	@Override

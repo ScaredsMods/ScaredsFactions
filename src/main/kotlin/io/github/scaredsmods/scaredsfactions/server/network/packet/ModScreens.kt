@@ -23,9 +23,9 @@ import io.github.scaredsmods.scaredsfactions.client.screen.menu.ManageFactionMen
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.RenameFactionMenu
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.TransferOwnershipMenu
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ViewMembersMenu
-import io.github.scaredsmods.scaredsfactions.faction.Faction
-import io.github.scaredsmods.scaredsfactions.faction.setting.BooleanFactionSetting
-import io.netty.buffer.ByteBuf
+import io.github.scaredsmods.scaredsfactions.common.faction.Faction
+import io.github.scaredsmods.scaredsfactions.common.faction.FactionSavedData
+import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
@@ -48,7 +48,7 @@ enum class ModScreens {
 	TRANSFER_OWNERSHIP {
 
 		override fun writeBuf(player: ServerPlayer, buf: FriendlyByteBuf) {
-			val data = Faction.FactionSavedData.getSavedData(player.serverLevel())
+			val data = FactionSavedData.getSavedData(player.serverLevel())
 			val faction = data.getFactionFromPlayer(player.uuid) ?: return
 			val profileMembers = buildProfileMap(faction, player)
 			buf.writeInt(profileMembers.size)
@@ -59,7 +59,7 @@ enum class ModScreens {
 		}
 
 		override fun createMenu(id: Int, inv: Inventory?, player: ServerPlayer): AbstractContainerMenu {
-			val data = Faction.FactionSavedData.getSavedData(player.serverLevel())
+			val data = FactionSavedData.getSavedData(player.serverLevel())
 			val faction = data.getFactionFromPlayer(player.uuid) ?: throw IllegalStateException("Player is not in a faction")
 			val profileMembers = buildProfileMap(faction, player)
 			return TransferOwnershipMenu(id, inv, profileMembers)
@@ -68,7 +68,7 @@ enum class ModScreens {
 	VIEW_MEMBERS {
 
 		override fun writeBuf(player: ServerPlayer, buf: FriendlyByteBuf) {
-			val data = Faction.FactionSavedData.getSavedData(player.serverLevel())
+			val data = FactionSavedData.getSavedData(player.serverLevel())
 			val faction = data.getFactionFromPlayer(player.uuid) ?: return
 			val profileMembers = buildProfileMap(faction, player)
 			buf.writeInt(profileMembers.size)
@@ -79,7 +79,7 @@ enum class ModScreens {
 		}
 
 		override fun createMenu(id: Int, inv: Inventory?, player: ServerPlayer): AbstractContainerMenu {
-			val data = Faction.FactionSavedData.getSavedData(player.serverLevel())
+			val data = FactionSavedData.getSavedData(player.serverLevel())
 			val faction = data.getFactionFromPlayer(player.uuid) ?: throw IllegalStateException("Player is not in a faction")
 			val profileMembers = buildProfileMap(faction, player)
 			return ViewMembersMenu(id, inv, profileMembers)
@@ -88,7 +88,7 @@ enum class ModScreens {
 	FACTION_SETTINGS {
 
 		override fun writeBuf(player: ServerPlayer, buf: FriendlyByteBuf) {
-			val data = Faction.FactionSavedData.getSavedData(player.serverLevel())
+			val data = FactionSavedData.getSavedData(player.serverLevel())
 			val faction = data.getFactionFromPlayer(player.uuid) ?: return
 			for (setting in faction.settings) {
 				if (setting is BooleanFactionSetting) {
@@ -98,20 +98,20 @@ enum class ModScreens {
 		}
 
 		override fun createMenu(id: Int, inv: Inventory?, player: ServerPlayer): AbstractContainerMenu {
-			val data = Faction.FactionSavedData.getSavedData(player.serverLevel())
+			val data = FactionSavedData.getSavedData(player.serverLevel())
 			val faction = data.getFactionFromPlayer(player.uuid) ?: throw IllegalStateException("Player is not in a faction")
 			return FactionSettingsMenu(id, inv, faction.settings)
 		}
 	},
 	CONFIRM_TRANSFER {
 		override fun createMenu(id: Int, inv: Inventory?, player: ServerPlayer): AbstractContainerMenu {
-			val data = Faction.FactionSavedData.getSavedData(player.serverLevel())
+			val data = FactionSavedData.getSavedData(player.serverLevel())
 			val faction = data.getFactionFromPlayer(player.uuid) ?: throw IllegalStateException("Player is not in a faction")
 			return ConfirmTransferOwnershipMenu(id, inv, faction.pendingTransfer)
 		}
 
 		override fun writeBuf(player: ServerPlayer, buf: FriendlyByteBuf) {
-			val data = Faction.FactionSavedData.getSavedData(player.serverLevel())
+			val data = FactionSavedData.getSavedData(player.serverLevel())
 			val faction = data.getFactionFromPlayer(player.uuid) ?: return
 			buf.writeUUID(faction.pendingTransfer)
 		}

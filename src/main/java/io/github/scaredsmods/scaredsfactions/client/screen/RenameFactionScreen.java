@@ -17,7 +17,7 @@
 package io.github.scaredsmods.scaredsfactions.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.scaredsmods.scaredsfactions.ScaredsFactionMod;
+import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.RenameFactionMenu;
 import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
@@ -37,7 +37,7 @@ import net.minecraft.world.entity.player.Inventory;
 import org.lwjgl.glfw.GLFW;
 
 public class RenameFactionScreen extends AbstractContainerScreen<RenameFactionMenu> {
-	private static final ResourceLocation TEXTURE = ScaredsFactionMod.id("textures/gui/container/rename_faction.png");
+	private static final ResourceLocation TEXTURE = ScaredsFactionMod.id("textures/gui/container/edit_string_value.png");
 
 	public Screen parent;
 	private EditBox name;
@@ -47,12 +47,15 @@ public class RenameFactionScreen extends AbstractContainerScreen<RenameFactionMe
 	public RenameFactionScreen(RenameFactionMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
 		super(pMenu, pPlayerInventory, pTitle);
 		this.parent = ManageFactionScreen.INSTANCE;
+		this.imageHeight = 166;
+		this.imageWidth = 176;
+		this.inventoryLabelY = this.imageHeight - 94;
 	}
 
 	@Override
 	protected void init() {
 		super.init();
-		this.name = new EditBox(this.font, 162, 76, 106, 12, Component.literal("Rename Faction"));
+		this.name = new EditBox(this.font, leftPos + 37, topPos + 39, 106, 12, Component.literal("Rename Faction"));
 		this.name.setEditable(true);
 		this.name.setValue("");
 		this.name.setTextColor(-1);
@@ -66,11 +69,11 @@ public class RenameFactionScreen extends AbstractContainerScreen<RenameFactionMe
 			String newName = this.name.getValue();
 			ModNetworks.CHANNEL.sendToServer(new RenameFactionPacket(this.name.getValue()));
 			ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.MANAGE_FACTION, Component.literal(newName.replace("&", "§"))));
-		}).bounds(leftPos + 165, topPos + 90, 45, 15).build();
+		}).bounds(leftPos + 42, topPos + 53, 45, 15).build();
 
 		this.back = Button.builder(Component.literal("Back").withStyle(ChatFormatting.RED), btn -> {
 			this.onClose();
-		}).bounds(leftPos + 215, topPos + 90, 45,15).build();
+		}).bounds(leftPos + 92, topPos + 53, 45,15).build();
 
 		this.addRenderableWidget(this.back);
 		this.addRenderableWidget(this.confirm);
@@ -95,11 +98,7 @@ public class RenameFactionScreen extends AbstractContainerScreen<RenameFactionMe
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		RenderSystem.setShaderTexture(0, TEXTURE);
-
-		int x = (this.width - imageWidth) / 2;
-		int y = (this.height - imageHeight) / 2;
-
-		pGuiGraphics.blit(TEXTURE, x,y, 0, 0, imageWidth, imageHeight);
+		pGuiGraphics.blit(TEXTURE, leftPos, topPos, 0, 0, imageWidth, imageHeight);
 	}
 
 	@Override
@@ -120,11 +119,19 @@ public class RenameFactionScreen extends AbstractContainerScreen<RenameFactionMe
 
 		if (pKeyCode == GLFW.GLFW_KEY_ESCAPE) {
 			this.onClose();
+			return true;
 		}
 		if (pKeyCode == GLFW.GLFW_KEY_ENTER) {
 			this.confirm.onPress();
+			return true;
 		}
 
+		if (this.minecraft != null && this.minecraft.options.keyInventory.matches(pKeyCode, pScanCode)) {
+			return true;
+		}
+		if (this.name.keyPressed(pKeyCode, pScanCode, pModifiers)) {
+			return true;
+		}
 		return super.keyPressed(pKeyCode, pScanCode, pModifiers);
 	}
 }

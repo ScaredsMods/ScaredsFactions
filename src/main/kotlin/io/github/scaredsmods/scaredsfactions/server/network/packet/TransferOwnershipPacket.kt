@@ -16,16 +16,15 @@
 */
 package io.github.scaredsmods.scaredsfactions.server.network.packet
 
-import io.github.scaredsmods.scaredsfactions.faction.Faction.FactionSavedData
+import io.github.scaredsmods.scaredsfactions.api.server.network.packet.IAbstractFactionPacket
+import io.github.scaredsmods.scaredsfactions.api.server.network.packet.UUIDPacket
+import io.github.scaredsmods.scaredsfactions.common.faction.FactionSavedData
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraftforge.network.NetworkEvent
 import java.util.*
 import java.util.function.Supplier
 
-class TransferOwnershipPacket(private val target: UUID): AbstractFactionPacket<TransferOwnershipPacket> {
-	override fun encode(packet: TransferOwnershipPacket, buf: FriendlyByteBuf) {
-		buf.writeUUID(packet.target)
-	}
+class TransferOwnershipPacket(private val target: UUID): UUIDPacket<TransferOwnershipPacket>(target) {
 
 	override fun handle(packet: TransferOwnershipPacket, ctx: Supplier<NetworkEvent.Context>) {
 		ctx.get().enqueueWork {
@@ -35,12 +34,12 @@ class TransferOwnershipPacket(private val target: UUID): AbstractFactionPacket<T
 			if (faction.owner != player.getUUID()) return@enqueueWork
 			if (!faction.members.containsKey(packet.target)) return@enqueueWork
 			faction.owner = packet.target
-			data.setDirty()
+			data.markDirty(player.serverLevel())
 		}
 		ctx.get().packetHandled = true
 	}
 
-	companion object : AbstractFactionPacket.Decoder<TransferOwnershipPacket> {
+	companion object : IAbstractFactionPacket.Decoder<TransferOwnershipPacket> {
 		override fun decode(buf: FriendlyByteBuf): TransferOwnershipPacket {
 			return TransferOwnershipPacket(buf.readUUID())
 		}

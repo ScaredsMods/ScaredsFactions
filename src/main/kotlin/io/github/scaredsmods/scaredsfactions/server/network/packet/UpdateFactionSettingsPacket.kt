@@ -16,18 +16,24 @@
 */
 package io.github.scaredsmods.scaredsfactions.server.network.packet
 
-import io.github.scaredsmods.scaredsfactions.faction.Faction.FactionSavedData
+import io.github.scaredsmods.scaredsfactions.api.server.network.packet.IAbstractFactionPacket
+import io.github.scaredsmods.scaredsfactions.api.server.network.packet.PairPacket
+import io.github.scaredsmods.scaredsfactions.common.faction.Faction
+import io.github.scaredsmods.scaredsfactions.common.faction.FactionSavedData
+import io.github.scaredsmods.scaredsfactions.common.faction.FactionSettings
+import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.EnumFactionSetting
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraftforge.network.NetworkEvent
 import java.util.function.Supplier
 
 
-class UpdateFactionSettingsPacket(private val nbtId: String, private val value : CompoundTag?) : AbstractFactionPacket<UpdateFactionSettingsPacket> {
-	override fun encode(packet: UpdateFactionSettingsPacket, buf: FriendlyByteBuf) {
-		buf.writeUtf(packet.nbtId)
-		buf.writeNbt(packet.value)
-	}
+class UpdateFactionSettingsPacket(private val nbtId: String, private val value: CompoundTag) : PairPacket<String, CompoundTag, UpdateFactionSettingsPacket>(
+	nbtId,
+	value,
+	{ buf, id -> buf.writeUtf(id) },
+	{ buf, tag -> buf.writeNbt(tag) }
+) {
 
 	override fun handle(packet: UpdateFactionSettingsPacket, ctx: Supplier<NetworkEvent.Context>) {
 		ctx.get().enqueueWork {
@@ -42,14 +48,20 @@ class UpdateFactionSettingsPacket(private val nbtId: String, private val value :
 					break
 				}
 			}
-			data.setDirty()
+			if (packet.nbtId == FactionSettings.OWNER_RANK.nbtId) {
+				val newRank = faction.getSetting(FactionSettings.OWNER_RANK.nbtId) as? EnumFactionSetting<*>
+				val rank = newRank?.get() as? Faction.Rank ?: return@enqueueWork
+				faction.setRank(faction.owner, rank)
+			}
+
+			data.markDirty(player.serverLevel())
 		}
 		ctx.get().packetHandled = true
 	}
 
-	companion object : AbstractFactionPacket.Decoder<UpdateFactionSettingsPacket> {
+	companion object : IAbstractFactionPacket.Decoder<UpdateFactionSettingsPacket> {
 		override fun decode(buf: FriendlyByteBuf): UpdateFactionSettingsPacket {
-			return UpdateFactionSettingsPacket(buf.readUtf(), buf.readNbt())
+			return UpdateFactionSettingsPacket(buf.readUtf(), buf.readNbt() ?: CompoundTag())
 		}
 	}
 }

@@ -16,7 +16,7 @@
 */
 package io.github.scaredsmods.scaredsfactions.client.screen.menu;
 
-import io.github.scaredsmods.scaredsfactions.ScaredsFactionMod;
+import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.common.extensions.IForgeMenuType;
@@ -48,6 +48,9 @@ public class ModMenuTypes {
 
 	public static final RegistryObject<MenuType<ViewMembersMenu>> VIEW_MEMBERS =
 			registerMenuType("view_members", ViewMembersMenu::new);
+
+	public static final RegistryObject<MenuType<EditStringSettingMenu>> EDIT_STRING_SETTING =
+			registerMenuType("edit_string_setting", EditStringSettingMenu::new);
 
 
 	private static <T extends AbstractContainerMenu>RegistryObject<MenuType<T>> registerMenuType(String name, IContainerFactory<T> factory) {

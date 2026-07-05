@@ -16,30 +16,29 @@
 */
 package io.github.scaredsmods.scaredsfactions.server.network.packet
 
-import io.github.scaredsmods.scaredsfactions.faction.Faction
+import io.github.scaredsmods.scaredsfactions.api.server.network.packet.IAbstractFactionPacket
+import io.github.scaredsmods.scaredsfactions.api.server.network.packet.StringPacket
+import io.github.scaredsmods.scaredsfactions.common.faction.Faction
+import io.github.scaredsmods.scaredsfactions.common.faction.FactionSavedData
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.server.level.ServerPlayer
 import net.minecraftforge.network.NetworkEvent
 import java.util.function.Supplier
 
-class RenameFactionPacket(private val newName: String) : AbstractFactionPacket<RenameFactionPacket> {
+class RenameFactionPacket(private val newName: String) : StringPacket<RenameFactionPacket>(newName) {
 
-	companion object : AbstractFactionPacket.Decoder<RenameFactionPacket> {
+	companion object : IAbstractFactionPacket.Decoder<RenameFactionPacket> {
 		override fun decode(buf: FriendlyByteBuf) = RenameFactionPacket(buf.readUtf())
-	}
-
-	override fun encode(packet: RenameFactionPacket, buf: FriendlyByteBuf) {
-		buf.writeUtf(packet.newName)
 	}
 
 	override fun handle(packet: RenameFactionPacket, ctx: Supplier<NetworkEvent.Context>) {
 		ctx.get().enqueueWork {
 			val player: ServerPlayer = ctx.get().sender ?: return@enqueueWork;
-			val data : Faction.FactionSavedData = Faction.FactionSavedData.getSavedData(player.serverLevel())
+			val data : FactionSavedData = FactionSavedData.getSavedData(player.serverLevel())
 			val faction: Faction = data.getFactionFromPlayer(player.uuid);
 			if (!faction.owner.equals(player.uuid)) return@enqueueWork
 			faction.name = packet.newName
-			data.setDirty()
+			data.markDirty(player.serverLevel())
 		}
 		ctx.get().packetHandled = true
 	}

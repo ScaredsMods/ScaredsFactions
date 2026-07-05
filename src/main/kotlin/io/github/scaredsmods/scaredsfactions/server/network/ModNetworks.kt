@@ -16,9 +16,9 @@
 */
 package io.github.scaredsmods.scaredsfactions.server.network;
 
-import io.github.scaredsmods.scaredsfactions.ScaredsFactionMod
+import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod
 import io.github.scaredsmods.scaredsfactions.server.network.packet.*
-import net.minecraft.network.FriendlyByteBuf
+import io.github.scaredsmods.scaredsfactions.common.util.PacketUtil.registerMessage
 import net.minecraftforge.network.NetworkRegistry
 import net.minecraftforge.network.simple.SimpleChannel
 
@@ -36,26 +36,18 @@ object ModNetworks {
 
 	private var id = 0
 
-
 	@JvmStatic
-	fun register() {
-		register(RenameFactionPacket::class.java, RenameFactionPacket)
-		register(TransferOwnershipPacket::class.java, TransferOwnershipPacket)
-		register(PromotePlayerPacket::class.java, PromotePlayerPacket)
-		register(DemotePlayerPacket::class.java, DemotePlayerPacket)
-		register(UpdateFactionSettingsPacket::class.java, UpdateFactionSettingsPacket)
-		register(OpenScreenC2SPacket::class.java, OpenScreenC2SPacket)
-		register(PendingOwnershipTransferC2SPacket::class.java, PendingOwnershipTransferC2SPacket)
+	fun init() {
+		registerMessage(id, RenameFactionPacket::class.java, RenameFactionPacket)
+		registerMessage(++id, TransferOwnershipPacket::class.java, TransferOwnershipPacket)
+		registerMessage(++id, PromotePlayerPacket::class.java, PromotePlayerPacket)
+		registerMessage(++id, DemotePlayerPacket::class.java, DemotePlayerPacket)
+		registerMessage(++id, UpdateFactionSettingsPacket::class.java, UpdateFactionSettingsPacket)
+		registerMessage(++id,OpenScreenC2SPacket::class.java, OpenScreenC2SPacket)
+		registerMessage(++id,PendingOwnershipTransferC2SPacket::class.java, PendingOwnershipTransferC2SPacket)
+		registerMessage(++id,OpenEditStringSettingC2SPacket::class.java, OpenEditStringSettingC2SPacket)
 	}
 
-	@Suppress("INFERRED_INVISIBLE_RETURN_TYPE_WARNING")
-	fun <T : AbstractFactionPacket<T>> register(clazz: Class<T>, decoder: AbstractFactionPacket.Decoder<T>) {
-		CHANNEL.registerMessage(
-			++id,
-			clazz,
-			{ packet: T, buf: FriendlyByteBuf -> packet.encode(packet, buf) },
-			{ buf : FriendlyByteBuf -> decoder.decode(buf) },
-			{ packet, ctx -> packet.handle(packet, ctx) }
-		)
-	}
+
+
 }

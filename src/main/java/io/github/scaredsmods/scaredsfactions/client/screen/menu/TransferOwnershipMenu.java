@@ -17,7 +17,7 @@
 package io.github.scaredsmods.scaredsfactions.client.screen.menu;
 
 import com.mojang.authlib.GameProfile;
-import io.github.scaredsmods.scaredsfactions.faction.Faction;
+import io.github.scaredsmods.scaredsfactions.common.faction.Faction;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;

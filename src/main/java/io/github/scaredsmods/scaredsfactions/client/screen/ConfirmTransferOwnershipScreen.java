@@ -17,11 +17,12 @@
 package io.github.scaredsmods.scaredsfactions.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.scaredsmods.scaredsfactions.ScaredsFactionMod;
+import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ConfirmTransferOwnershipMenu;
 import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenC2SPacket;
+import io.github.scaredsmods.scaredsfactions.server.network.packet.PendingOwnershipTransferC2SPacket;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.TransferOwnershipPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -44,6 +45,9 @@ public class ConfirmTransferOwnershipScreen extends AbstractContainerScreen<Conf
 	public ConfirmTransferOwnershipScreen(ConfirmTransferOwnershipMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
 		super(pMenu, pPlayerInventory, pTitle);
 		this.parent = ManageFactionScreen.INSTANCE;
+		this.imageHeight = 166;
+		this.imageWidth = 176;
+		this.inventoryLabelY = this.imageHeight - 94;
 	}
 
 	@Override
@@ -53,9 +57,13 @@ public class ConfirmTransferOwnershipScreen extends AbstractContainerScreen<Conf
 		this.confirm = Button.builder(Component.literal("Confirm").withStyle(ChatFormatting.GREEN), btn -> {
 			ModNetworks.CHANNEL.sendToServer(new TransferOwnershipPacket(this.menu.getTarget()));
 			ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.CLOSE, Component.literal("")));
-		}).bounds(leftPos + 165, topPos + 75, 45, 15).build();
+		}).bounds(leftPos + 40, topPos + 38, 45, 15).build();
 
-		this.back = Button.builder(Component.literal("Back").withStyle(ChatFormatting.RED), btn -> this.onClose()).bounds(leftPos + 215, topPos + 75, 45,15).build();
+		this.back = Button.builder(Component.literal("Back").withStyle(ChatFormatting.RED), btn -> {
+			ModNetworks.CHANNEL.sendToServer(new PendingOwnershipTransferC2SPacket(null));
+			this.onClose();
+		}
+		).bounds(leftPos + 90, topPos + 38, 45,15).build();
 
 		this.addRenderableWidget(this.back);
 		this.addRenderableWidget(this.confirm);
@@ -71,10 +79,7 @@ public class ConfirmTransferOwnershipScreen extends AbstractContainerScreen<Conf
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		RenderSystem.setShaderTexture(0, TEXTURE);
 
-		int x = (this.width - imageWidth) / 2;
-		int y = (this.height - imageHeight) / 2;
-
-		pGuiGraphics.blit(TEXTURE, x,y, 0, 0, imageWidth, imageHeight);
+		pGuiGraphics.blit(TEXTURE, leftPos ,topPos, 0, 0, imageWidth, imageHeight);
 	}
 
 	@Override

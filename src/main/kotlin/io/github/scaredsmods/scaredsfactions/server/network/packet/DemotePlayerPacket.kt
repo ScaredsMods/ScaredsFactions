@@ -16,37 +16,34 @@
 */
 package io.github.scaredsmods.scaredsfactions.server.network.packet
 
-import io.github.scaredsmods.scaredsfactions.faction.Faction
-import io.github.scaredsmods.scaredsfactions.faction.Faction.Rank
+import io.github.scaredsmods.scaredsfactions.api.server.network.packet.IAbstractFactionPacket
+import io.github.scaredsmods.scaredsfactions.api.server.network.packet.UUIDPacket
+import io.github.scaredsmods.scaredsfactions.common.faction.Faction
+import io.github.scaredsmods.scaredsfactions.common.faction.Faction.Rank
+import io.github.scaredsmods.scaredsfactions.common.faction.FactionSavedData
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.server.level.ServerPlayer
 import net.minecraftforge.network.NetworkEvent
 import java.util.*
 import java.util.function.Supplier
 
-class DemotePlayerPacket(private val target: UUID) : AbstractFactionPacket<DemotePlayerPacket> {
+class DemotePlayerPacket(private val targetUUID: UUID) : UUIDPacket<DemotePlayerPacket>(targetUUID) {
 
-
-	companion object : AbstractFactionPacket.Decoder<DemotePlayerPacket> {
+	companion object : IAbstractFactionPacket.Decoder<DemotePlayerPacket> {
 		override fun decode(buf: FriendlyByteBuf): DemotePlayerPacket {
 			return DemotePlayerPacket(buf.readUUID())
 		}
-
-	}
-
-	override fun encode(packet: DemotePlayerPacket, buf: FriendlyByteBuf) {
-		buf.writeUUID(packet.target)
 	}
 
 	override fun handle(packet: DemotePlayerPacket, ctx: Supplier<NetworkEvent.Context>) {
 		ctx.get().enqueueWork {
 			val player : ServerPlayer = ctx.get().sender ?: return@enqueueWork
-			val data : Faction.FactionSavedData = Faction.FactionSavedData.getSavedData(player.serverLevel())
+			val data : FactionSavedData = FactionSavedData.getSavedData(player.serverLevel())
 			val faction : Faction = data.getFactionFromPlayer(player.uuid)
-			if (!faction.members.containsKey(packet.target)) return@enqueueWork
+			if (!faction.members.containsKey(packet.targetUUID)) return@enqueueWork
 
 			val playerRank : Rank? = faction.members[player.uuid]
-			val targetRank : Rank? = faction.members[packet.target]
+			val targetRank : Rank? = faction.members[packet.targetUUID]
 
 			val newRankId : Int = targetRank!!.id - 1;
 			if (newRankId < 0) return@enqueueWork
@@ -55,8 +52,8 @@ class DemotePlayerPacket(private val target: UUID) : AbstractFactionPacket<Demot
 			if (!listOf<Rank?>(*playerRank!!.manageableRanks).contains(targetRank)) return@enqueueWork
 			if (!listOf(*playerRank.manageableRanks).contains(newRank)) return@enqueueWork
 
-			faction.members[packet.target] = newRank
-			data.setDirty()
+			faction.members[packet.targetUUID] = newRank
+			data.markDirty(player.serverLevel())
 		}
 
 		ctx.get().packetHandled = true

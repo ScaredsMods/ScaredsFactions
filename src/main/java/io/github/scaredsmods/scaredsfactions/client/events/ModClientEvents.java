@@ -16,7 +16,7 @@
 */
 package io.github.scaredsmods.scaredsfactions.client.events;
 
-import io.github.scaredsmods.scaredsfactions.ScaredsFactionMod;
+import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
 import io.github.scaredsmods.scaredsfactions.client.screen.*;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ModMenuTypes;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -38,5 +38,6 @@ public class ModClientEvents {
 		MenuScreens.register(ModMenuTypes.TRANSFER_OWNERSHIP.get(), TransferOwnershipScreen::new);
 		MenuScreens.register(ModMenuTypes.RENAME_FACTION.get(), RenameFactionScreen::new);
 		MenuScreens.register(ModMenuTypes.CONFIRM_TRANSFER_OWNERSHIP.get(), ConfirmTransferOwnershipScreen::new);
+		MenuScreens.register(ModMenuTypes.EDIT_STRING_SETTING.get(), EditStringSettingScreen::new);
 	}
 }
