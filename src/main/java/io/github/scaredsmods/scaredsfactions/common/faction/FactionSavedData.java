@@ -18,7 +18,6 @@ package io.github.scaredsmods.scaredsfactions.common.faction;
 
 import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.AbstractFactionSetting;
-import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.EnumFactionSetting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -110,17 +109,6 @@ public class FactionSavedData extends SavedData {
 		for (Faction faction : data.factions.values()) {
 			data.alliedFactions.put(faction.getName(), new ArrayList<>(faction.getAllies()));
 		}
-
-		for (Faction faction : data.factions.values()) {
-			AbstractFactionSetting<?, ?> ownerRankSetting = faction.getSetting(FactionSettings.OWNER_RANK.getNbtId());
-			if (ownerRankSetting instanceof EnumFactionSetting<?> enumSetting) {
-				Object value = enumSetting.get();
-				if (value instanceof Faction.Rank rank) {
-					faction.setRank(faction.getOwner(), rank);
-				}
-			}
-		}
-
 		return data;
 	}
 

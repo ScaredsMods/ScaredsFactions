@@ -21,6 +21,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting;
 import io.github.scaredsmods.scaredsfactions.common.ModConfigs;
 import io.github.scaredsmods.scaredsfactions.common.ModPermissions;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ConfirmTransferOwnershipMenu;
@@ -52,10 +53,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.network.NetworkHooks;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FactionCommand {
@@ -219,7 +217,7 @@ public class FactionCommand {
 
 		Faction.Rank playerRank = faction.getMembers().get(player.getUUID());
 		if (playerRank != Faction.Rank.GENERALISSIMUS && playerRank != Faction.Rank.STADHOUDER) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("Your rank isn't high enough to execute this command!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You don't have the required rank to do this!"));
 			return 0;
 		}
 
@@ -279,7 +277,7 @@ public class FactionCommand {
 			return 0;
 		}
 		if (!faction.getMembers().containsKey(target.getUUID())) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("That player is not in your faction!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error("Can't promote a player that isn't under your command!"));
 			return 0;
 		}
 
@@ -287,13 +285,13 @@ public class FactionCommand {
 		Faction.Rank targetRank = faction.getMembers().get(target.getUUID());
 
 		if (!Arrays.asList(playerRank.getManageableRanks()).contains(targetRank)) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You cannot promote this player!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You cannot manage players of equal or higher rank!"));
 			return 0;
 		}
 
 		int newRankId = targetRank.getId() + 1;
 		if (!Arrays.asList(playerRank.getManageableRanks()).contains(Faction.Rank.getRankById(newRankId))) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You cannot promote this player to that rank!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You cannot manage players of equal or higher rank!"));
 			return 0;
 		}
 
@@ -317,7 +315,7 @@ public class FactionCommand {
 
 		Collection<Faction> factions = data.getFactions().values();
 		List<Faction> visibleFactions = factions.stream()
-				.filter(faction -> faction.getBooleanSetting(FactionSettings.INFO_VISIBLE.getNbtId()))
+				.filter(faction -> faction.getSettingValue(FactionSettings.INFO_VISIBLE.getNbtId(), BooleanFactionSetting.class))
 				.toList();
 
 		if (visibleFactions.isEmpty()) {
@@ -423,7 +421,10 @@ public class FactionCommand {
 			return 0;
 		}
 
-		if (!faction.getBooleanSetting(FactionSettings.INFO_VISIBLE.getNbtId())) {
+
+
+
+		if (!faction.getSettingValue(FactionSettings.INFO_VISIBLE.getNbtId(), BooleanFactionSetting.class)) {
 			ctx.getSource().sendFailure(MessageUtil.Prefix.error("That faction wants to be private!"));
 			return 0;
 		}
@@ -474,6 +475,11 @@ public class FactionCommand {
 			return 0;
 		}
 
+		if (faction.getMembers().size() >= ModConfigs.commonConfig.maxMembers.get()) {
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error("Your faction has reached the maximum number of members!"));
+			return 0;
+		}
+
 		InviteManager.invite(target.getUUID(), faction.getName());
 		data.markDirty(player.serverLevel());
 		target.sendSystemMessage(MessageUtil.Prefix.success("You have been invited to join " + faction.getName().replace("&", "§") + "§a. Use /faction invite accept " + faction.getName().replace("&", "§") + "§a to accept!"), false);
@@ -498,26 +504,25 @@ public class FactionCommand {
 
 		ServerLevel level = ctx.getSource().getLevel();
 		BlockPos beaconPos = faction.getBeaconPos();
+		if (beaconPos != null) {
+			level.destroyBlock(beaconPos, false);
+			faction.removeBeacon();
+		}
 
 		for (UUID memberUUID : faction.getMembers().keySet()) {
 			ServerPlayer member = ctx.getSource().getServer().getPlayerList().getPlayer(memberUUID);
 			if (member != null) {
 				member.sendSystemMessage(MessageUtil.Prefix.error("Your faction has been disbanded by an admin!"));
 				member.setRespawnPosition(Level.OVERWORLD, null, 0.0F, true, false);
-				player.setRespawnPosition(Level.OVERWORLD, null, 0.0F, true, false);
 				kickPlayer(ctx, member);
 			}
 		}
-		if (beaconPos != null) {
-			level.destroyBlock(beaconPos, false);
-			faction.removeBeacon();
-		}
+
 		data.removeFaction(faction, player.serverLevel());
 		data.markDirty(player.serverLevel());
-		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.error("Faction " + faction.getName().replace("&", "§") + "§r §chas been disbanded!"), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success("Faction " + faction.getName().replace("&", "§") + "§r has been disbanded!"), false);
 		return 1;
 	}
-
 
 	private static int disbandFaction(CommandContext<CommandSourceStack> ctx) {
 		ServerPlayer player = ctx.getSource().getPlayer();
@@ -525,40 +530,42 @@ public class FactionCommand {
 			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You need to be a player to use this command!"));
 			return 0;
 		}
+
 		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
 		Faction faction = data.getFactionFromPlayer(player.getUUID());
 
 		if (faction == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("This faction doesn't exist!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You are not in a faction!"));
 			return 0;
 		}
 
 		Faction.Rank playerRank = faction.getMembers().get(player.getUUID());
-		if (playerRank != Faction.Rank.GENERALISSIMUS && playerRank != Faction.Rank.STADHOUDER) {
-			if (!player.getUUID().equals(faction.getOwner())) {
-				ctx.getSource().sendFailure(MessageUtil.Prefix.error("Only the owner can disband the faction!"));
-				return 0;
-			}
+		if ( (playerRank != Faction.Rank.GENERALISSIMUS && playerRank != Faction.Rank.STADHOUDER) || faction.getOwner() == player.getUUID()) {
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error("Only the faction leader can disband the faction!"));
+			return 0;
 		}
+
 		ServerLevel level = ctx.getSource().getLevel();
 		BlockPos beaconPos = faction.getBeaconPos();
 		if (beaconPos != null) {
 			level.destroyBlock(beaconPos, false);
 			faction.removeBeacon();
 		}
-		data.removeFaction(faction, player.serverLevel());
 
 		for (UUID memberUUID : faction.getMembers().keySet()) {
 			ServerPlayer member = ctx.getSource().getServer().getPlayerList().getPlayer(memberUUID);
 			if (member != null) {
-				member.sendSystemMessage(MessageUtil.Prefix.error("Your faction has been disbanded by an admin!"));
+				if (!member.getUUID().equals(player.getUUID())) {
+					member.sendSystemMessage(MessageUtil.Prefix.error("Your faction has been disbanded!"));
+					kickPlayer(ctx, member);
+				}
 				member.setRespawnPosition(Level.OVERWORLD, null, 0.0F, true, false);
-				player.setRespawnPosition(Level.OVERWORLD, null, 0.0F, true, false);
-				kickPlayer(ctx, member);
 			}
 		}
+
+		data.removeFaction(faction, player.serverLevel());
 		data.markDirty(player.serverLevel());
-		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.error("Faction " + faction.getName().replace("&", "§") + "§r §chas been disbanded!"), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success("You have disbanded your faction!"), false);
 		return 1;
 	}
 
@@ -691,9 +698,16 @@ public class FactionCommand {
 			return 0;
 		}
 
+		if (faction.getMembers().size() >= ModConfigs.commonConfig.maxMembers.get()) {
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error("Your faction has reached the maximum number of members!"));
+			return 0;
+		}
+
 		faction.getMembers().put(player.getUUID(), Faction.Rank.PRIVATE);
 		InviteManager.cancelInvite(player.getUUID());
 		data.markDirty(player.serverLevel());
+
+        Objects.requireNonNull(Objects.requireNonNull(ctx.getSource().getPlayer().getServer()).getPlayerList().getPlayer(faction.getOwner())).sendSystemMessage(MessageUtil.Prefix.info(String.format("§f%s §ahas joined your faction", player.getGameProfile().getName())));
 		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success(String.format("You successfully joined %s!", name.replace("&", "§"))), false);
 		return 1;
 	}

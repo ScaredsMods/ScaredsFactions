@@ -41,6 +41,9 @@ public class ModCommonConfig extends Config {
 		super(ScaredsFactionMod.id("common"));
 	}
 
+	/*
+	TODO: Decide whether to use these as an override
+
 	@Comment("Setting this value to true will enable pvp within factions when using weapons from Timeless and Classics : Zero.")
 	public ValidatedBoolean enableTACZFriendlyFire = new ValidatedBoolean(false);
 
@@ -50,8 +53,7 @@ public class ModCommonConfig extends Config {
 	@Comment("Setting this value to true will enable pvp within factions when using vanilla weapons (axe and sword).")
 	public ValidatedBoolean enableVanillaFriendlyFire = new ValidatedBoolean(false);
 
-	@Comment("Whether the player respawns at their faction's beacon.")
-	public ValidatedBoolean respawnPlayerAtFactionBeacon = new ValidatedBoolean(true);
+	 */
 
 	@Comment("Whether the /faction home command has a cooldown.")
 	public ValidatedBoolean enableHomeCommandCooldown = new ValidatedBoolean(true);
@@ -60,12 +62,16 @@ public class ModCommonConfig extends Config {
 	public ValidatedLong homeCommandCooldown =
 			ValidatedNumber.withIncrement(new ValidatedLong(10800, 86400, 3600, ValidatedNumber.WidgetType.TEXTBOX_WITH_BUTTONS), 900L);
 
+	@Comment("Whether the player respawns at their faction's beacon.")
+	public ValidatedBoolean respawnPlayerAtFactionBeacon = new ValidatedBoolean(true);
+
 	@Comment("Determines whether a team must have at least one player online for their beacon to be destroyed.")
 	public ValidatedBoolean lastManOnline = new ValidatedBoolean(true);
 
 	@Comment("Whether the highest rank a faction can have is Stadhouder (Highest Dutch army commander in the 16th century) or Generalissimus (Latin for the Italian Generalissimo, formerly used by France, Italy, the USSR and more).")
 	public ValidatedEnum<LanguageOptions> defaultOwnerRank = new ValidatedEnum<>(LanguageOptions.class);
 
+	@Comment("The maximum amount of members a faction is allowed to have.")
 	public ValidatedInt maxMembers = new ValidatedInt(Integer.MAX_VALUE, new IntRange(Integer.MIN_VALUE, Integer.MAX_VALUE), ValidatedNumber.WidgetType.TEXTBOX_WITH_BUTTONS);
 
 

@@ -18,8 +18,10 @@
 - Expanded packet and setting API's
 - Actually put common code in a common folder
 - Added a debug subcommand for development / server owners
-- Renamed ``resources/assets/scaredsfactions/gui/container/rename_faction.png`` to ``resources/assets/scaredsfactions/gui/container/edit_string_value.png`` to better add a editbox 
-- Fixed certain messages.
+- Renamed ``resources/assets/scaredsfactions/gui/container/rename_faction.png`` to ``resources/assets/scaredsfactions/gui/container/edit_string_value.png`` to better add a GUI with an EditBox 
+- Changes some return messages.
+- Split ``FactionSavedData`` from ``Faction`` because the file was getting too big for me to read
+
 
 
 # 0.1.2

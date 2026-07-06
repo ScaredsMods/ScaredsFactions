@@ -14,19 +14,15 @@
 *  You should have received a copy of the GNU Lesser General Public License
 *  along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-package io.github.scaredsmods.scaredsfactions.api.server.network.packet
+package io.github.scaredsmods.scaredsfactions.common.util;
 
-import net.minecraft.network.FriendlyByteBuf
-import net.minecraftforge.network.NetworkEvent
-import java.util.function.Supplier
+import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.EnumFactionSetting;
 
-interface IAbstractFactionPacket<T : IAbstractFactionPacket<T>> {
+public class FactionUtil {
 
-	fun encode(packet: T, buf: FriendlyByteBuf)
-	fun handle(packet: T, ctx: Supplier<NetworkEvent.Context>)
-
-	@FunctionalInterface
-	interface Decoder<T : IAbstractFactionPacket<T>> {
-		fun decode(buf: FriendlyByteBuf): T
+	@SuppressWarnings("unchecked")
+	public static <E extends Enum<E>> Class<EnumFactionSetting<E>> enumSetting() {
+		return (Class<EnumFactionSetting<E>>) (Class<?>) EnumFactionSetting.class;
 	}
+
 }

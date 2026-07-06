@@ -16,9 +16,13 @@
 */
 package io.github.scaredsmods.scaredsfactions.server.network.packet
 
+import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.EnumFactionSetting
 import io.github.scaredsmods.scaredsfactions.api.server.network.packet.IAbstractFactionPacket
 import io.github.scaredsmods.scaredsfactions.api.server.network.packet.UUIDPacket
+import io.github.scaredsmods.scaredsfactions.common.faction.Faction.Rank
 import io.github.scaredsmods.scaredsfactions.common.faction.FactionSavedData
+import io.github.scaredsmods.scaredsfactions.common.faction.FactionSettings
+import io.github.scaredsmods.scaredsfactions.common.util.FactionUtil
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraftforge.network.NetworkEvent
 import java.util.*
@@ -33,7 +37,12 @@ class TransferOwnershipPacket(private val target: UUID): UUIDPacket<TransferOwne
 			val faction = data.getFactionFromPlayer(player.getUUID()) ?: return@enqueueWork
 			if (faction.owner != player.getUUID()) return@enqueueWork
 			if (!faction.members.containsKey(packet.target)) return@enqueueWork
-			faction.owner = packet.target
+
+			val currentOwner : UUID = faction.owner ?: return@enqueueWork
+			faction.setRank(currentOwner, Rank.FIELD_MARSHAL)
+
+			val ownerRank = faction.getSettingValue(FactionSettings.OWNER_RANK.nbtId, FactionUtil.enumSetting<Rank>())
+			faction.setOwner(packet.target, ownerRank)
 			data.markDirty(player.serverLevel())
 		}
 		ctx.get().packetHandled = true

@@ -41,7 +41,6 @@ public class EnumFactionSetting<E extends Enum<E>> extends AbstractFactionSettin
 
 	@Override
 	public void save(CompoundTag tag) {
-		tag.putString("nbtId", getNbtId());
 		tag.putString(getNbtId(), get().name());
 	}
 

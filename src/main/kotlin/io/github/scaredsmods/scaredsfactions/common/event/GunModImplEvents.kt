@@ -16,7 +16,7 @@
 */
 package io.github.scaredsmods.scaredsfactions.common.event;
 
-import io.github.scaredsmods.scaredsfactions.common.ModConfigs
+import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting
 import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod
 import io.github.scaredsmods.scaredsfactions.common.faction.Faction
 import io.github.scaredsmods.scaredsfactions.common.faction.FactionSavedData
@@ -38,12 +38,8 @@ object GunModImplEvents {
 
 	@SubscribeEvent(priority = EventPriority.HIGH)
 	fun disableInFactionFriendlyFire(event : LivingHurtEvent) {
-		if (!ModConfigs.commonConfig.enableTACZFriendlyFire.get()) {
-			disableInFactionModFriendlyFire(event, "tacz", TaCZDamageTypes.BULLETS_TAG)
-		}
-		if (!ModConfigs.commonConfig.enableSBWFriendlyFire.get()) {
-			disableInFactionModFriendlyFire(event, "superbwarfare", SuperbWarfareDamageTypes.GUN_DAMAGE)
-		}
+		disableInFactionModFriendlyFire(event, "tacz", TaCZDamageTypes.BULLETS_TAG)
+		disableInFactionModFriendlyFire(event, "superbwarfare", SuperbWarfareDamageTypes.GUN_DAMAGE)
 	}
 
 
@@ -59,14 +55,14 @@ object GunModImplEvents {
 		val attacker = event.source.entity as? ServerPlayer ?: return
 
 		val data : FactionSavedData = FactionSavedData.getSavedData(victim.serverLevel())
-		val victimFaction : Faction? = data.getFactionFromPlayer(victim.uuid)
-		val attackerFaction : Faction? = data.getFactionFromPlayer(attacker.uuid)
-		if (!victimFaction?.name.equals(attackerFaction?.name, true)) return
+		val victimFaction : Faction = data.getFactionFromPlayer(victim.uuid) ?: return
+		val attackerFaction : Faction = data.getFactionFromPlayer(attacker.uuid) ?: return
 
+		if (!victimFaction.name.equals(attackerFaction.name, true)) return
 
 		// If these lines get reached, it doesn't matter which faction is used for getting the setting because they are the same
-		val isModdedPvpEnabled : Boolean? = victimFaction?.getBooleanSettingByModId(modId)
-		if (isModdedPvpEnabled == false) return
+		val isModdedPvpEnabled : Boolean? = victimFaction.getSettingValueByModId(modId, BooleanFactionSetting::class.java)
+		if (isModdedPvpEnabled == true) return
 		attacker.sendSystemMessage(MessageUtil.Prefix.error("You cannot attack your own faction members!"));
 		event.isCanceled = true
 	}

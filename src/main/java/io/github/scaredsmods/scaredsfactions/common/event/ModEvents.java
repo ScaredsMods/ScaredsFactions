@@ -17,6 +17,7 @@
 package io.github.scaredsmods.scaredsfactions.common.event;
 
 import com.mojang.authlib.GameProfile;
+import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting;
 import io.github.scaredsmods.scaredsfactions.common.ModConfigs;
 import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
 import io.github.scaredsmods.scaredsfactions.common.command.FactionCommand;
@@ -27,9 +28,12 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
@@ -37,6 +41,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
@@ -54,6 +59,29 @@ public class ModEvents {
 	@SubscribeEvent
 	public static void registerCommands(RegisterCommandsEvent event) {
 		FactionCommand.register(event.getDispatcher());
+	}
+
+	@SubscribeEvent
+	public static void preventVanillaPvp(LivingHurtEvent event) {
+		if (!(event.getSource().getEntity() instanceof ServerPlayer attacker)) return;
+		if (!(event.getEntity() instanceof ServerPlayer victim)) return;
+
+		FactionSavedData data = FactionSavedData.getSavedData(attacker.serverLevel());
+		List<ResourceKey<DamageType>> blackListedTypes = List.of(DamageTypes.ARROW,  DamageTypes.TRIDENT, DamageTypes.PLAYER_ATTACK);
+
+		boolean isVanillaItem = blackListedTypes.stream().anyMatch(type -> event.getSource().is(type));
+		boolean isDirectPlayerAttack = event.getSource().getDirectEntity() instanceof ServerPlayer;
+		if (!isVanillaItem && !isDirectPlayerAttack) return;
+
+		Faction attackerFaction = data.getFactionFromPlayer(attacker.getUUID());
+		Faction victimFaction = data.getFactionFromPlayer(victim.getUUID());
+		if (attackerFaction == null || victimFaction == null) return;
+		if (!attackerFaction.getName().equals(victimFaction.getName())) return;
+
+		Boolean factionSetting = victimFaction.getSettingValue("enableVanillaFriendlyFire", BooleanFactionSetting.class);
+		boolean isVanillaPvpEnabled = (factionSetting != null && factionSetting);
+		if (isVanillaPvpEnabled) return;
+		event.setCanceled(true);
 	}
 
 
@@ -115,7 +143,6 @@ public class ModEvents {
 			player.getServer().execute(() -> {
 				if (ModConfigs.commonConfig.respawnPlayerAtFactionBeacon.get()) {
 					player.setRespawnPosition(Level.OVERWORLD, faction.getBeaconPos().above(), 0.0F, true, false);
-					player.sendSystemMessage(MessageUtil.Prefix.info("Your faction have placed their beacon. Your respawn position has been set to that beacon!"));
 				}
 			});
 		}
@@ -151,8 +178,16 @@ public class ModEvents {
 		Faction faction = data.getFactionFromPlayer(player.getUUID());
 
 		if (faction == null) return;
-		if (!faction.getOwner().equals(player.getUUID())) return;
-		if (faction.hasBeacon()) return;
+		if (!faction.getOwner().equals(player.getUUID())) {
+			event.setCanceled(true);
+			player.sendSystemMessage(MessageUtil.Prefix.error("Only the faction leader can do this!"));
+			return;
+		}
+		if (faction.hasBeacon()) {
+			event.setCanceled(true);
+			player.sendSystemMessage(MessageUtil.Prefix.error("Your faction already has a beacon!"));
+			return;
+		}
 
 		BlockPos pos = event.getPos();
 		faction.setBeaconPos(pos);

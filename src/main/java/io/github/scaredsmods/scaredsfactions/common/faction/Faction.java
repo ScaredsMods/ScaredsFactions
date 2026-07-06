@@ -18,7 +18,6 @@ package io.github.scaredsmods.scaredsfactions.common.faction;
 
 import io.github.scaredsmods.scaredsfactions.common.ModConfigs;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.AbstractFactionSetting;
-import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
@@ -66,6 +65,11 @@ public class Faction {
 			case PREFER_STADHOUDER -> Faction.Rank.STADHOUDER;
 			case PREFER_GENERALISSIMUS -> Faction.Rank.GENERALISSIMUS;
 		};
+		this.members.put(newOwner, ownerRank);
+	}
+
+	public void setOwner(UUID newOwner, Rank ownerRank) {
+		this.owner = newOwner;
 		this.members.put(newOwner, ownerRank);
 	}
 
@@ -155,36 +159,31 @@ public class Faction {
 				.collect(Collectors.toList());
 	}
 
-	public AbstractFactionSetting<?, ?> getSetting(String nbtId) {
+	public <V, T extends AbstractFactionSetting<V, T>> T getSetting(String nbtId, Class<T> settingClass) {
 		return this.settings.stream()
-				.filter(s -> s.getNbtId().equals(nbtId))
+				.filter(s -> s.getNbtId().equals(nbtId) && settingClass.isInstance(s))
+				.map(settingClass::cast)
 				.findFirst()
 				.orElse(null);
 	}
 
-	public AbstractFactionSetting<?, ?> getSettingByModId(String modId) {
+	public <V, T extends AbstractFactionSetting<V, T>> T getSettingByModId(String modId, Class<T> settingClass) {
 		return this.settings.stream()
-				.filter(setting -> setting.getModId().equals(modId))
+				.filter(s -> s.getModId().equals(modId) && settingClass.isInstance(s))
+				.map(settingClass::cast)
 				.findFirst()
 				.orElse(null);
 	}
 
-	public boolean getBooleanSetting(String nbtId) {
-		AbstractFactionSetting<?, ?> setting = getSetting(nbtId);
-		if (setting instanceof BooleanFactionSetting boolSetting) {
-			return boolSetting.get();
-		}
-		return false;
+	public <V, T extends AbstractFactionSetting<V, T>> V getSettingValue(String nbtId, Class<T> settingClass) {
+		T setting = getSetting(nbtId, settingClass);
+		return setting != null ? setting.get() : null;
 	}
 
-	public boolean getBooleanSettingByModId(String modId) {
-		AbstractFactionSetting<?, ?> setting = getSettingByModId(modId);
-		if (setting instanceof BooleanFactionSetting bool) {
-			return bool.get();
-		}
-		return false;
+	public <V, T extends AbstractFactionSetting<V, T>> V getSettingValueByModId(String modId, Class<T> settingClass) {
+		T setting = getSettingByModId(modId, settingClass);
+		return setting != null ? setting.get() : null;
 	}
-
 
 	public enum Rank implements StringRepresentable {
 		// These ranks have largely been inspired by the US Army ranks found on <a href="https://www.army.mil/ranks/">

@@ -33,10 +33,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ViewMembersMenu extends AbstractContainerMenu {
 
@@ -130,7 +127,7 @@ public class ViewMembersMenu extends AbstractContainerMenu {
 
 	public static Map<GameProfile, Faction.Rank> read(FriendlyByteBuf buf) {
 		int size = buf.readInt();
-		Map<GameProfile, Faction.Rank> members = new HashMap<>();
+		Map<GameProfile, Faction.Rank> members = new LinkedHashMap<>();
 		for (int i = 0; i < size; i++) {
 			GameProfile profile = buf.readGameProfile();
 			Faction.Rank rank = buf.readEnum(Faction.Rank.class);
