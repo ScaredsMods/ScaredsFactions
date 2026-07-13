@@ -16,8 +16,10 @@
 */
 package io.github.scaredsmods.scaredsfactions.common.compat.luckperms;
 import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.model.user.User;
 import net.minecraft.commands.CommandSourceStack;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,6 +27,8 @@ import org.jetbrains.annotations.NotNull;
  * Class hooking into LuckPerms mod for permission nodes instead
  * of only using the integrated OP level.
  * This file comes from <a href="https://github.com/NEZNAMY/TAB/blob/b23912b52f77b6230e0e1200e4ce7ff33e40ff2e/forge/src/main/java/me/neznamy/tab/platforms/forge/hook/LuckPermsAPIHook.java">...</a>. Thanks to NEZNAMY for making this
+ * All credits go to NEZNAMY
+ * I edited this file to fix some errors
  */
 public class LuckPermsAPICompat {
 
@@ -42,6 +46,17 @@ public class LuckPermsAPICompat {
 	 */
 	public static boolean hasPermission(@NotNull CommandSourceStack source, @NotNull String permission) {
 		if (source.hasPermission(4)) return true;
-		return luckPerms && LuckPermsProvider.get().getUserManager().getUser(source.getPlayer().getUUID()).getCachedData().getPermissionData().checkPermission(permission).asBoolean();
+		if (!luckPerms) return false;
+
+		ServerPlayer player = source.getPlayer();
+		if (player == null) return false;
+
+		try {
+			User user = LuckPermsProvider.get().getUserManager().getUser(player.getUUID());
+			if (user == null) return false;
+			return user.getCachedData().getPermissionData().checkPermission(permission).asBoolean();
+		} catch (IllegalStateException e) {
+			return false;
+		}
 	}
 }

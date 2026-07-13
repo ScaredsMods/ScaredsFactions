@@ -707,7 +707,7 @@ public class FactionCommand {
 		InviteManager.cancelInvite(player.getUUID());
 		data.markDirty(player.serverLevel());
 
-        Objects.requireNonNull(Objects.requireNonNull(ctx.getSource().getPlayer().getServer()).getPlayerList().getPlayer(faction.getOwner())).sendSystemMessage(MessageUtil.Prefix.info(String.format("§f%s §ahas joined your faction", player.getGameProfile().getName())));
+		Objects.requireNonNull(Objects.requireNonNull(ctx.getSource().getPlayer().getServer()).getPlayerList().getPlayer(faction.getOwner())).sendSystemMessage(MessageUtil.Prefix.info(String.format("§f%s §ahas joined your faction", player.getGameProfile().getName())));
 		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success(String.format("You successfully joined %s!", name.replace("&", "§"))), false);
 		return 1;
 	}
