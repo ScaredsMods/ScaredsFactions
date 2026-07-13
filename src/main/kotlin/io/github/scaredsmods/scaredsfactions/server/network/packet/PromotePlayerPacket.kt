@@ -56,7 +56,7 @@ class PromotePlayerPacket(private val target: UUID) : UUIDPacket<PromotePlayerPa
 			if (!listOf(*playerRank.manageableRanks).contains(newRank)) return@enqueueWork
 
 			faction.members[packet.target] = newRank
-			data.markDirty(player.serverLevel())
+			data.save(player.serverLevel())
 		}
 
 		ctx.get().packetHandled = true

@@ -53,7 +53,7 @@ class DemotePlayerPacket(private val targetUUID: UUID) : UUIDPacket<DemotePlayer
 			if (!listOf(*playerRank.manageableRanks).contains(newRank)) return@enqueueWork
 
 			faction.members[packet.targetUUID] = newRank
-			data.markDirty(player.serverLevel())
+			data.save(player.serverLevel())
 		}
 
 		ctx.get().packetHandled = true

@@ -257,7 +257,7 @@ public class FactionCommand {
 		}
 
 		faction.getMembers().remove(target.getUUID());
-		data.markDirty(player.serverLevel());
+		data.save(player.serverLevel());
 		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success(String.format("Successfully kicked %s from the faction!", target.getDisplayName().getString())), false);
 		return 1;
 	}
@@ -296,7 +296,7 @@ public class FactionCommand {
 		}
 
 		faction.getMembers().put(target.getUUID(), Faction.Rank.getRankById(newRankId));
-		data.markDirty(player.serverLevel());
+		data.save(player.serverLevel());
 		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success(String.format("You successfully promoted §7%s §ato %s!", target.getDisplayName(), Faction.Rank.getRankById(newRankId).getName())) , false);
 		return 1;
 	}
@@ -363,7 +363,7 @@ public class FactionCommand {
 		}
 
 		faction.getMembers().remove(player.getUUID());
-		data.markDirty(player.serverLevel());
+		data.save(player.serverLevel());
 		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success("You left " + faction.getName().replace("&", "§") + "§c!"), false);
 		return 1;
 	}
@@ -402,7 +402,7 @@ public class FactionCommand {
 			}
 			faction.setHomeCooldown(player.getUUID(), currentTime);
 		}
-		data.markDirty(player.serverLevel());
+		data.save(player.serverLevel());
 		player.teleportTo(beaconPos.getX() + 0.5, beaconPos.getY() + 1,  beaconPos.getZ() + 0.5);
 		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success("Successfully teleported to your faction's beacon!"), false);
 		return 1;
@@ -481,7 +481,7 @@ public class FactionCommand {
 		}
 
 		InviteManager.invite(target.getUUID(), faction.getName());
-		data.markDirty(player.serverLevel());
+		data.save(player.serverLevel());
 		target.sendSystemMessage(MessageUtil.Prefix.success("You have been invited to join " + faction.getName().replace("&", "§") + "§a. Use /faction invite accept " + faction.getName().replace("&", "§") + "§a to accept!"), false);
 		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.formattedMessage("Invited " + target.getName().getString() + " to your faction.", ChatFormatting.GOLD), false);
 		return 1;
@@ -519,7 +519,6 @@ public class FactionCommand {
 		}
 
 		data.removeFaction(faction, player.serverLevel());
-		data.markDirty(player.serverLevel());
 		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success("Faction " + faction.getName().replace("&", "§") + "§r has been disbanded!"), false);
 		return 1;
 	}
@@ -564,7 +563,6 @@ public class FactionCommand {
 		}
 
 		data.removeFaction(faction, player.serverLevel());
-		data.markDirty(player.serverLevel());
 		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success("You have disbanded your faction!"), false);
 		return 1;
 	}
@@ -608,7 +606,7 @@ public class FactionCommand {
 		}
 
 		faction.getMembers().put(target.getUUID(), Faction.Rank.getRankById(newRankId));
-		data.markDirty(player.serverLevel());
+		data.save(player.serverLevel());
 		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success(String.format("You successfully demoted §7%s §ato %s", target.getDisplayName(), Faction.Rank.getRankById(newRankId).getName())), false);
 		return 1;
 	}
@@ -633,10 +631,10 @@ public class FactionCommand {
 
 		List<AbstractFactionSetting<?, ?>> settings = Faction.createDefaultSettings();
 
-		Faction faction = new Faction(name, player.getUUID(), settings);
+		Faction faction = new Faction(formattedName, player.getUUID(), settings);
 		Faction.Rank rank = (ModConfigs.commonConfig.defaultOwnerRank.get() == LanguageOptions.PREFER_STADHOUDER) ? Faction.Rank.STADHOUDER : Faction.Rank.GENERALISSIMUS;
 		faction.getMembers().put(player.getUUID(), rank);
-		data.addFaction(faction, player.serverLevel());
+
 
 		ItemStack beacon = new ItemStack(Items.BEACON);
 		beacon.getOrCreateTag().putBoolean("respawn_beacon", true);
@@ -670,7 +668,7 @@ public class FactionCommand {
 
 		display.put("Lore", lore);
 		player.getInventory().add(beacon);
-		data.markDirty(player.serverLevel());
+		data.addFaction(faction, player.serverLevel());
 		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success("Faction ")
 				.copy()
 				.append(Component.literal(formattedName))
@@ -705,7 +703,7 @@ public class FactionCommand {
 
 		faction.getMembers().put(player.getUUID(), Faction.Rank.PRIVATE);
 		InviteManager.cancelInvite(player.getUUID());
-		data.markDirty(player.serverLevel());
+		data.save(player.serverLevel());
 
 		Objects.requireNonNull(Objects.requireNonNull(ctx.getSource().getPlayer().getServer()).getPlayerList().getPlayer(faction.getOwner())).sendSystemMessage(MessageUtil.Prefix.info(String.format("§f%s §ahas joined your faction", player.getGameProfile().getName())));
 		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success(String.format("You successfully joined %s!", name.replace("&", "§"))), false);

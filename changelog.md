@@ -1,3 +1,10 @@
+# 0.2.1
+
+- Fixed an issue with luckperms compat
+- Fixed an issue with faction names
+- Fixed a casting issue with update faction setting packet
+- Renamed ``FactionSavedData#markDirty(ServerLevel level)`` to ``FactionSavedData#save(ServerLevel level)``
+- Removed duplicate ``FactionSavedData#save`` calls
 # 0.2.0
 
 - Added a new subcommand: Manage

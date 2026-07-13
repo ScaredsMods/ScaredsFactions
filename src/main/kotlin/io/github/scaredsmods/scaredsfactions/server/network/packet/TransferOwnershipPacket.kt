@@ -16,7 +16,6 @@
 */
 package io.github.scaredsmods.scaredsfactions.server.network.packet
 
-import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.EnumFactionSetting
 import io.github.scaredsmods.scaredsfactions.api.server.network.packet.IAbstractFactionPacket
 import io.github.scaredsmods.scaredsfactions.api.server.network.packet.UUIDPacket
 import io.github.scaredsmods.scaredsfactions.common.faction.Faction.Rank
@@ -43,7 +42,7 @@ class TransferOwnershipPacket(private val target: UUID): UUIDPacket<TransferOwne
 
 			val ownerRank = faction.getSettingValue(FactionSettings.OWNER_RANK.nbtId, FactionUtil.enumSetting<Rank>())
 			faction.setOwner(packet.target, ownerRank)
-			data.markDirty(player.serverLevel())
+			data.save(player.serverLevel())
 		}
 		ctx.get().packetHandled = true
 	}

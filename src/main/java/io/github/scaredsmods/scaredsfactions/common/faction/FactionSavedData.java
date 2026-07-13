@@ -195,8 +195,7 @@ public class FactionSavedData extends SavedData {
 	}
 
 
-	public void markDirty(ServerLevel level) {
-		this.setDirty();
+	public void save(ServerLevel level) {
 		level.getDataStorage().save();
 	}
 
@@ -227,12 +226,12 @@ public class FactionSavedData extends SavedData {
 
 	public void addFaction(Faction faction, ServerLevel level) {
 		this.factions.put(faction.getName(), faction);
-		markDirty(level);
+		this.save(level);
 	}
 
 	public void removeFaction(Faction faction, ServerLevel level) {
 		this.factions.remove(faction.getName());
-		markDirty(level);
+		this.save(level);
 	}
 
 	public Faction getFactionFromPlayer(UUID uuid) {
@@ -261,7 +260,7 @@ public class FactionSavedData extends SavedData {
 
 	public void hardcoreFaction(String factionName, ServerLevel level) {
 		this.hardcoredFactions.add(factionName);
-		markDirty(level);
+		save(level);
 	}
 
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")

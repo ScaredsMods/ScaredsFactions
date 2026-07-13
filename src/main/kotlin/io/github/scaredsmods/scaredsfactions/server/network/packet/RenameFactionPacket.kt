@@ -38,7 +38,7 @@ class RenameFactionPacket(private val newName: String) : StringPacket<RenameFact
 			val faction: Faction = data.getFactionFromPlayer(player.uuid);
 			if (!faction.owner.equals(player.uuid)) return@enqueueWork
 			faction.name = packet.newName
-			data.markDirty(player.serverLevel())
+			data.save(player.serverLevel())
 		}
 		ctx.get().packetHandled = true
 	}

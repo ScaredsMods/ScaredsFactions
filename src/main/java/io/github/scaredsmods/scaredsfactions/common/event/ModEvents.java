@@ -109,7 +109,7 @@ public class ModEvents {
 		}
 
 		faction.eliminatePlayer(player.getUUID());
-		data.markDirty(player.serverLevel());
+		data.save(player.serverLevel());
 		player.setGameMode(GameType.SPECTATOR);
 		player.sendSystemMessage(MessageUtil.Prefix.error("Your faction's beacon was destroyed before you died. Nothing is anchoring you to life anymore."));
 	}
@@ -198,7 +198,7 @@ public class ModEvents {
 				member.sendSystemMessage(MessageUtil.Prefix.success("Your faction's respawn beacon has been placed!"));
 			}
 		}
-		data.markDirty(player.serverLevel());
+		data.save(player.serverLevel());
 	}
 
 
@@ -248,7 +248,6 @@ public class ModEvents {
 		level.setBlock(beaconFaction.getBeaconPos(), Blocks.AIR.defaultBlockState(), 3);
 
 		beaconFaction.removeBeacon();
-		data.hardcoreFaction(beaconFactionName, level);
 
 		for (UUID memberUUID : beaconFaction.getMembers().keySet()) {
 			ServerPlayer member = player.getServer().getPlayerList().getPlayer(memberUUID);
@@ -265,8 +264,8 @@ public class ModEvents {
 			}
 		}
 
+		data.hardcoreFaction(beaconFactionName, level);
 		player.sendSystemMessage(MessageUtil.Prefix.success(String.format("You just destroyed %s's beacon. Kill them to knock them out!", beaconFactionName)));
-		data.markDirty(level);
 	}
 
 }

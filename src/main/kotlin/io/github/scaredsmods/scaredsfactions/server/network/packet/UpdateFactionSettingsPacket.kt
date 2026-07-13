@@ -22,6 +22,7 @@ import io.github.scaredsmods.scaredsfactions.common.faction.Faction
 import io.github.scaredsmods.scaredsfactions.common.faction.FactionSavedData
 import io.github.scaredsmods.scaredsfactions.common.faction.FactionSettings
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.EnumFactionSetting
+import io.github.scaredsmods.scaredsfactions.common.util.FactionUtil
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraftforge.network.NetworkEvent
@@ -49,12 +50,11 @@ class UpdateFactionSettingsPacket(private val nbtId: String, private val value: 
 				}
 			}
 			if (packet.nbtId == FactionSettings.OWNER_RANK.nbtId) {
-				val newRank = faction.getSetting(FactionSettings.OWNER_RANK.nbtId) as? EnumFactionSetting<*>
-				val rank = newRank?.get() as? Faction.Rank ?: return@enqueueWork
-				faction.setRank(faction.owner, rank)
+				val newRank : Faction.Rank = faction.getSettingValue(FactionSettings.OWNER_RANK.nbtId, FactionUtil.enumSetting())
+				faction.setRank(faction.owner, newRank)
 			}
 
-			data.markDirty(player.serverLevel())
+			data.save(player.serverLevel())
 		}
 		ctx.get().packetHandled = true
 	}

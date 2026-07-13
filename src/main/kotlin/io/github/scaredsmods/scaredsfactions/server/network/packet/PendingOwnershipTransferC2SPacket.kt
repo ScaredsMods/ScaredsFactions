@@ -17,7 +17,6 @@
 package io.github.scaredsmods.scaredsfactions.server.network.packet
 
 import io.github.scaredsmods.scaredsfactions.api.server.network.packet.IAbstractFactionPacket
-import io.github.scaredsmods.scaredsfactions.api.server.network.packet.NullablePacket
 import io.github.scaredsmods.scaredsfactions.api.server.network.packet.nullable.NullableUUIDPacket
 import io.github.scaredsmods.scaredsfactions.common.faction.Faction
 import io.github.scaredsmods.scaredsfactions.common.faction.FactionSavedData
@@ -35,7 +34,7 @@ class PendingOwnershipTransferC2SPacket(private val target: UUID?) : NullableUUI
 			val data : FactionSavedData = FactionSavedData.getSavedData(player.serverLevel());
 			val faction : Faction = data.getFactionFromPlayer(player.uuid) ?: return@enqueueWork
 			faction.pendingTransfer = target
-			data.markDirty(player.serverLevel())
+			data.save(player.serverLevel())
 		}
 		ctx.get().packetHandled = true
 	}
