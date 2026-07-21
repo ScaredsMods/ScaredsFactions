@@ -111,7 +111,6 @@ public class FactionCommand {
 
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(Commands.literal("faction").executes(FactionCommand::help)
-				.requires(source -> LuckPermsAPICompat.hasPermission(source, ModPermissions.CAN_USE_ROOT) || LuckPermsAPICompat.hasPermission(source, ModPermissions.ALL))
 				/* TODO: Rework alliance system
 				.then(Commands.literal("ally")
 						.then(Commands.argument("name", StringArgumentType.word()).suggests(SUGGEST_ALLIES).executes(ctx -> addAlly(ctx, StringArgumentType.getString(ctx, "name"))))
@@ -119,11 +118,9 @@ public class FactionCommand {
 						.then(Commands.argument("name", StringArgumentType.greedyString()).suggests(SUGGEST_ALLIES).executes(ctx -> addAlly(ctx, StringArgumentType.getString(ctx, "name"))))
 				*/
 				.then(Commands.literal("create")
-						.requires(source -> LuckPermsAPICompat.hasPermission(source, ModPermissions.CAN_CREATE_FACTION) || LuckPermsAPICompat.hasPermission(source, ModPermissions.ALL))
 						.then(Commands.argument("name", StringArgumentType.greedyString())
 								.executes(ctx -> createFaction(ctx, StringArgumentType.getString(ctx, "name")))))
 				.then(Commands.literal("debug")
-						.requires(source -> LuckPermsAPICompat.hasPermission(source, ModPermissions.CAN_DEBUG) || LuckPermsAPICompat.hasPermission(source, ModPermissions.ALL) || source.hasPermission(4))
 						.then(Commands.literal("open_screen")
 								.then(Commands.argument("screen", ArrayEnumArgument.enumArgument(ModScreens.class, ModScreens.getEntries().stream()
 												.filter(screen -> screen != ModScreens.CONFIRM_TRANSFER && screen != ModScreens.CLOSE)
@@ -133,38 +130,31 @@ public class FactionCommand {
 										.then(Commands.argument("targetUUID", StringArgumentType.greedyString())
 												.executes(ctx -> openConfirmTransferScreen(ctx, StringArgumentType.getString(ctx, "targetUUID")))))))
 				.then(Commands.literal("demote")
-						.requires(source -> LuckPermsAPICompat.hasPermission(source, ModPermissions.CAN_DEMOTE_PLAYER) || LuckPermsAPICompat.hasPermission(source, ModPermissions.ALL))
 						.then(Commands.argument("target", EntityArgument.player())
 								.suggests(SUGGEST_PLAYERS_WITHIN_FACTION)
 								.executes(ctx -> demotePlayer(ctx, EntityArgument.getPlayer(ctx, "target")))))
 				.then(Commands.literal("disband")
-						.requires(source -> LuckPermsAPICompat.hasPermission(source, ModPermissions.CAN_DISBAND_FACTION) || LuckPermsAPICompat.hasPermission(source, ModPermissions.ALL))
 						.executes(FactionCommand::disbandFaction)
 						.then(Commands.argument("name", StringArgumentType.greedyString())
-							.requires(source -> LuckPermsAPICompat.hasPermission(source, ModPermissions.CAN_USE_DISBAND_BY_NAME) || LuckPermsAPICompat.hasPermission(source, ModPermissions.ALL))
 							.suggests(SUGGEST_FACTION_NAMES)
 							.executes(ctx -> disbandFaction(ctx, StringArgumentType.getString(ctx, "name")))))
-				.then(Commands.literal("help").requires(source -> LuckPermsAPICompat.hasPermission(source, ModPermissions.CAN_USE_HELP) || LuckPermsAPICompat.hasPermission(source, ModPermissions.ALL)).executes(FactionCommand::help))
-				.then(Commands.literal("home").requires(source -> LuckPermsAPICompat.hasPermission(source, ModPermissions.CAN_TELEPORT_TO_BEACON) || LuckPermsAPICompat.hasPermission(source, ModPermissions.ALL)).executes(FactionCommand::teleportToBeacon))
+				.then(Commands.literal("help").executes(FactionCommand::help))
+				.then(Commands.literal("home").executes(FactionCommand::teleportToBeacon))
 				.then(Commands.literal("info")
-						.requires(source -> LuckPermsAPICompat.hasPermission(source, ModPermissions.CAN_GET_FACTION_INFO) || LuckPermsAPICompat.hasPermission(source, ModPermissions.ALL))
 						.then(Commands.argument("factionName", StringArgumentType.greedyString())
 								.suggests(SUGGEST_FACTION_NAMES)
 								.executes(ctx -> factionInfo(ctx, StringArgumentType.getString(ctx, "factionName")))))
 				.then(Commands.literal("invite")
-						.requires(source -> LuckPermsAPICompat.hasPermission(source, ModPermissions.CAN_INVITE_PLAYER_TO_FACTION) || LuckPermsAPICompat.hasPermission(source, ModPermissions.ALL))
 						.then(Commands.argument("target", EntityArgument.player()).suggests(SUGGEST_PLAYERS_WITHOUT_FACTION).executes(ctx -> invitePlayer(ctx, EntityArgument.getPlayer(ctx, "target"))))
 						.then(Commands.literal("accept")
 								.then(Commands.argument("name", StringArgumentType.greedyString()).suggests(SUGGEST_INVITED_FACTIONS).executes(ctx -> acceptInvite(ctx, StringArgumentType.getString(ctx, "name"))))))
 				.then(Commands.literal("kick")
-						.requires(source -> LuckPermsAPICompat.hasPermission(source, ModPermissions.CAN_KICK_PLAYER_FROM_FACTION) || LuckPermsAPICompat.hasPermission(source, ModPermissions.ALL))
 						.then(Commands.argument("target", EntityArgument.player())
 								.suggests(SUGGEST_PLAYERS_WITHIN_FACTION).executes(ctx -> kickPlayer(ctx, EntityArgument.getPlayer(ctx, "target")))))
-				.then(Commands.literal("leave").requires(source -> LuckPermsAPICompat.hasPermission(source, ModPermissions.CAN_LEAVE_FACTION) || LuckPermsAPICompat.hasPermission(source, ModPermissions.ALL)).executes(FactionCommand::leaveFaction))
-				.then(Commands.literal("list").requires(source -> LuckPermsAPICompat.hasPermission(source, ModPermissions.CAN_LIST_FACTIONS) || LuckPermsAPICompat.hasPermission(source, ModPermissions.ALL)).executes(FactionCommand::listFactions))
-				.then(Commands.literal("manage").requires(source -> LuckPermsAPICompat.hasPermission(source, ModPermissions.CAN_MANAGE_FACTION) || LuckPermsAPICompat.hasPermission(source, ModPermissions.ALL)).executes(FactionCommand::manage))
+				.then(Commands.literal("leave").executes(FactionCommand::leaveFaction))
+				.then(Commands.literal("list").executes(FactionCommand::listFactions))
+				.then(Commands.literal("manage").executes(FactionCommand::manage))
 				.then(Commands.literal("promote")
-						.requires(source -> LuckPermsAPICompat.hasPermission(source, ModPermissions.CAN_PROMOTE_PLAYER) || LuckPermsAPICompat.hasPermission(source, ModPermissions.ALL))
 						.then(Commands.argument("target", EntityArgument.player())
 								.suggests(SUGGEST_PLAYERS_WITHIN_FACTION)
 								.executes(ctx -> promotePlayer(ctx, EntityArgument.getPlayer(ctx, "target")))))
@@ -233,6 +223,7 @@ public class FactionCommand {
 			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You must be a player to execute this command!"));
 			return 0;
 		}
+
 		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
 		Faction faction = data.getFactionFromPlayer(player.getUUID());
 		if (faction == null) {
@@ -307,6 +298,7 @@ public class FactionCommand {
 			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You need to be a player to use this command!"));
 			return 0;
 		}
+
 		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
 		if (data.getFactions().isEmpty()) {
 			ctx.getSource().sendFailure(MessageUtil.Prefix.error("No factions exist yet!"));
@@ -403,26 +395,29 @@ public class FactionCommand {
 			faction.setHomeCooldown(player.getUUID(), currentTime);
 		}
 		data.save(player.serverLevel());
-		player.teleportTo(beaconPos.getX() + 0.5, beaconPos.getY() + 1,  beaconPos.getZ() + 0.5);
+		ServerLevel overworld = Objects.requireNonNull(player.getServer()).getLevel(Level.OVERWORLD);
+		player.teleportTo(overworld,
+				beaconPos.getX() + 0.5,
+				beaconPos.getY() + 1,
+				beaconPos.getZ() + 0.5,
+				player.getYRot(),
+				player.getXRot());
 		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success("Successfully teleported to your faction's beacon!"), false);
 		return 1;
 	}
-
 	private static int factionInfo(CommandContext<CommandSourceStack> ctx, String factionName) {
 		ServerPlayer player = ctx.getSource().getPlayer();
 		if (player == null) {
 			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You need to be a player to use this command!"));
 			return 0;
 		}
+
 		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
 		Faction faction = data.getFaction(factionName);
 		if (faction == null) {
 			ctx.getSource().sendFailure(MessageUtil.Prefix.error("That faction does not exist!"));
 			return 0;
 		}
-
-
-
 
 		if (!faction.getSettingValue(FactionSettings.INFO_VISIBLE.getNbtId(), BooleanFactionSetting.class)) {
 			ctx.getSource().sendFailure(MessageUtil.Prefix.error("That faction wants to be private!"));
@@ -459,6 +454,7 @@ public class FactionCommand {
 			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You need to be a player to use this command!"));
 			return 0;
 		}
+
 		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
 		Faction faction = data.getFactionFromPlayer(player.getUUID());
 		if (faction == null) {
@@ -617,6 +613,7 @@ public class FactionCommand {
 			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You need to be a player to use this command!"));
 			return 0;
 		}
+
 		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
 
 		String formattedName = name.replace("&", "§");
@@ -669,6 +666,7 @@ public class FactionCommand {
 		display.put("Lore", lore);
 		player.getInventory().add(beacon);
 		data.addFaction(faction, player.serverLevel());
+
 		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success("Faction ")
 				.copy()
 				.append(Component.literal(formattedName))
@@ -679,6 +677,7 @@ public class FactionCommand {
 	private static int acceptInvite(CommandContext<CommandSourceStack> ctx, String name) {
 		ServerPlayer player = ctx.getSource().getPlayer();
 		if (player == null) return 0;
+
 		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
 
 		if (data.getFactionFromPlayer(player.getUUID()) != null) {

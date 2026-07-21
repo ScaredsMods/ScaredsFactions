@@ -26,13 +26,14 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+import java.awt.*;
+
 public class ModMenuTypes {
 
 	public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, ScaredsFactionMod.MOD_ID);
 
 	public static final RegistryObject<MenuType<ManageFactionMenu>> MANAGE_FACTION =
 			registerMenuType("manage_faction", ManageFactionMenu::new);
-
 
 	public static final RegistryObject<MenuType<RenameFactionMenu>> RENAME_FACTION =
 			registerMenuType("rename_faction", RenameFactionMenu::new);
@@ -51,6 +52,9 @@ public class ModMenuTypes {
 
 	public static final RegistryObject<MenuType<EditStringSettingMenu>> EDIT_STRING_SETTING =
 			registerMenuType("edit_string_setting", EditStringSettingMenu::new);
+
+	public static final RegistryObject<MenuType<ConfirmResetBeaconPosMenu>> RESET_BEACON_POS =
+			registerMenuType("reset_beacon_pos", ConfirmResetBeaconPosMenu::new);
 
 
 	private static <T extends AbstractContainerMenu>RegistryObject<MenuType<T>> registerMenuType(String name, IContainerFactory<T> factory) {

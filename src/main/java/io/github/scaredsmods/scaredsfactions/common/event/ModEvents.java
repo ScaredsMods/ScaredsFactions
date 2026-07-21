@@ -23,23 +23,28 @@ import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
 import io.github.scaredsmods.scaredsfactions.common.command.FactionCommand;
 import io.github.scaredsmods.scaredsfactions.common.faction.Faction;
 import io.github.scaredsmods.scaredsfactions.common.faction.FactionSavedData;
+import io.github.scaredsmods.scaredsfactions.common.util.FactionUtil;
 import io.github.scaredsmods.scaredsfactions.common.util.MessageUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -60,6 +65,7 @@ public class ModEvents {
 	public static void registerCommands(RegisterCommandsEvent event) {
 		FactionCommand.register(event.getDispatcher());
 	}
+
 
 	@SubscribeEvent
 	public static void preventVanillaPvp(LivingHurtEvent event) {
@@ -224,7 +230,7 @@ public class ModEvents {
 
 		if (breakerFaction.getName().equals(beaconFactionName)) {
 			event.setCanceled(true);
-			player.sendSystemMessage(MessageUtil.Prefix.error("You cannot move your own faction's beacon!"));
+			player.sendSystemMessage(MessageUtil.Prefix.error("Use /faction manage to move your beacon!"));
 			return;
 		}
 

@@ -39,5 +39,7 @@ public class ModClientEvents {
 		MenuScreens.register(ModMenuTypes.RENAME_FACTION.get(), RenameFactionScreen::new);
 		MenuScreens.register(ModMenuTypes.CONFIRM_TRANSFER_OWNERSHIP.get(), ConfirmTransferOwnershipScreen::new);
 		MenuScreens.register(ModMenuTypes.EDIT_STRING_SETTING.get(), EditStringSettingScreen::new);
+		MenuScreens.register(ModMenuTypes.RESET_BEACON_POS.get(), ConfirmResetBeaconPosScreen::new);
+
 	}
 }

@@ -34,5 +34,6 @@ public class ModPermissions {
 	public static final String CAN_LIST_FACTIONS = ScaredsFactionMod.permission("command.faction.list");
 	public static final String CAN_MANAGE_FACTION = ScaredsFactionMod.permission("command.faction.manage");
 	public static final String CAN_PROMOTE_PLAYER = ScaredsFactionMod.permission("command.faction.promote");
+	public static final String CAN_ACCEPT_INVITE =  ScaredsFactionMod.permission("command.faction.invite.accept");
 	public static final String CAN_DEBUG = ScaredsFactionMod.permission("command.faction.debug");
 }

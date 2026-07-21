@@ -57,6 +57,7 @@ public class ManageFactionMenu extends AbstractContainerMenu {
 		addClickableSlot(container, 2, Items.PLAYER_HEAD, "View Members", nbtMembers, ChatFormatting.AQUA);
 		addClickableSlot(container, 3, Items.PAPER, "Faction Settings", ChatFormatting.GOLD);
 		addClickableSlot(container, 8, Items.RED_WOOL, "Close", ChatFormatting.DARK_RED);
+		addClickableSlot(container, 4, Items.BEACON, "Reset Beacon Position", ChatFormatting.DARK_GREEN);
 
 		for (int colum = 0; colum < 9; colum++) {
 			this.addSlot(new Slot(container, colum, 8 + colum * 18, 18) {

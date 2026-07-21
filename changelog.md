@@ -1,3 +1,9 @@
+# 0.2.2
+- Fixed an issue with data saving 
+- Added interdimensional travel for the home command
+- Added a  menu to move the beacon
+- Removed permissions temporarily
+
 # 0.2.1
 
 - Fixed an issue with luckperms compat

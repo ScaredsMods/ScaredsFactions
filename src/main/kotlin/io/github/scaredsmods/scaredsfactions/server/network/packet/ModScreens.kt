@@ -26,6 +26,7 @@ import io.github.scaredsmods.scaredsfactions.client.screen.menu.ViewMembersMenu
 import io.github.scaredsmods.scaredsfactions.common.faction.Faction
 import io.github.scaredsmods.scaredsfactions.common.faction.FactionSavedData
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting
+import io.github.scaredsmods.scaredsfactions.client.screen.menu.ConfirmResetBeaconPosMenu
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
@@ -115,6 +116,12 @@ enum class ModScreens {
 			val faction = data.getFactionFromPlayer(player.uuid) ?: return
 			buf.writeUUID(faction.pendingTransfer)
 		}
+	},
+	CONFIRM_RESET_BEACON {
+		override fun createMenu(id: Int, inv: Inventory?, player: ServerPlayer): AbstractContainerMenu {
+			return ConfirmResetBeaconPosMenu(id, inv)
+		}
+
 	},
 	CLOSE {
 		override fun createMenu(id: Int, inv: Inventory?, player: ServerPlayer): AbstractContainerMenu {

@@ -16,15 +16,18 @@
 */
 package io.github.scaredsmods.scaredsfactions.server.network.packet
 
+import com.google.common.graph.Network
 import com.mojang.authlib.GameProfile
 import io.github.scaredsmods.scaredsfactions.api.server.network.packet.IAbstractFactionPacket
 import io.github.scaredsmods.scaredsfactions.api.server.network.packet.PairPacket
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.*
 import io.github.scaredsmods.scaredsfactions.common.faction.FactionSavedData
 import io.github.scaredsmods.scaredsfactions.common.faction.Faction.Rank
+import io.github.scaredsmods.scaredsfactions.common.util.MessageUtil
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.Component
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.SimpleMenuProvider
 import net.minecraft.world.inventory.MenuConstructor
 import net.minecraftforge.network.NetworkEvent
@@ -129,9 +132,20 @@ class OpenScreenC2SPacket(private val screen : ModScreens, private val title: Co
 					val targetUUID = faction.pendingTransfer ?: return@enqueueWork
 					NetworkHooks.openScreen(player, SimpleMenuProvider(
 						{ id, inv, _ -> ConfirmTransferOwnershipMenu(id, inv, targetUUID) },
-						title
+						packet.title
 					)
 					) { buf -> buf.writeUUID(targetUUID) }
+				}
+
+				ModScreens.CONFIRM_RESET_BEACON -> {
+					val faction = data.getFactionFromPlayer(player.uuid) ?: return@enqueueWork
+					if (!faction.hasBeacon()) {
+                        player.sendSystemMessage(MessageUtil.Prefix.error("You must have a beacon to do this!"))
+						return@enqueueWork
+					}
+
+					NetworkHooks.openScreen(player, SimpleMenuProvider(
+						{ id, inv, _ -> ConfirmResetBeaconPosMenu(id, inv)}, packet.title))
 				}
 				ModScreens.CLOSE -> player.closeContainer()
 			}

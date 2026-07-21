@@ -196,6 +196,7 @@ public class FactionSavedData extends SavedData {
 
 
 	public void save(ServerLevel level) {
+		this.setDirty();
 		level.getDataStorage().save();
 	}
 
@@ -204,7 +205,7 @@ public class FactionSavedData extends SavedData {
 	}
 
 	public static FactionSavedData getSavedData(ServerLevel level) {
-		return level.getDataStorage().computeIfAbsent(
+		return level.getServer().overworld().getDataStorage().computeIfAbsent(
 				FactionSavedData::load,
 				FactionSavedData::new,
 				DATA_NAME

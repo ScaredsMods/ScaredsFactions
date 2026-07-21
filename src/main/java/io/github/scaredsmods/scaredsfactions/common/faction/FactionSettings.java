@@ -43,6 +43,8 @@ public class FactionSettings {
 			new Faction.Rank[] { Faction.Rank.GENERALISSIMUS,  Faction.Rank.STADHOUDER },
 			"This setting determines which rank is the highest, Stadhouder or Generalissimus.", "This setting is semi-dependent on the global settings.", "It's default value is whatever the server owner has set in the config. It can be changed, or not!"));
 
+	public static final BooleanFactionSetting ENABLE_FRIENDLY_GLOWING = register(new BooleanFactionSetting(true, "enableFriendlyGlow", "Enable Friendly Glowing", "Enables a glowing effect for friendlies, in case you have turned on friendly fire."));
+
 	public static <T, S extends AbstractFactionSetting<T, S>> S register(S setting) {
 		settings.add(setting);
 		return setting;

@@ -16,6 +16,7 @@
 */
 package io.github.scaredsmods.scaredsfactions.client.screen.menu;
 
+import io.github.scaredsmods.scaredsfactions.api.client.menu.AbstractConfirmMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -24,8 +25,7 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.UUID;
 
-public class ConfirmTransferOwnershipMenu extends AbstractContainerMenu {
-
+public class ConfirmTransferOwnershipMenu extends AbstractConfirmMenu {
 
 	private final UUID target;
 
@@ -38,15 +38,6 @@ public class ConfirmTransferOwnershipMenu extends AbstractContainerMenu {
 		this(pContainerId, pPlayerInventory, buf.readUUID());
 	}
 
-	@Override
-	public ItemStack quickMoveStack(Player pPlayer, int pIndex) {
-		return ItemStack.EMPTY;
-	}
-
-	@Override
-	public boolean stillValid(Player pPlayer) {
-		return true;
-	}
 
 	public UUID getTarget() {
 		return target;

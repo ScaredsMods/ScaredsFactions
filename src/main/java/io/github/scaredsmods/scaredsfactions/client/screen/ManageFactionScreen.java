@@ -82,6 +82,7 @@ public class ManageFactionScreen extends AbstractContainerScreen<ManageFactionMe
 			case 1 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.TRANSFER_OWNERSHIP, Component.literal("Transfer Ownership")));
 			case 2 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.VIEW_MEMBERS, Component.literal("View Members")));
 			case 3 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.FACTION_SETTINGS, Component.literal("Settings")));
+			case 4 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.CONFIRM_RESET_BEACON, Component.literal("Confirm Reset Beacon Pos")));
 			case 8 -> this.onClose();
 		}
 	}

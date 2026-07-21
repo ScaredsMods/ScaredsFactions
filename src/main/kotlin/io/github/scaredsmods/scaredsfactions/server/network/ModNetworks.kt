@@ -46,6 +46,8 @@ object ModNetworks {
 		registerMessage(++id,OpenScreenC2SPacket::class.java, OpenScreenC2SPacket)
 		registerMessage(++id,PendingOwnershipTransferC2SPacket::class.java, PendingOwnershipTransferC2SPacket)
 		registerMessage(++id,OpenEditStringSettingC2SPacket::class.java, OpenEditStringSettingC2SPacket)
+		registerMessage(++id, ResetBeaconPosPacket::class.java, ResetBeaconPosPacket)
+
 	}
 
 
