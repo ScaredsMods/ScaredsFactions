@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 public class ScaredsFactionMod
 {
 	public static final String MOD_ID = "scaredsfactions";
-	private static final Logger LOGGER = LogUtils.getLogger();
+	public static final Logger LOGGER = LogUtils.getLogger();
 
 	public ScaredsFactionMod(FMLJavaModLoadingContext context) {
 		FactionSettings.init();
@@ -52,7 +52,7 @@ public class ScaredsFactionMod
 	}
 
 	public static String permission(String perm) {
-		return String.format("scaredsfactions.%s", perm);
+		return MOD_ID + "." + perm;
 	}
 
 

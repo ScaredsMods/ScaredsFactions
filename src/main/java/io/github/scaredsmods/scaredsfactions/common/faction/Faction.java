@@ -16,9 +16,13 @@
 */
 package io.github.scaredsmods.scaredsfactions.common.faction;
 
+import com.google.common.collect.Lists;
+import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting;
 import io.github.scaredsmods.scaredsfactions.common.ModConfigs;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.AbstractFactionSetting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
@@ -184,6 +188,77 @@ public class Faction {
 		T setting = getSettingByModId(modId, settingClass);
 		return setting != null ? setting.get() : null;
 	}
+
+	public void write(FriendlyByteBuf buf) {
+		buf.writeUtf(this.name);
+		buf.writeUUID(this.owner);
+
+		buf.writeBoolean(this.beaconPos != null);
+		if (this.beaconPos != null) buf.writeBlockPos(this.beaconPos);
+
+		buf.writeMap(this.members, FriendlyByteBuf::writeUUID, FriendlyByteBuf::writeEnum);
+		buf.writeCollection(this.allies, FriendlyByteBuf::writeUtf);
+
+		CompoundTag settingsTag = new CompoundTag();
+		for (AbstractFactionSetting<?, ?> setting : this.settings) {
+			setting.save(settingsTag);
+		}
+		buf.writeNbt(settingsTag);
+
+		buf.writeBoolean(this.pendingTransfer != null);
+		if (this.pendingTransfer != null) buf.writeUUID(this.pendingTransfer);
+
+		buf.writeCollection(this.eliminatedPlayers, FriendlyByteBuf::writeUUID);
+		buf.writeMap(this.playersOnHomeCooldown, FriendlyByteBuf::writeUUID, FriendlyByteBuf::writeLong);
+	}
+
+	public static Faction read(FriendlyByteBuf buf) {
+		String name = buf.readUtf();
+		UUID owner = buf.readUUID();
+
+		Faction faction = new Faction(name, owner, Faction.createDefaultSettings());
+
+		if (buf.readBoolean()) {
+			faction.setBeaconPos(buf.readBlockPos());
+		}
+
+		faction.getMembers().putAll(buf.readMap(FriendlyByteBuf::readUUID, b -> b.readEnum(Rank.class)));
+		buf.readList(FriendlyByteBuf::readUtf).forEach(faction::addAlly);
+
+		CompoundTag settingsTag = buf.readNbt();
+		if (settingsTag != null) {
+			for (AbstractFactionSetting<?, ?> setting : faction.getSettings()) {
+				if (settingsTag.contains(setting.getNbtId())) {
+					setting.load(settingsTag);
+				}
+			}
+		}
+
+		if (buf.readBoolean()) {
+			faction.setPendingTransfer(buf.readUUID());
+		}
+
+		buf.readList(FriendlyByteBuf::readUUID).forEach(faction::eliminatePlayer);
+		buf.readMap(FriendlyByteBuf::readUUID, FriendlyByteBuf::readLong).forEach(faction::setHomeCooldown);
+
+		return faction;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return false;
+		if (obj == null) return false;
+		if (this.getClass() != obj.getClass()) return false;
+		Faction other = (Faction) obj;
+		return Objects.equals(this.name, other.name);
+	}
+
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(this.name);
+	}
+
 
 	public enum Rank implements StringRepresentable {
 		// These ranks have largely been inspired by the US Army ranks found on <a href="https://www.army.mil/ranks/">

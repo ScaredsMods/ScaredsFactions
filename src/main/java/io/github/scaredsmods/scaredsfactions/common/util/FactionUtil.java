@@ -17,6 +17,9 @@
 package io.github.scaredsmods.scaredsfactions.common.util;
 
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.EnumFactionSetting;
+import io.github.scaredsmods.scaredsfactions.common.faction.Faction;
+import io.github.scaredsmods.scaredsfactions.common.faction.FactionSavedData;
+import net.minecraft.server.level.ServerPlayer;
 
 public class FactionUtil {
 
@@ -25,4 +28,11 @@ public class FactionUtil {
 		return (Class<EnumFactionSetting<E>>) (Class<?>) EnumFactionSetting.class;
 	}
 
+
+	public static boolean isEqualFaction(ServerPlayer player, ServerPlayer target) {
+		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
+		Faction playerFaction = data.getFactionFromPlayer(player.getUUID());
+		Faction targetFaction = data.getFactionFromPlayer(target.getUUID());
+		return playerFaction.equals(targetFaction);
+	}
 }

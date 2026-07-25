@@ -47,7 +47,7 @@ object ModNetworks {
 		registerMessage(++id,PendingOwnershipTransferC2SPacket::class.java, PendingOwnershipTransferC2SPacket)
 		registerMessage(++id,OpenEditStringSettingC2SPacket::class.java, OpenEditStringSettingC2SPacket)
 		registerMessage(++id, ResetBeaconPosPacket::class.java, ResetBeaconPosPacket)
-
+		registerMessage(++id, SyncFactionDataS2CPacket::class.java, SyncFactionDataS2CPacket)
 	}
 
 

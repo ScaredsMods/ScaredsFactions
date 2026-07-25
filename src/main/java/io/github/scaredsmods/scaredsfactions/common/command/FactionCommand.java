@@ -21,21 +21,19 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.AbstractFactionSetting;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting;
-import io.github.scaredsmods.scaredsfactions.common.ModConfigs;
-import io.github.scaredsmods.scaredsfactions.common.ModPermissions;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ConfirmTransferOwnershipMenu;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ManageFactionMenu;
+import io.github.scaredsmods.scaredsfactions.common.ModConfigs;
 import io.github.scaredsmods.scaredsfactions.common.command.argument.ArrayEnumArgument;
-import io.github.scaredsmods.scaredsfactions.common.compat.luckperms.LuckPermsAPICompat;
 import io.github.scaredsmods.scaredsfactions.common.config.LanguageOptions;
 import io.github.scaredsmods.scaredsfactions.common.faction.Faction;
 import io.github.scaredsmods.scaredsfactions.common.faction.FactionSavedData;
 import io.github.scaredsmods.scaredsfactions.common.faction.FactionSettings;
 import io.github.scaredsmods.scaredsfactions.common.faction.InviteManager;
-import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.AbstractFactionSetting;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
 import io.github.scaredsmods.scaredsfactions.common.util.MessageUtil;
+import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -356,7 +354,7 @@ public class FactionCommand {
 
 		faction.getMembers().remove(player.getUUID());
 		data.save(player.serverLevel());
-		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success("You left " + faction.getName().replace("&", "§") + "§c!"), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success("You left " + faction.getName().replace("&", "§") + "§a!"), false);
 		return 1;
 	}
 
@@ -413,7 +411,7 @@ public class FactionCommand {
 		}
 
 		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
-		Faction faction = data.getFaction(factionName);
+		Faction faction = data.getFactionByStrippedName(factionName);
 		if (faction == null) {
 			ctx.getSource().sendFailure(MessageUtil.Prefix.error("That faction does not exist!"));
 			return 0;
@@ -491,7 +489,7 @@ public class FactionCommand {
 		}
 
 		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
-		Faction faction = data.getFaction(factionName);
+		Faction faction = data.getFactionByStrippedName(factionName);
 
 		if (faction == null) {
 			ctx.getSource().sendFailure(MessageUtil.Prefix.error("This faction doesn't exist!"));
@@ -666,7 +664,6 @@ public class FactionCommand {
 		display.put("Lore", lore);
 		player.getInventory().add(beacon);
 		data.addFaction(faction, player.serverLevel());
-
 		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success("Faction ")
 				.copy()
 				.append(Component.literal(formattedName))
@@ -685,13 +682,14 @@ public class FactionCommand {
 			return 0;
 		}
 
-		if (!InviteManager.hasInvite(player.getUUID(), name)) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You don't have any invites!"));
-			return 0;
-		}
-		Faction faction = data.getFaction(name);
+		Faction faction = data.getFactionByStrippedName(name);
 		if (faction == null) {
 			ctx.getSource().sendFailure(MessageUtil.Prefix.error("This faction does not exist! Are you sure you spelled it correctly?"));
+			return 0;
+		}
+
+		if (!InviteManager.hasInvite(player.getUUID(), name)) {
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You don't have any invites!"));
 			return 0;
 		}
 

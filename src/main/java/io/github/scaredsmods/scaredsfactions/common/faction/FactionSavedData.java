@@ -16,15 +16,19 @@
 */
 package io.github.scaredsmods.scaredsfactions.common.faction;
 
-import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.AbstractFactionSetting;
+import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
+import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
+import io.github.scaredsmods.scaredsfactions.server.network.packet.SyncFactionDataS2CPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -194,10 +198,17 @@ public class FactionSavedData extends SavedData {
 		return tag;
 	}
 
-
 	public void save(ServerLevel level) {
 		this.setDirty();
 		level.getDataStorage().save();
+		this.syncToAllClients(level);
+	}
+
+	public void syncToAllClients(ServerLevel level) {
+		SyncFactionDataS2CPacket packet = new SyncFactionDataS2CPacket(this.getFactions());
+		for (ServerPlayer player : level.getServer().getPlayerList().getPlayers()) {
+			ModNetworks.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), packet);
+		}
 	}
 
 	public static FactionSavedData create() {
@@ -233,6 +244,10 @@ public class FactionSavedData extends SavedData {
 	public void removeFaction(Faction faction, ServerLevel level) {
 		this.factions.remove(faction.getName());
 		this.save(level);
+	}
+
+	public void removeFaction(Faction faction) {
+		this.factions.remove(faction.getName());
 	}
 
 	public Faction getFactionFromPlayer(UUID uuid) {

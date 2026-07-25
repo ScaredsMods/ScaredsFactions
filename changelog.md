@@ -3,10 +3,14 @@
 - Added interdimensional travel for the home command
 - Added a  menu to move the beacon
 - Removed permissions temporarily
+- Added a feature that (when enabled) highlights your faction members with a color of choice
+- Changed the access modifier of ``ScaredsFactionMod#LOGGER`` to ``public``
+- Changed ``ScaredsFactionMod#perm``
+
 
 # 0.2.1
 
-- Fixed an issue with luckperms compat
+- Fixed an issue with LuckPerms compat
 - Fixed an issue with faction names
 - Fixed a casting issue with update faction setting packet
 - Renamed ``FactionSavedData#markDirty(ServerLevel level)`` to ``FactionSavedData#save(ServerLevel level)``

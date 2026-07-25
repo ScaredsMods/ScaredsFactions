@@ -101,6 +101,9 @@ minecraft {
             client(true)
             args("--username=ScaredRabbitNL", "--uuid=67e129a0-7954-4ad0-bc39-d2ecf97e7a1a")
             property("forge.enabledGameTestNamespaces", modId)
+            properties["mixin.env.remapRefMap"] = "true"
+            property("mixin.env.refMapRemappingFile", "${project.projectDir}/build/createSrgToMcp/output.srg")
+            arg("-mixin.config=scaredsfactions.mixins.json")
         }
 
         val client2 : RunConfig by creating {
@@ -114,6 +117,9 @@ minecraft {
             property("forge.enabledGameTestNamespaces", modId)
             workingDirectory(project.file("server"))
             args("--nogui")
+            properties["mixin.env.remapRefMap"] = "true"
+            property("mixin.env.refMapRemappingFile", "${project.projectDir}/build/createSrgToMcp/output.srg")
+            arg("-mixin.config=scaredsfactions.mixins.json")
         }
 
         val gameTestServer : RunConfig by creating {
@@ -198,7 +204,7 @@ tasks {
 
 spotless {
     java {
-        targetExclude("src/main/java/io/github/scaredsmods/scaredsfactions/compat/luckperms/LuckPermsAPICompat.java")
+        targetExclude("src/main/java/io/github/scaredsmods/scaredsfactions/common/compat/luckperms/LuckPermsAPICompat.java",)
         licenseHeaderFile(file("HEADER"))
         removeUnusedImports()
         indentWithTabs()

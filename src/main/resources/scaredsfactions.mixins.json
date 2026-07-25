@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8.5",
+  "package": "io.github.scaredsmods.scaredsfactions.common.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+  ],
+  "client": [
+    "client.MinecraftMixin",
+    "client.EntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

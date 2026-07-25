@@ -23,14 +23,13 @@ import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
 import io.github.scaredsmods.scaredsfactions.common.command.FactionCommand;
 import io.github.scaredsmods.scaredsfactions.common.faction.Faction;
 import io.github.scaredsmods.scaredsfactions.common.faction.FactionSavedData;
-import io.github.scaredsmods.scaredsfactions.common.util.FactionUtil;
 import io.github.scaredsmods.scaredsfactions.common.util.MessageUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -65,7 +64,6 @@ public class ModEvents {
 	public static void registerCommands(RegisterCommandsEvent event) {
 		FactionCommand.register(event.getDispatcher());
 	}
-
 
 	@SubscribeEvent
 	public static void preventVanillaPvp(LivingHurtEvent event) {
@@ -135,7 +133,9 @@ public class ModEvents {
 	public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
 		if (!(event.getEntity() instanceof ServerPlayer player)) return;
 		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
+		data.syncToAllClients(player.serverLevel());
 		Faction faction = data.getFactionFromPlayer(player.getUUID());
+
 		if (faction == null) return;
 
 		if (!data.isHardcored(faction.getName())) return;

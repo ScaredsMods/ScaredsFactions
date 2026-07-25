@@ -21,8 +21,10 @@ import io.github.scaredsmods.scaredsfactions.common.config.LanguageOptions;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.AbstractFactionSetting;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.EnumFactionSetting;
+import net.minecraft.ChatFormatting;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class FactionSettings {
@@ -43,7 +45,16 @@ public class FactionSettings {
 			new Faction.Rank[] { Faction.Rank.GENERALISSIMUS,  Faction.Rank.STADHOUDER },
 			"This setting determines which rank is the highest, Stadhouder or Generalissimus.", "This setting is semi-dependent on the global settings.", "It's default value is whatever the server owner has set in the config. It can be changed, or not!"));
 
-	public static final BooleanFactionSetting ENABLE_FRIENDLY_GLOWING = register(new BooleanFactionSetting(true, "enableFriendlyGlow", "Enable Friendly Glowing", "Enables a glowing effect for friendlies, in case you have turned on friendly fire."));
+	public static final BooleanFactionSetting ENABLE_FRIENDLY_GLOWING = register(new BooleanFactionSetting(true, "enableFriendlyGlow", "Enable Friendly Player Glowing", "Enables a glowing effect for friendlies, in case you have turned on friendly fire."));
+	public static final EnumFactionSetting<ChatFormatting> GLOW_COLOUR = register(new EnumFactionSetting<>(
+			ChatFormatting.GREEN,
+			"glowColour",
+			"Friendly Player Glow Color",
+			ChatFormatting.class,
+			Arrays.stream(ChatFormatting.values()).filter(ChatFormatting::isColor).toArray(ChatFormatting[]::new),
+			"This setting determines which colour appears as an outline if Enable Friendly Player Glowing is enabled."
+	));
+
 
 	public static <T, S extends AbstractFactionSetting<T, S>> S register(S setting) {
 		settings.add(setting);

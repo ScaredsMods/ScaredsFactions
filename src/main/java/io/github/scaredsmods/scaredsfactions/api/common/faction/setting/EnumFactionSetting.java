@@ -67,7 +67,7 @@ public class EnumFactionSetting<E extends Enum<E>> extends AbstractFactionSettin
 
 	@Override
 	public Component getCurrentValueAsComponent() {
-		return Component.literal(get().toString())
+		return Component.literal(get().name())
 				.withStyle(style -> style
 						.withColor(ChatFormatting.YELLOW)
 						.withItalic(false)
