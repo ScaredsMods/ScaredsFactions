@@ -16,7 +16,6 @@
 */
 package io.github.scaredsmods.scaredsfactions.client.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.scaredsmods.scaredsfactions.api.client.screen.AbstractConfirmScreen;
 import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ConfirmTransferOwnershipMenu;
@@ -26,12 +25,8 @@ import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenC2S
 import io.github.scaredsmods.scaredsfactions.server.network.packet.PendingOwnershipTransferC2SPacket;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.TransferOwnershipPacket;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;

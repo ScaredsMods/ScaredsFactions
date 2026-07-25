@@ -140,7 +140,7 @@ class OpenScreenC2SPacket(private val screen : ModScreens, private val title: Co
 				ModScreens.CONFIRM_RESET_BEACON -> {
 					val faction = data.getFactionFromPlayer(player.uuid) ?: return@enqueueWork
 					if (!faction.hasBeacon()) {
-                        player.sendSystemMessage(MessageUtil.Prefix.error("You must have a beacon to do this!"))
+						player.sendSystemMessage(MessageUtil.Prefix.error("You must have a beacon to do this!"))
 						return@enqueueWork
 					}
 

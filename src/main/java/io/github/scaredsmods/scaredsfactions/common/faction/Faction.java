@@ -16,8 +16,6 @@
 */
 package io.github.scaredsmods.scaredsfactions.common.faction;
 
-import com.google.common.collect.Lists;
-import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting;
 import io.github.scaredsmods.scaredsfactions.common.ModConfigs;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.AbstractFactionSetting;
 import net.minecraft.core.BlockPos;
