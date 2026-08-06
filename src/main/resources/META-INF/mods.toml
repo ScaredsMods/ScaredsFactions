@@ -11,6 +11,9 @@ credits="RyanNotBrian for the respawn beacon"
 authors="${mod_authors}"
 description='''${mod_description}'''
 
+[[mixins]]
+config="scaredsfactions.mixins.json"
+
 [[dependencies.${mod_id}]]
     modId="forge"
     mandatory=true

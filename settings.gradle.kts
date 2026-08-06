@@ -6,7 +6,8 @@ pluginManagement {
             name = "MinecraftForge"
             url = uri("https://maven.minecraftforge.net/")
         }
-        maven { url = uri("https://maven.parchmentmc.org") } // Add this line
+        maven { url = uri("https://maven.parchmentmc.org") }
+        maven { url = uri("https://repo.spongepowered.org/repository/maven-public/") }
     }
 }
 

@@ -1,3 +1,6 @@
+# 0.2.2.1
+- Fixed a server issue with glow colours appearing as the wrong colour or not appearing at all
+
 # 0.2.2
 - Fixed an issue with data saving 
 - Added interdimensional travel for the home command

@@ -292,10 +292,6 @@ public class FactionCommand {
 
 	private static int listFactions(CommandContext<CommandSourceStack> ctx) {
 		ServerPlayer player = ctx.getSource().getPlayer();
-		if (player == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You need to be a player to use this command!"));
-			return 0;
-		}
 
 		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
 		if (data.getFactions().isEmpty()) {
@@ -405,10 +401,6 @@ public class FactionCommand {
 	}
 	private static int factionInfo(CommandContext<CommandSourceStack> ctx, String factionName) {
 		ServerPlayer player = ctx.getSource().getPlayer();
-		if (player == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You need to be a player to use this command!"));
-			return 0;
-		}
 
 		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
 		Faction faction = data.getFactionByStrippedName(factionName);
@@ -533,7 +525,9 @@ public class FactionCommand {
 		}
 
 		Faction.Rank playerRank = faction.getMembers().get(player.getUUID());
-		if ( (playerRank != Faction.Rank.GENERALISSIMUS && playerRank != Faction.Rank.STADHOUDER) || faction.getOwner() == player.getUUID()) {
+		boolean isLeader = playerRank == Faction.Rank.GENERALISSIMUS || playerRank == Faction.Rank.STADHOUDER;
+		boolean isOwner = faction.getOwner().equals(player.getUUID());
+		if (!isLeader && !isOwner) {
 			ctx.getSource().sendFailure(MessageUtil.Prefix.error("Only the faction leader can disband the faction!"));
 			return 0;
 		}

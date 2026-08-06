@@ -16,10 +16,13 @@
 */
 package io.github.scaredsmods.scaredsfactions.common.faction;
 
+import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting;
 import io.github.scaredsmods.scaredsfactions.common.ModConfigs;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.AbstractFactionSetting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
@@ -110,6 +113,11 @@ public class Faction {
 		return this.eliminatedPlayers;
 	}
 
+	public void setEliminatedPlayers(Set<UUID> eliminatedPlayers) {
+		this.eliminatedPlayers.clear();
+		this.eliminatedPlayers.addAll(eliminatedPlayers);
+	}
+
 	public void eliminatePlayer(UUID uuid) {
 		this.eliminatedPlayers.add(uuid);
 	}
@@ -137,8 +145,18 @@ public class Faction {
 	public Map<UUID, Long> getPlayersOnHomeCooldown() {
 		return this.playersOnHomeCooldown;
 	}
+	public void setPlayersOnHomeCooldown(Map<UUID, Long> playersOnHomeCooldown) {
+		this.playersOnHomeCooldown.clear();
+		this.playersOnHomeCooldown.putAll(playersOnHomeCooldown);
+	}
+
 	public List<String> getAllies() {
 		return this.allies;
+	}
+
+	public void setAllies(List<String> newAllies) {
+		this.allies.clear();
+		this.allies.addAll(newAllies);
 	}
 
 	public void addAlly(String factionName) {
@@ -187,21 +205,30 @@ public class Faction {
 		return setting != null ? setting.get() : null;
 	}
 
+	public boolean getBooleanSettingValue(String nbtId, boolean defaultValue) {
+		BooleanFactionSetting setting = getSetting(nbtId, BooleanFactionSetting.class);
+		return setting != null ? setting.get() : defaultValue;
+	}
+
 	public void write(FriendlyByteBuf buf) {
 		buf.writeUtf(this.name);
 		buf.writeUUID(this.owner);
+
+		CompoundTag settingsTag = new CompoundTag();
+		ListTag listSettings = new ListTag();
+		for (AbstractFactionSetting<?, ?> setting : this.getSettings()) {
+			CompoundTag settings = new CompoundTag();
+			setting.save(settings);
+			listSettings.add(settings);
+		}
+		settingsTag.put("settings", listSettings);
+		buf.writeNbt(settingsTag);
 
 		buf.writeBoolean(this.beaconPos != null);
 		if (this.beaconPos != null) buf.writeBlockPos(this.beaconPos);
 
 		buf.writeMap(this.members, FriendlyByteBuf::writeUUID, FriendlyByteBuf::writeEnum);
 		buf.writeCollection(this.allies, FriendlyByteBuf::writeUtf);
-
-		CompoundTag settingsTag = new CompoundTag();
-		for (AbstractFactionSetting<?, ?> setting : this.settings) {
-			setting.save(settingsTag);
-		}
-		buf.writeNbt(settingsTag);
 
 		buf.writeBoolean(this.pendingTransfer != null);
 		if (this.pendingTransfer != null) buf.writeUUID(this.pendingTransfer);
@@ -213,39 +240,52 @@ public class Faction {
 	public static Faction read(FriendlyByteBuf buf) {
 		String name = buf.readUtf();
 		UUID owner = buf.readUUID();
-
-		Faction faction = new Faction(name, owner, Faction.createDefaultSettings());
-
-		if (buf.readBoolean()) {
-			faction.setBeaconPos(buf.readBlockPos());
-		}
-
-		faction.getMembers().putAll(buf.readMap(FriendlyByteBuf::readUUID, b -> b.readEnum(Rank.class)));
-		buf.readList(FriendlyByteBuf::readUtf).forEach(faction::addAlly);
-
 		CompoundTag settingsTag = buf.readNbt();
-		if (settingsTag != null) {
-			for (AbstractFactionSetting<?, ?> setting : faction.getSettings()) {
-				if (settingsTag.contains(setting.getNbtId())) {
-					setting.load(settingsTag);
+		assert settingsTag != null;
+		ListTag factionSettings = settingsTag.getList("settings", Tag.TAG_COMPOUND);
+		List<AbstractFactionSetting<?, ?>> settings = Faction.createDefaultSettings();
+		for (int j = 0; j < factionSettings.size(); j++) {
+			CompoundTag settingTag = factionSettings.getCompound(j);
+			for (int k = 0; k < settings.size(); k++) {
+				AbstractFactionSetting<?, ?> setting = settings.get(k);
+				if (settingTag.contains(setting.getNbtId())) {
+					settings.set(k, setting.load(settingTag));
 				}
 			}
 		}
 
-		if (buf.readBoolean()) {
+		Faction faction = new Faction(name, owner, settings);
+
+		boolean hasBeaconPos = buf.readBoolean();
+		if (hasBeaconPos) {
+			BlockPos beaconPos = buf.readBlockPos();
+			faction.setBeaconPos(beaconPos);
+		}
+
+		faction.getMembers().clear();
+		Map<UUID, Rank> members = buf.readMap(FriendlyByteBuf::readUUID, fBuf -> fBuf.readEnum(Rank.class));
+		faction.getMembers().putAll(members);
+
+		List<String> allies = buf.readList(FriendlyByteBuf::readUtf);
+		faction.getAllies().clear();
+		faction.setAllies(allies);
+
+		boolean pendingTransfer = buf.readBoolean();
+		if (pendingTransfer) {
 			faction.setPendingTransfer(buf.readUUID());
 		}
 
-		buf.readList(FriendlyByteBuf::readUUID).forEach(faction::eliminatePlayer);
-		buf.readMap(FriendlyByteBuf::readUUID, FriendlyByteBuf::readLong).forEach(faction::setHomeCooldown);
+		Set<UUID> eliminatedPlayers = new HashSet<>(buf.readList(FriendlyByteBuf::readUUID));
+		faction.setEliminatedPlayers(eliminatedPlayers);
 
+		Map<UUID, Long> homeCooldowns = buf.readMap(FriendlyByteBuf::readUUID, FriendlyByteBuf::readLong);
+		faction.setPlayersOnHomeCooldown(homeCooldowns);
 		return faction;
 	}
-
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) return false;
 		if (obj == null) return false;
+		if (this == obj) return true;
 		if (this.getClass() != obj.getClass()) return false;
 		Faction other = (Faction) obj;
 		return Objects.equals(this.name, other.name);

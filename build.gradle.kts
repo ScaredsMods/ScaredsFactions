@@ -5,26 +5,27 @@ plugins {
     id("org.jetbrains.kotlin.jvm") version "2.0.0"
     id("java")
     id("idea")
-    id("net.minecraftforge.gradle") version "[6.0,6.2)"
+    id("net.minecraftforge.gradle") version "6.0.54"
+    id("org.spongepowered.mixin") version ("0.7.+")
     id("org.parchmentmc.librarian.forgegradle") version "1.2.0"
-    id("com.diffplug.spotless") version("6.19.0")
+    id("com.diffplug.spotless") version ("6.19.0")
 }
 
-val modId : String by project
-val modVersion : String by project
-val modGroupId : String by project
-val modName : String by project
-val modLicense : String by project
-val modAuthors : String by project
-val modDescription : String by project
-val minecraftVersion : String by project
-val minecraftVersionRange : String by project
-val forgeVersion : String by project
-val forgeVersionRange : String by project
-val loaderVersionRange : String by project
-val kffVersion : String by project
-val fzzyConfigVersion : String by project
-val tabVersion : String by project
+val modId: String by project
+val modVersion: String by project
+val modGroupId: String by project
+val modName: String by project
+val modLicense: String by project
+val modAuthors: String by project
+val modDescription: String by project
+val minecraftVersion: String by project
+val minecraftVersionRange: String by project
+val forgeVersion: String by project
+val forgeVersionRange: String by project
+val loaderVersionRange: String by project
+val kffVersion: String by project
+val fzzyConfigVersion: String by project
+val tabVersion: String by project
 
 version = modVersion
 group = modGroupId
@@ -84,9 +85,15 @@ repositories {
 
     maven("https://jitpack.io")
     maven { url = uri("https://api.modrinth.com/maven") }
+    mavenCentral()
 }
 
-
+mixin {
+    add(sourceSets.main.get(), "scaredsfactions.mixins.refmap.json")
+    config("scaredsfactions.mixins.json")
+    dumpTargetOnFailure = true
+    isQuiet = false
+}
 minecraft {
     mappings(
         project.property("mappingChannel") as String,
@@ -97,36 +104,49 @@ minecraft {
 
     runs {
 
-        val client : RunConfig by creating {
-            client(true)
-            args("--username=ScaredRabbitNL", "--uuid=67e129a0-7954-4ad0-bc39-d2ecf97e7a1a")
-            property("forge.enabledGameTestNamespaces", modId)
-            properties["mixin.env.remapRefMap"] = "true"
-            property("mixin.env.refMapRemappingFile", "${project.projectDir}/build/createSrgToMcp/output.srg")
-            arg("-mixin.config=scaredsfactions.mixins.json")
+        all {
+            property("forge.logging.markers", "REGISTRIES")
+            property("forge.logging.console.level", "debug")
+            property("mixin.env.remapRefMap", "true")
+            property("mixin.env.refMapRemappingFile", "${projectDir}/build/createSrgToMcp/output.srg")
+            mods {
+                create(modId) {
+                    source(sourceSets.main.get())
+                }
+            }
         }
 
-        val client2 : RunConfig by creating {
-            client(true)
-            workingDirectory(project.file("run2"))
-            args("--username=ScaredRabbitNL2")
+        create("client") {
             property("forge.enabledGameTestNamespaces", modId)
+            val uuid = "67e129a0-7954-4ad0-bc39-d2ecf97e7a1a"
+
+            args("--username", "ScaredRabbitNL", "--uuid", uuid)
         }
 
-        val server : RunConfig by creating {
+        create("client2") {
+            parent(runs.getByName("client"))
+            inheritArgs(false)
+            property("forge.enabledGameTestNamespaces", modId)
+            client(true)
+            main("cpw.mods.bootstraplauncher.BootstrapLauncher")
+            args("--username", "ScaredRabbitNL2")
+            args("--launchTarget=forgeclientuserdev", "--version=MOD_DEV", "--assetIndex=5", "--assetsDir=C:\\Users\\ScaredRabbit\\.gradle\\caches\\forge_gradle\\assets", "--gameDir=.", "--fml.forgeVersion=47.4.10", "--fml.mcVersion=1.20.1", "--fml.forgeGroup=net.minecraftforge", "--fml.mcpVersion=20230612.114412")
+            workingDirectory("run2")
+            folderName("run2")
+        }
+
+
+        val server: RunConfig by creating {
             property("forge.enabledGameTestNamespaces", modId)
             workingDirectory(project.file("server"))
             args("--nogui")
-            properties["mixin.env.remapRefMap"] = "true"
-            property("mixin.env.refMapRemappingFile", "${project.projectDir}/build/createSrgToMcp/output.srg")
-            arg("-mixin.config=scaredsfactions.mixins.json")
         }
 
-        val gameTestServer : RunConfig by creating {
+        val gameTestServer: RunConfig by creating {
             property("forge.enabledGameTestNamespaces", modId)
         }
 
-        val data : RunConfig by creating {
+        val data: RunConfig by creating {
             workingDirectory(project.file("run-data"))
 
             args(
@@ -135,22 +155,6 @@ minecraft {
                 "--output", file("src/generated/resources/").toString(),
                 "--existing", file("src/main/resources/").toString()
             )
-        }
-        configureEach {
-            property("forge.logging.markers", "REGISTRIES")
-            property("forge.logging.console.level", "debug")
-
-            mods {
-                // define mod <-> source bindings
-                // these are used to tell the game which sources are for which mod
-                // mostly optional in a single mod project
-                // but multi mod projects should define one per mod
-                modId.let {
-                    val sourceSet : ModConfig by creating {
-                        source(sourceSets.main.get())
-                    }
-                }
-            }
         }
     }
 }
@@ -163,7 +167,10 @@ sourceSets {
 }
 
 dependencies {
+    implementation("thedarkcolour:kotlinforforge:${kffVersion}")
     minecraft("net.minecraftforge:forge:${minecraftVersion}-${forgeVersion}")
+    annotationProcessor("org.spongepowered:mixin:0.8.5:processor")
+
     compileOnly("curse.maven:timeless-and-classics-zero-1028108:7745481-sources-7745491")
     compileOnly(("top.theillusivec4.curios:curios-forge:5.4.2+1.20.1:api"))
     compileOnly("software.bernie.geckolib:geckolib-forge-1.20.1:4.4.6")
@@ -171,8 +178,8 @@ dependencies {
     compileOnly(fg.deobf("com.github.NEZNAMY:TAB-API:${tabVersion}"))
     compileOnly("net.luckperms:api:5.5")
 
-    implementation("thedarkcolour:kotlinforforge:${kffVersion}")
     implementation(fg.deobf("me.fzzyhmstrs:fzzy_config:$fzzyConfigVersion+$minecraftVersion+forge"))
+
 }
 
 tasks {
@@ -199,6 +206,12 @@ tasks {
     }
     withType<JavaCompile> {
         options.encoding = "UTF-8" // Use the UTF-8 charset for Java compilation
+    }
+    withType<Jar> {
+        manifest.attributes(
+            "MixinConfigs" to "scaredsfactions.mixins.json"
+        )
+
     }
 }
 

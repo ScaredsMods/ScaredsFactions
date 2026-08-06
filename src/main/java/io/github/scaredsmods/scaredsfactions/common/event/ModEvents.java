@@ -129,7 +129,7 @@ public class ModEvents {
 	public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
 		if (!(event.getEntity() instanceof ServerPlayer player)) return;
 		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
-		data.syncToAllClients(player.serverLevel());
+		data.syncToClient(player);
 		Faction faction = data.getFactionFromPlayer(player.getUUID());
 
 		if (faction == null) return;

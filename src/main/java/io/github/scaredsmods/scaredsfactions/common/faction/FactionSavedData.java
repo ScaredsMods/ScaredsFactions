@@ -205,10 +205,17 @@ public class FactionSavedData extends SavedData {
 	}
 
 	public void syncToAllClients(ServerLevel level) {
-		SyncFactionDataS2CPacket packet = new SyncFactionDataS2CPacket(this.getFactions());
+		FactionSavedData data = FactionSavedData.getSavedData(level);
+		SyncFactionDataS2CPacket packet = new SyncFactionDataS2CPacket(data.factions);
 		for (ServerPlayer player : level.getServer().getPlayerList().getPlayers()) {
 			ModNetworks.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), packet);
 		}
+	}
+
+	public void syncToClient(ServerPlayer player) {
+		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
+		SyncFactionDataS2CPacket packet = new SyncFactionDataS2CPacket(data.getFactions());
+		ModNetworks.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), packet);
 	}
 
 	public static FactionSavedData create() {
