@@ -211,7 +211,7 @@ tasks {
         manifest.attributes(
             "MixinConfigs" to "scaredsfactions.mixins.json"
         )
-
+        archiveFileName = "${modName}-${modVersion}-mc${minecraftVersion}.jar"
     }
 }
 
