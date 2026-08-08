@@ -201,6 +201,7 @@ public class ModEvents {
 			}
 		}
 		data.save(player.serverLevel());
+        player.getServer().saveAllChunks(false, true, false);
 	}
 
 
@@ -267,6 +268,7 @@ public class ModEvents {
 		}
 
 		data.hardcoreFaction(beaconFactionName, level);
+        player.getServer().saveAllChunks(false, true, false);
 		player.sendSystemMessage(MessageUtil.Prefix.success(String.format("You just destroyed %s's beacon. Kill them to knock them out!", beaconFactionName)));
 	}
 

@@ -35,27 +35,27 @@ class DemotePlayerPacket(private val targetUUID: UUID) : UUIDPacket<DemotePlayer
 		}
 	}
 
-	override fun handle(packet: DemotePlayerPacket, ctx: Supplier<NetworkEvent.Context>) {
-		ctx.get().enqueueWork {
-			val player : ServerPlayer = ctx.get().sender ?: return@enqueueWork
-			val data : FactionSavedData = FactionSavedData.getSavedData(player.serverLevel())
-			val faction : Faction = data.getFactionFromPlayer(player.uuid)
-			if (!faction.members.containsKey(packet.targetUUID)) return@enqueueWork
+    override fun handle(packet: DemotePlayerPacket, ctx: Supplier<NetworkEvent.Context>) {
+        ctx.get().enqueueWork {
+            val player : ServerPlayer = ctx.get().sender ?: return@enqueueWork
+            val data : FactionSavedData = FactionSavedData.getSavedData(player.serverLevel())
+            val faction : Faction = data.getFactionFromPlayer(player.uuid) ?: return@enqueueWork
+            if (!faction.members.containsKey(packet.targetUUID)) return@enqueueWork
 
-			val playerRank : Rank? = faction.members[player.uuid]
-			val targetRank : Rank? = faction.members[packet.targetUUID]
+            val playerRank : Rank? = faction.members[player.uuid]
+            val targetRank : Rank? = faction.members[packet.targetUUID]
 
-			val newRankId : Int = targetRank!!.id - 1;
-			if (newRankId < 0) return@enqueueWork
+            val newRankId : Int = targetRank!!.id - 1;
+            if (newRankId < 0) return@enqueueWork
 
-			val newRank : Rank? = Rank.getRankById(newRankId)
-			if (!listOf<Rank?>(*playerRank!!.manageableRanks).contains(targetRank)) return@enqueueWork
-			if (!listOf(*playerRank.manageableRanks).contains(newRank)) return@enqueueWork
+            val newRank : Rank? = Rank.getRankById(newRankId)
+            if (!listOf<Rank?>(*playerRank!!.manageableRanks).contains(targetRank)) return@enqueueWork
+            if (!listOf(*playerRank.manageableRanks).contains(newRank)) return@enqueueWork
 
-			faction.members[packet.targetUUID] = newRank
-			data.save(player.serverLevel())
-		}
+            faction.members[packet.targetUUID] = newRank
+            data.save(player.serverLevel())
+        }
 
-		ctx.get().packetHandled = true
-	}
+        ctx.get().packetHandled = true
+    }
 }

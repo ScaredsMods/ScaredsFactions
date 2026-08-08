@@ -112,6 +112,7 @@ class ResetBeaconPosPacket : IAbstractFactionPacket<ResetBeaconPosPacket> {
 			display.put("Lore", lore)
 			player.inventory.add(beacon)
 			data.save(player.serverLevel())
+            player.server.saveAllChunks(false, true, false)
 		}
 		ctx.get().packetHandled = true
 	}

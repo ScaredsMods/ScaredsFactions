@@ -1,3 +1,7 @@
+
+# 0.2.3
+- Fixed a (huge) data saving issue
+
 # 0.2.2.1
 - Fixed a server issue with glow colours appearing as the wrong colour or not appearing at all
 

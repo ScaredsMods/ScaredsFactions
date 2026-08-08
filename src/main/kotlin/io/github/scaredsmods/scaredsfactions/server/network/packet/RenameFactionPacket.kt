@@ -31,15 +31,15 @@ class RenameFactionPacket(private val newName: String) : StringPacket<RenameFact
 		override fun decode(buf: FriendlyByteBuf) = RenameFactionPacket(buf.readUtf())
 	}
 
-	override fun handle(packet: RenameFactionPacket, ctx: Supplier<NetworkEvent.Context>) {
-		ctx.get().enqueueWork {
-			val player: ServerPlayer = ctx.get().sender ?: return@enqueueWork;
-			val data : FactionSavedData = FactionSavedData.getSavedData(player.serverLevel())
-			val faction: Faction = data.getFactionFromPlayer(player.uuid);
-			if (!faction.owner.equals(player.uuid)) return@enqueueWork
-			faction.name = packet.newName
-			data.save(player.serverLevel())
-		}
-		ctx.get().packetHandled = true
-	}
+    override fun handle(packet: RenameFactionPacket, ctx: Supplier<NetworkEvent.Context>) {
+        ctx.get().enqueueWork {
+            val player: ServerPlayer = ctx.get().sender ?: return@enqueueWork;
+            val data : FactionSavedData = FactionSavedData.getSavedData(player.serverLevel())
+            val faction: Faction = data.getFactionFromPlayer(player.uuid) ?: return@enqueueWork
+            if (!faction.owner.equals(player.uuid)) return@enqueueWork
+            faction.name = packet.newName
+            data.save(player.serverLevel())
+        }
+        ctx.get().packetHandled = true
+    }
 }
