@@ -21,30 +21,32 @@ import com.mojang.logging.LogUtils;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ModMenuTypes;
 import io.github.scaredsmods.scaredsfactions.common.command.argument.ModCommandArgumentTypes;
 import io.github.scaredsmods.scaredsfactions.common.compat.tab.PlaceholderHandler;
+import io.github.scaredsmods.scaredsfactions.common.component.ModDataComponents;
+import io.github.scaredsmods.scaredsfactions.common.config.ModConfigs;
 import io.github.scaredsmods.scaredsfactions.common.faction.FactionSettings;
-import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 
 
 @Mod(ScaredsFactionMod.MOD_ID)
-public class ScaredsFactionMod
-{
+public class ScaredsFactionMod {
 	public static final String MOD_ID = "scaredsfactions";
 	public static final Logger LOGGER = LogUtils.getLogger();
 
-	public ScaredsFactionMod(FMLJavaModLoadingContext context) {
+	public ScaredsFactionMod(IEventBus bus, ModContainer container) {
 		FactionSettings.init();
-		IEventBus modEventBus = context.getModEventBus();
 		ModConfigs.init();
-		ModNetworks.init();
-		ModMenuTypes.register(modEventBus);
-		ModCommandArgumentTypes.register(modEventBus);
-		MinecraftForge.EVENT_BUS.register(PlaceholderHandler.class);
+		ModMenuTypes.register(bus);
+		ModCommandArgumentTypes.register(bus);
+        ModDataComponents.register(bus);
+        if (ModList.get().isLoaded("tab")) {
+            NeoForge.EVENT_BUS.register(PlaceholderHandler.class);
+        }
 	}
 
 	public static ResourceLocation id(String name) {

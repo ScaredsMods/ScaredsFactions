@@ -25,31 +25,31 @@ import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.Abstract
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ConfirmTransferOwnershipMenu;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ManageFactionMenu;
-import io.github.scaredsmods.scaredsfactions.common.ModConfigs;
+import io.github.scaredsmods.scaredsfactions.common.component.ModDataComponents;
+import io.github.scaredsmods.scaredsfactions.common.component.RespawnBeaconDataComponent;
+import io.github.scaredsmods.scaredsfactions.common.config.ModConfigs;
 import io.github.scaredsmods.scaredsfactions.common.command.argument.ArrayEnumArgument;
 import io.github.scaredsmods.scaredsfactions.common.config.LanguageOptions;
 import io.github.scaredsmods.scaredsfactions.common.faction.Faction;
 import io.github.scaredsmods.scaredsfactions.common.faction.FactionSavedData;
 import io.github.scaredsmods.scaredsfactions.common.faction.FactionSettings;
 import io.github.scaredsmods.scaredsfactions.common.faction.InviteManager;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.ModScreens;
 import io.github.scaredsmods.scaredsfactions.common.util.MessageUtil;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.NetworkHooks;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -120,7 +120,7 @@ public class FactionCommand {
 								.executes(ctx -> createFaction(ctx, StringArgumentType.getString(ctx, "name")))))
 				.then(Commands.literal("debug")
 						.then(Commands.literal("open_screen")
-								.then(Commands.argument("screen", ArrayEnumArgument.enumArgument(ModScreens.class, ModScreens.getEntries().stream()
+								.then(Commands.argument("screen", ArrayEnumArgument.enumArgument(ModScreens.class, Arrays.stream(ModScreens.values())
 												.filter(screen -> screen != ModScreens.CONFIRM_TRANSFER && screen != ModScreens.CLOSE)
 												.toArray(ModScreens[]::new)))
 										.executes(ctx -> openScreenDebugCommand(ctx, ctx.getArgument("screen", ModScreens.class))))
@@ -166,7 +166,7 @@ public class FactionCommand {
 			return 0;
 		}
 
-		NetworkHooks.openScreen(player, new SimpleMenuProvider(
+		player.openMenu(new SimpleMenuProvider(
 						(pContainerId, pPlayerInventory, pPlayer) -> new ConfirmTransferOwnershipMenu(pContainerId, pPlayerInventory, UUID.fromString(targetUUID)),
 						Component.literal("Confirm Transfer?")),
 				buf -> buf.writeUUID(UUID.fromString(targetUUID)));
@@ -209,7 +209,7 @@ public class FactionCommand {
 			return 0;
 		}
 
-		NetworkHooks.openScreen(player, new SimpleMenuProvider(
+		player.openMenu( new SimpleMenuProvider(
 				(pContainerId, pPlayerInventory, pPlayer) -> new ManageFactionMenu(pContainerId, pPlayerInventory),
 				Component.literal(faction.getName().replace("&", "§"))));
 		return 1;
@@ -626,36 +626,30 @@ public class FactionCommand {
 
 
 		ItemStack beacon = new ItemStack(Items.BEACON);
-		beacon.getOrCreateTag().putBoolean("respawn_beacon", true);
-		beacon.setHoverName(Component.literal("Respawn Beacon")
+        beacon.set(ModDataComponents.RESPAWN_BEACON.get(), new RespawnBeaconDataComponent(true));
+		beacon.set(DataComponents.ITEM_NAME, Component.literal("Respawn Beacon")
 				.withStyle(style -> style
 						.withBold(true)
 						.withColor(ChatFormatting.RED)
 						.withItalic(false)));
-		CompoundTag display = beacon.getOrCreateTagElement("display");
-		ListTag lore = new ListTag();
-		lore.add(StringTag.valueOf(Component.Serializer.toJson(
-				Component.literal("This is your faction's respawn beacon!")
+		List<Component> lore = new ArrayList<>();
+		lore.add(Component.literal("This is your faction's respawn beacon!")
 						.withStyle(style -> style
 								.withColor(ChatFormatting.GRAY)
-								.withItalic(false))
-		)));
-		lore.add(StringTag.valueOf(Component.Serializer.toJson(
-				Component.literal("It functions as your bed, and lifeline!")
+								.withItalic(false)));
+		lore.add(Component.literal("It functions as your bed, and lifeline!")
 						.withStyle(style -> style
 								.withColor(ChatFormatting.GRAY)
-								.withItalic(false))
-		)));
+								.withItalic(false)));
 
-		lore.add(StringTag.valueOf(Component.Serializer.toJson(
-				Component.literal("Hide it well: If other factions get a hold of it, you can no longer respawn!")
+		lore.add(Component.literal("Hide it well: If other factions get a hold of it, you can no longer respawn!")
 						.withStyle(style -> style
 								.withBold(false)
 								.withItalic(false)
 								.withColor(ChatFormatting.GRAY))
-		)));
+		);
 
-		display.put("Lore", lore);
+        beacon.set(DataComponents.LORE, new ItemLore(lore));
 		player.getInventory().add(beacon);
 		data.addFaction(faction, player.serverLevel());
 		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success("Faction ")
@@ -737,7 +731,7 @@ public class FactionCommand {
 			player.closeContainer();
 			return;
 		}
-		NetworkHooks.openScreen(player, new SimpleMenuProvider(
+		player.openMenu(new SimpleMenuProvider(
 				(id, inv, p) -> screen.createMenu(id, inv, player),
 				screen.getTitle()
 		), buf -> screen.writeBuf(player, buf));

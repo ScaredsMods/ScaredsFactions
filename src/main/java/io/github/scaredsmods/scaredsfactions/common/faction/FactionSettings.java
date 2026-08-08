@@ -16,7 +16,7 @@
 */
 package io.github.scaredsmods.scaredsfactions.common.faction;
 
-import io.github.scaredsmods.scaredsfactions.common.ModConfigs;
+import io.github.scaredsmods.scaredsfactions.common.config.ModConfigs;
 import io.github.scaredsmods.scaredsfactions.common.config.LanguageOptions;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.AbstractFactionSetting;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting;

@@ -17,6 +17,7 @@
 package io.github.scaredsmods.scaredsfactions.api.common.faction.setting;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 
 public abstract class AbstractFactionSetting<T, S extends AbstractFactionSetting<T, S>> {
@@ -79,6 +80,7 @@ public abstract class AbstractFactionSetting<T, S extends AbstractFactionSetting
 	public abstract S copy();
 	public abstract void onClick(int mouseButton, Runnable sendUpdate);
 	public abstract Component getCurrentValueAsComponent();
+    public abstract void writeBuf(RegistryFriendlyByteBuf buf);
 
 	public boolean compare(T compareValue) {
 		return this.get().equals(compareValue);

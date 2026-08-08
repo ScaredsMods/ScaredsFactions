@@ -19,11 +19,10 @@ package io.github.scaredsmods.scaredsfactions.client.screen;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ViewMembersMenu;
-import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.DemotePlayerPacket;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenC2SPacket;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.PromotePlayerPacket;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.DemotePlayerC2SPacket;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.ModScreens;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.OpenScreenC2SPacket;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.PromotePlayerC2SPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -32,6 +31,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
@@ -61,7 +61,7 @@ public class ViewMembersScreen extends AbstractContainerScreen<ViewMembersMenu> 
 
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-		renderBackground(guiGraphics);
+		renderBackground(guiGraphics, mouseX, mouseY, partialTick);
 		super.render(guiGraphics, mouseX, mouseY, partialTick);
 		renderTooltip(guiGraphics, mouseX, mouseY);
 	}
@@ -78,11 +78,11 @@ public class ViewMembersScreen extends AbstractContainerScreen<ViewMembersMenu> 
 			GameProfile targetProfile = getProfileForSlot(slot.index);
 			if (targetProfile != null) {
 				if (pButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-					ModNetworks.CHANNEL.sendToServer(new PromotePlayerPacket(targetProfile.getId()));
-					ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.VIEW_MEMBERS, Component.literal("View Members")));
+					PacketDistributor.sendToServer(new PromotePlayerC2SPacket(targetProfile.getId()));
+					PacketDistributor.sendToServer(new OpenScreenC2SPacket(ModScreens.VIEW_MEMBERS, Component.literal("View Members")));
 				} else if (pButton == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
-					ModNetworks.CHANNEL.sendToServer(new DemotePlayerPacket(targetProfile.getId()));
-					ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.VIEW_MEMBERS, Component.literal("View Members")));
+					PacketDistributor.sendToServer(new DemotePlayerC2SPacket(targetProfile.getId()));
+					PacketDistributor.sendToServer(new OpenScreenC2SPacket(ModScreens.VIEW_MEMBERS, Component.literal("View Members")));
 
 				}
 			}

@@ -17,6 +17,7 @@
 package io.github.scaredsmods.scaredsfactions.api.common.faction.setting;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 
 public class DoubleFactionSetting extends NumericFactionSetting<Double, DoubleFactionSetting>{
 
@@ -47,7 +48,12 @@ public class DoubleFactionSetting extends NumericFactionSetting<Double, DoubleFa
 				: new DoubleFactionSetting(getDefaultValue(), getNbtId(), getDisplayName(), getStep(), getMin(), getMax(), getLore());
 	}
 
-	@Override
+    @Override
+    public void writeBuf(RegistryFriendlyByteBuf buf) {
+        buf.writeDouble(this.get());
+    }
+
+    @Override
 	public void increment() {
 		set(Math.min(get() + 1, Double.MAX_VALUE));
 	}

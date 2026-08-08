@@ -17,6 +17,7 @@
 package io.github.scaredsmods.scaredsfactions.api.common.faction.setting;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 
 public class LongFactionSetting extends NumericFactionSetting<Long, LongFactionSetting> {
 
@@ -46,7 +47,12 @@ public class LongFactionSetting extends NumericFactionSetting<Long, LongFactionS
 				: new LongFactionSetting(getDefaultValue(), getNbtId(), getDisplayName(), getStep(), getMin(), getMax(), getLore());
 	}
 
-	@Override
+    @Override
+    public void writeBuf(RegistryFriendlyByteBuf buf) {
+        buf.writeLong(this.get());
+    }
+
+    @Override
 	public void increment() {
 		set(Math.min(get() + 1, Long.MAX_VALUE));
 	}

@@ -18,9 +18,8 @@ package io.github.scaredsmods.scaredsfactions.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ManageFactionMenu;
-import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenC2SPacket;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.ModScreens;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.OpenScreenC2SPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -29,6 +28,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 
 public class ManageFactionScreen extends AbstractContainerScreen<ManageFactionMenu> {
@@ -51,7 +51,7 @@ public class ManageFactionScreen extends AbstractContainerScreen<ManageFactionMe
 
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-		renderBackground(guiGraphics);
+		renderBackground(guiGraphics, mouseX, mouseY, partialTick);
 		super.render(guiGraphics, mouseX, mouseY, partialTick);
 		renderTooltip(guiGraphics, mouseX, mouseY);
 
@@ -78,11 +78,11 @@ public class ManageFactionScreen extends AbstractContainerScreen<ManageFactionMe
 
 	private void onSlotClick(int index) {
 		switch (index) {
-			case 0 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.RENAME_FACTION, Component.literal("Rename Faction")));
-			case 1 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.TRANSFER_OWNERSHIP, Component.literal("Transfer Ownership")));
-			case 2 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.VIEW_MEMBERS, Component.literal("View Members")));
-			case 3 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.FACTION_SETTINGS, Component.literal("Settings")));
-			case 4 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.CONFIRM_RESET_BEACON, Component.literal("Confirm Reset Beacon Pos")));
+			case 0 -> PacketDistributor.sendToServer(new OpenScreenC2SPacket(ModScreens.RENAME_FACTION, Component.literal("Rename Faction")));
+			case 1 -> PacketDistributor.sendToServer(new OpenScreenC2SPacket(ModScreens.TRANSFER_OWNERSHIP, Component.literal("Transfer Ownership")));
+			case 2 -> PacketDistributor.sendToServer(new OpenScreenC2SPacket(ModScreens.VIEW_MEMBERS, Component.literal("View Members")));
+			case 3 -> PacketDistributor.sendToServer(new OpenScreenC2SPacket(ModScreens.FACTION_SETTINGS, Component.literal("Settings")));
+			case 4 -> PacketDistributor.sendToServer(new OpenScreenC2SPacket(ModScreens.CONFIRM_RESET_BEACON, Component.literal("Confirm Reset Beacon Pos")));
 			case 8 -> this.onClose();
 		}
 	}

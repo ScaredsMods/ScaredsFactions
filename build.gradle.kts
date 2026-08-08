@@ -1,13 +1,14 @@
-import net.minecraftforge.gradle.common.util.ModConfig
-import net.minecraftforge.gradle.common.util.RunConfig
+import net.neoforged.moddevgradle.dsl.ModModel
+import net.neoforged.moddevgradle.dsl.RunModel
+import org.jetbrains.kotlin.gradle.idea.proto.com.google.protobuf.mixin
+import org.slf4j.event.Level
+
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "2.0.0"
+    id("org.jetbrains.kotlin.jvm") version "2.4.0"
     id("java")
     id("idea")
-    id("net.minecraftforge.gradle") version "6.0.54"
-    id("org.spongepowered.mixin") version ("0.7.+")
-    id("org.parchmentmc.librarian.forgegradle") version "1.2.0"
+    id("net.neoforged.moddev") version "2.0.140"
     id("com.diffplug.spotless") version ("6.19.0")
 }
 
@@ -18,14 +19,16 @@ val modName: String by project
 val modLicense: String by project
 val modAuthors: String by project
 val modDescription: String by project
-val minecraftVersion: String by project
-val minecraftVersionRange: String by project
-val forgeVersion: String by project
-val forgeVersionRange: String by project
+val mcVersion: String by project
+val mcVersionRange: String by project
+val neoForgeVersion: String by project
+val neoForgeVersionRange: String by project
 val loaderVersionRange: String by project
 val kffVersion: String by project
 val fzzyConfigVersion: String by project
 val tabVersion: String by project
+val parchmentMappingsVersion: String by project
+val parchmentMCVersion: String by project
 
 version = modVersion
 group = modGroupId
@@ -40,13 +43,13 @@ tasks.named<Wrapper>("wrapper").configure {
 }
 
 
-// Java 17
+
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 
@@ -77,6 +80,7 @@ repositories {
         name = "Kotlin for Forge"
         url = uri("https://thedarkcolour.github.io/KotlinForForge/")
     }
+
     maven { url = uri("https://maven.shedaniel.me/") }
     maven {
         name = "FzzyMaven"
@@ -88,75 +92,56 @@ repositories {
     mavenCentral()
 }
 
-mixin {
-    add(sourceSets.main.get(), "scaredsfactions.mixins.refmap.json")
-    config("scaredsfactions.mixins.json")
-    dumpTargetOnFailure = true
-    isQuiet = false
-}
-minecraft {
-    mappings(
-        project.property("mappingChannel") as String,
-        project.property("mappingVersion") as String
-    )
+neoForge {
+    version = neoForgeVersion
+    parchment {
+        mappingsVersion = parchmentMappingsVersion
+        minecraftVersion = parchmentMCVersion
+    }
 
-    copyIdeResources.set(true)
 
     runs {
 
-        all {
-            property("forge.logging.markers", "REGISTRIES")
-            property("forge.logging.console.level", "debug")
-            property("mixin.env.remapRefMap", "true")
-            property("mixin.env.refMapRemappingFile", "${projectDir}/build/createSrgToMcp/output.srg")
-            mods {
-                create(modId) {
-                    source(sourceSets.main.get())
-                }
+        val client : RunModel by creating {
+            client()
+            programArguments.addAll("--username=ScaredRabbitNL", "--uuid=67e129a0-7954-4ad0-bc39-d2ecf97e7a1a")
+            systemProperty("neoforge.enabledGameTestNamespaces", modId)
+        }
+
+        val client2 : RunModel by creating {
+            client()
+            systemProperty("neoforge.enabledGameTestNamespaces", modId)
+            programArguments.addAll("--username=ScaredRabbitNL2")
+        }
+
+        val server : RunModel by creating {
+            server()
+            programArgument("--nogui")
+            systemProperty("neoforge.enabledGameTestNamespaces", modId)
+        }
+        val gameTestServer : RunModel by creating {
+            type = "gameTestServer"
+            systemProperty("neoforge.enabledGameTestNamespaces", modId)
+        }
+        val data : RunModel by creating {
+            data()
+            programArguments.addAll("--mod", modId, "--all", "--output", file("src/generated/resources/").getAbsolutePath(), "--existing", file("src/main/resources/").getAbsolutePath())
+        }
+
+        configureEach {
+            systemProperty("forge.logging.markers", "REGISTRIES")
+            logLevel = Level.DEBUG
+        }
+
+    }
+    mods {
+        modId.let {
+            val sourceSet : ModModel by creating {
+                sourceSet(sourceSets.main.get())
             }
         }
-
-        create("client") {
-            property("forge.enabledGameTestNamespaces", modId)
-            val uuid = "67e129a0-7954-4ad0-bc39-d2ecf97e7a1a"
-
-            args("--username", "ScaredRabbitNL", "--uuid", uuid)
-        }
-
-        create("client2") {
-            parent(runs.getByName("client"))
-            inheritArgs(false)
-            property("forge.enabledGameTestNamespaces", modId)
-            client(true)
-            main("cpw.mods.bootstraplauncher.BootstrapLauncher")
-            args("--username", "ScaredRabbitNL2")
-            args("--launchTarget=forgeclientuserdev", "--version=MOD_DEV", "--assetIndex=5", "--assetsDir=C:\\Users\\ScaredRabbit\\.gradle\\caches\\forge_gradle\\assets", "--gameDir=.", "--fml.forgeVersion=47.4.10", "--fml.mcVersion=1.20.1", "--fml.forgeGroup=net.minecraftforge", "--fml.mcpVersion=20230612.114412")
-            workingDirectory("run2")
-            folderName("run2")
-        }
-
-
-        val server: RunConfig by creating {
-            property("forge.enabledGameTestNamespaces", modId)
-            workingDirectory(project.file("server"))
-            args("--nogui")
-        }
-
-        val gameTestServer: RunConfig by creating {
-            property("forge.enabledGameTestNamespaces", modId)
-        }
-
-        val data: RunConfig by creating {
-            workingDirectory(project.file("run-data"))
-
-            args(
-                "--mod", modId,
-                "--all",
-                "--output", file("src/generated/resources/").toString(),
-                "--existing", file("src/main/resources/").toString()
-            )
-        }
     }
+
 }
 
 // Include generated resources
@@ -167,28 +152,26 @@ sourceSets {
 }
 
 dependencies {
-    implementation("thedarkcolour:kotlinforforge:${kffVersion}")
-    minecraft("net.minecraftforge:forge:${minecraftVersion}-${forgeVersion}")
-    annotationProcessor("org.spongepowered:mixin:0.8.5:processor")
+    implementation("thedarkcolour:kotlinforforge-neoforge:${kffVersion}")
+    //annotationProcessor("org.spongepowered:mixin:0.8.5:processor")
 
-    compileOnly("curse.maven:timeless-and-classics-zero-1028108:7745481-sources-7745491")
-    compileOnly(("top.theillusivec4.curios:curios-forge:5.4.2+1.20.1:api"))
+    compileOnly("curse.maven:tacz-1-21-1-1353462:8547439-sources-8547440")
+    compileOnly("top.theillusivec4.curios:curios-forge:5.4.2+1.20.1:api")
     compileOnly("software.bernie.geckolib:geckolib-forge-1.20.1:4.4.6")
-    compileOnly("curse.maven:superb-warfare-1218165:7292685-sources-7292686")
-    compileOnly(fg.deobf("com.github.NEZNAMY:TAB-API:${tabVersion}"))
+    compileOnly("curse.maven:superb-warfare-1218165:8104860-sources-8104863")
+    implementation("com.github.NEZNAMY:TAB-API:${tabVersion}")
     compileOnly("net.luckperms:api:5.5")
 
-    implementation(fg.deobf("me.fzzyhmstrs:fzzy_config:$fzzyConfigVersion+$minecraftVersion+forge"))
-
+    implementation("me.fzzyhmstrs:fzzy_config:$fzzyConfigVersion+1.21+neoforge")
 }
 
 tasks {
     withType<ProcessResources> {
         val replaceProperties = mapOf(
-            "minecraft_version" to minecraftVersion,
-            "minecraft_version_range" to minecraftVersion,
-            "forge_version" to forgeVersion,
-            "forge_version_range" to forgeVersionRange,
+            "minecraft_version" to mcVersion,
+            "minecraft_version_range" to mcVersionRange,
+            "neo_version" to neoForgeVersion,
+            "neo_version_range" to neoForgeVersionRange,
             "loader_version_range" to loaderVersionRange,
             "mod_id" to modId,
             "mod_name" to modName,
@@ -200,8 +183,8 @@ tasks {
 
         inputs.properties(replaceProperties)
 
-        filesMatching(listOf("META-INF/mods.toml", "pack.mcmeta")) {
-            expand(replaceProperties + mapOf("project" to project))
+        filesMatching("META-INF/neoforge.mods.toml") {
+            expand(replaceProperties)
         }
     }
     withType<JavaCompile> {
@@ -211,7 +194,7 @@ tasks {
         manifest.attributes(
             "MixinConfigs" to "scaredsfactions.mixins.json"
         )
-        archiveFileName = "${modName}-${modVersion}-mc${minecraftVersion}.jar"
+        archiveFileName = "${modName}-${modVersion}-mc${mcVersion}.jar"
     }
 }
 

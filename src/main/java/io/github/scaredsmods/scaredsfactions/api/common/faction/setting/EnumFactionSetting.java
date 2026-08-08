@@ -18,6 +18,7 @@ package io.github.scaredsmods.scaredsfactions.api.common.faction.setting;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 
 import java.util.Arrays;
@@ -74,7 +75,12 @@ public class EnumFactionSetting<E extends Enum<E>> extends AbstractFactionSettin
 				);
 	}
 
-	public Class<E> getEnumClass() {
+    @Override
+    public void writeBuf(RegistryFriendlyByteBuf buf) {
+        buf.writeEnum(this.get());
+    }
+
+    public Class<E> getEnumClass() {
 		return this.enumClass;
 	}
 

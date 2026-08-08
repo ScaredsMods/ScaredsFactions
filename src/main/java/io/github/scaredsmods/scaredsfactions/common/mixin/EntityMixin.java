@@ -14,7 +14,7 @@
 *  You should have received a copy of the GNU Lesser General Public License
 *  along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-package io.github.scaredsmods.scaredsfactions.common.mixin.client;
+package io.github.scaredsmods.scaredsfactions.common.mixin;
 
 
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting;
@@ -33,7 +33,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Entity.class)
 public abstract class EntityMixin {
 
-	@Inject(method = "getTeamColor", at = @At("RETURN"), cancellable = true)
+	@Inject(method = "getTeamColor()I", at = @At("RETURN"), cancellable = true)
 	public void getColor(CallbackInfoReturnable<Integer> cir) {
 		Entity entity = (Entity) (Object) this;
 		if (entity.getTeam() == null || entity.getTeam() != null) {

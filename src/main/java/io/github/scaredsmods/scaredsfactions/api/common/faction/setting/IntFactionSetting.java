@@ -17,6 +17,7 @@
 package io.github.scaredsmods.scaredsfactions.api.common.faction.setting;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 
 public class IntFactionSetting extends NumericFactionSetting<Integer, IntFactionSetting> {
 
@@ -46,7 +47,12 @@ public class IntFactionSetting extends NumericFactionSetting<Integer, IntFaction
 				: new IntFactionSetting(getDefaultValue(), getNbtId(), getDisplayName(), getStep(), getMin(), getMax(), getLore());
 	}
 
-	@Override
+    @Override
+    public void writeBuf(RegistryFriendlyByteBuf buf) {
+        buf.writeInt(this.get());
+    }
+
+    @Override
 	public void increment() {
 		set(Math.min(get() + 1, Integer.MAX_VALUE));
 	}

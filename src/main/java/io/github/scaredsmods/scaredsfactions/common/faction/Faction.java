@@ -17,17 +17,22 @@
 package io.github.scaredsmods.scaredsfactions.common.faction;
 
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting;
-import io.github.scaredsmods.scaredsfactions.common.ModConfigs;
+import io.github.scaredsmods.scaredsfactions.common.config.ModConfigs;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.AbstractFactionSetting;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.ByIdMap;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 
 public class Faction {
@@ -41,6 +46,10 @@ public class Faction {
 	private UUID pendingTransfer = null;
 	private final Set<UUID> eliminatedPlayers = new HashSet<>();
 	private final Map<UUID, Long> playersOnHomeCooldown = new HashMap<>();
+    public static final StreamCodec<FriendlyByteBuf, Faction> STREAM_CODEC = StreamCodec.of(
+            (buf, faction) -> faction.write(buf),
+            Faction::read
+    );
 
 	public Faction(String name, UUID owner, List<AbstractFactionSetting<?, ?>> settings) {
 		this.name = name;
@@ -81,6 +90,10 @@ public class Faction {
 	public Map<UUID, Rank> getMembers() {
 		return this.members;
 	}
+
+    public boolean isMember(UUID uuid) {
+        return this.members.containsKey(uuid);
+    }
 
 	public void setRank(UUID target, Rank rank) {
 		this.members.put(target, rank);
@@ -227,14 +240,14 @@ public class Faction {
 		buf.writeBoolean(this.beaconPos != null);
 		if (this.beaconPos != null) buf.writeBlockPos(this.beaconPos);
 
-		buf.writeMap(this.members, FriendlyByteBuf::writeUUID, FriendlyByteBuf::writeEnum);
+		buf.writeMap(this.members, (buffer, value) -> buffer.writeUUID(value), FriendlyByteBuf::writeEnum);
 		buf.writeCollection(this.allies, FriendlyByteBuf::writeUtf);
 
 		buf.writeBoolean(this.pendingTransfer != null);
 		if (this.pendingTransfer != null) buf.writeUUID(this.pendingTransfer);
 
-		buf.writeCollection(this.eliminatedPlayers, FriendlyByteBuf::writeUUID);
-		buf.writeMap(this.playersOnHomeCooldown, FriendlyByteBuf::writeUUID, FriendlyByteBuf::writeLong);
+		buf.writeCollection(this.eliminatedPlayers, (buffer, value) -> buffer.writeUUID(value));
+		buf.writeMap(this.playersOnHomeCooldown, (buffer, value) -> buffer.writeUUID(value), FriendlyByteBuf::writeLong);
 	}
 
 	public static Faction read(FriendlyByteBuf buf) {
@@ -263,7 +276,7 @@ public class Faction {
 		}
 
 		faction.getMembers().clear();
-		Map<UUID, Rank> members = buf.readMap(FriendlyByteBuf::readUUID, fBuf -> fBuf.readEnum(Rank.class));
+		Map<UUID, Rank> members = buf.readMap(buffer -> buffer.readUUID(), fBuf -> fBuf.readEnum(Rank.class));
 		faction.getMembers().putAll(members);
 
 		List<String> allies = buf.readList(FriendlyByteBuf::readUtf);
@@ -275,10 +288,10 @@ public class Faction {
 			faction.setPendingTransfer(buf.readUUID());
 		}
 
-		Set<UUID> eliminatedPlayers = new HashSet<>(buf.readList(FriendlyByteBuf::readUUID));
+		Set<UUID> eliminatedPlayers = new HashSet<>(buf.readList(buffer -> buffer.readUUID()));
 		faction.setEliminatedPlayers(eliminatedPlayers);
 
-		Map<UUID, Long> homeCooldowns = buf.readMap(FriendlyByteBuf::readUUID, FriendlyByteBuf::readLong);
+		Map<UUID, Long> homeCooldowns = buf.readMap(buffer -> buffer.readUUID(), FriendlyByteBuf::readLong);
 		faction.setPlayersOnHomeCooldown(homeCooldowns);
 		return faction;
 	}
@@ -315,6 +328,21 @@ public class Faction {
 
 		private final String name;
 		private final int id;
+        private static final Map<Integer, Rank> BY_ID_MAP = buildIdMap();
+
+        private static Map<Integer, Rank> buildIdMap() {
+            Map<Integer, Rank> map = new HashMap<>();
+            for (Rank rank : values()) {
+                map.putIfAbsent(rank.getId(), rank);
+            }
+            return Map.copyOf(map);
+        }
+
+        public static final IntFunction<Rank> BY_ID =
+                id -> BY_ID_MAP.getOrDefault(id, PRIVATE);
+
+        public static final StreamCodec<ByteBuf, Rank> STREAM_CODEC =
+                ByteBufCodecs.idMapper(BY_ID, Rank::getId);
 
 		Rank(String name, int id) {
 			this.name = name;

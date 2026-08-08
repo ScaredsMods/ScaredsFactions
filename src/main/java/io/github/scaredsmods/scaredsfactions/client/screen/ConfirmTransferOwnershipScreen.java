@@ -19,17 +19,17 @@ package io.github.scaredsmods.scaredsfactions.client.screen;
 import io.github.scaredsmods.scaredsfactions.api.client.screen.AbstractConfirmScreen;
 import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ConfirmTransferOwnershipMenu;
-import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenC2SPacket;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.PendingOwnershipTransferC2SPacket;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.TransferOwnershipPacket;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.ModScreens;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.OpenScreenC2SPacket;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.PendingOwnershipTransferC2SPacket;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.TransferOwnershipC2SPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class ConfirmTransferOwnershipScreen extends AbstractConfirmScreen<ConfirmTransferOwnershipMenu> {
 
@@ -51,12 +51,12 @@ public class ConfirmTransferOwnershipScreen extends AbstractConfirmScreen<Confir
 		super.init();
 
 		this.confirm = Button.builder(Component.literal("Confirm").withStyle(ChatFormatting.GREEN), btn -> {
-			ModNetworks.CHANNEL.sendToServer(new TransferOwnershipPacket(this.menu.getTarget()));
-			ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.CLOSE, Component.literal("")));
+			PacketDistributor.sendToServer(new TransferOwnershipC2SPacket(this.menu.getTarget()));
+			PacketDistributor.sendToServer(new OpenScreenC2SPacket(ModScreens.CLOSE, Component.literal("")));
 		}).bounds(leftPos + 40, topPos + 38, 45, 15).build();
 
 		this.back = Button.builder(Component.literal("Back").withStyle(ChatFormatting.RED), btn -> {
-			ModNetworks.CHANNEL.sendToServer(new PendingOwnershipTransferC2SPacket(null));
+			PacketDistributor.sendToServer(new PendingOwnershipTransferC2SPacket(null));
 			this.onClose();
 		}
 		).bounds(leftPos + 90, topPos + 38, 45,15).build();

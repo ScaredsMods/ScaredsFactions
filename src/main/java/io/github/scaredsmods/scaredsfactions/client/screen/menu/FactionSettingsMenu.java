@@ -19,6 +19,7 @@ package io.github.scaredsmods.scaredsfactions.client.screen.menu;
 import io.github.scaredsmods.scaredsfactions.common.faction.FactionSettings;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.AbstractFactionSetting;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -31,6 +32,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ItemLore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,13 +52,13 @@ public class FactionSettingsMenu extends AbstractContainerMenu {
 
 		for (int i = 0; i < container.getContainerSize(); i++) {
 			ItemStack pane = new ItemStack(Items.BLACK_STAINED_GLASS_PANE);
-			pane.setHoverName(Component.literal(""));
+			pane.set(DataComponents.ITEM_NAME, Component.literal(""));
 			container.setItem(i, pane);
 		}
 
 
 		ItemStack back = new ItemStack(Items.RED_WOOL);
-		back.setHoverName(Component.literal("Back").withStyle(style -> style.withColor(ChatFormatting.DARK_RED).withBold(true).withItalic(false)));
+		back.set(DataComponents.ITEM_NAME, Component.literal("Back").withStyle(style -> style.withColor(ChatFormatting.DARK_RED).withBold(true).withItalic(false)));
 		container.setItem(49, back);
 
 
@@ -65,23 +67,19 @@ public class FactionSettingsMenu extends AbstractContainerMenu {
 			AbstractFactionSetting<?, ?> setting = settings.get(i);
 
 			ItemStack settingStack = new ItemStack(Items.PAPER);
-			CompoundTag display = settingStack.getOrCreateTagElement("display");
 
-			display.putString("Name", Component.Serializer.toJson(Component.literal(setting.getDisplayName()).withStyle(style -> style.withColor(ChatFormatting.YELLOW).withItalic(false))));
+            settingStack.set(DataComponents.ITEM_NAME, Component.literal(setting.getDisplayName()).withStyle(style -> style.withColor(ChatFormatting.YELLOW).withItalic(false)));
+            List<Component> lore = new ArrayList<>();
 
-			ListTag lore = new ListTag();
-			for (String loreLine : setting.getLore()) {
-				lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.literal(loreLine).withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false)))));
-			}
+            for (String loreLine : setting.getLore()) {
+                lore.add(Component.literal(loreLine).withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false)));
+            }
+            lore.add(Component.literal("Current value: ")
+                    .withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false))
+                    .append(setting.getCurrentValueAsComponent()));
+            lore.add(Component.literal("Click to change setting!").withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false)));
+            settingStack.set(DataComponents.LORE, new ItemLore(lore));
 
-			lore.add(StringTag.valueOf(Component.Serializer.toJson(
-					Component.literal("Current value: ")
-							.withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false))
-							.append(setting.getCurrentValueAsComponent())
-			)));
-
-			lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.literal("Click to change setting!").withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false)))));
-			display.put("Lore", lore);
 			container.setItem(i, settingStack);
 		}
 

@@ -20,11 +20,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.FactionSettingsMenu;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.AbstractFactionSetting;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.StringFactionSetting;
-import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenEditStringSettingC2SPacket;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenC2SPacket;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.UpdateFactionSettingsPacket;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.ModScreens;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.OpenEditStringSettingC2SPacket;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.OpenScreenC2SPacket;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.UpdateFactionSettingC2SPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -34,6 +33,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class FactionSettingsScreen extends AbstractContainerScreen<FactionSettingsMenu> {
 
@@ -64,7 +64,7 @@ public class FactionSettingsScreen extends AbstractContainerScreen<FactionSettin
 
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-		renderBackground(guiGraphics);
+		renderBackground(guiGraphics, mouseX, mouseY, partialTick);
 		super.render(guiGraphics, mouseX, mouseY, partialTick);
 		renderTooltip(guiGraphics, mouseX, mouseY);
 	}
@@ -92,7 +92,7 @@ public class FactionSettingsScreen extends AbstractContainerScreen<FactionSettin
 		AbstractFactionSetting<?, ?> setting = settings.get(index);
 
 		if (setting instanceof StringFactionSetting) {
-			ModNetworks.CHANNEL.sendToServer(new OpenEditStringSettingC2SPacket(setting.getNbtId()));
+			PacketDistributor.sendToServer(new OpenEditStringSettingC2SPacket(setting.getNbtId()));
 			return;
 		}
 
@@ -100,8 +100,8 @@ public class FactionSettingsScreen extends AbstractContainerScreen<FactionSettin
 			CompoundTag tag = new CompoundTag();
 			setting.save(tag);
 
-			ModNetworks.CHANNEL.sendToServer(new UpdateFactionSettingsPacket(setting.getNbtId(), tag));
-			ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.FACTION_SETTINGS, Component.literal("Settings")));
+			PacketDistributor.sendToServer(new UpdateFactionSettingC2SPacket(setting.getNbtId(), tag));
+			PacketDistributor.sendToServer(new OpenScreenC2SPacket(ModScreens.FACTION_SETTINGS, Component.literal("Settings")));
 		});
 	}
 

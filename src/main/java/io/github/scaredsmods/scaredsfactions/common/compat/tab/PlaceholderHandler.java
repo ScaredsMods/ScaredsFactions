@@ -22,9 +22,9 @@ import me.neznamy.tab.api.TabAPI;
 import me.neznamy.tab.api.event.plugin.TabLoadEvent;
 import me.neznamy.tab.api.placeholder.PlaceholderManager;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
 
 
 public class PlaceholderHandler {
@@ -36,7 +36,6 @@ public class PlaceholderHandler {
 		if (api.getEventBus() == null) return;
 		api.getEventBus().register(TabLoadEvent.class, e -> registerPlaceholders());
 		registerPlaceholders();
-
 	}
 
 	private static void registerPlaceholders() {

@@ -14,6 +14,8 @@
 *  You should have received a copy of the GNU Lesser General Public License
 *  along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
+@file:Suppress("KaptKotlinCompilerPlugin")
+
 package io.github.scaredsmods.scaredsfactions.common.event;
 
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting
@@ -24,26 +26,28 @@ import io.github.scaredsmods.scaredsfactions.common.util.MessageUtil
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.tags.TagKey
 import net.minecraft.world.damagesource.DamageType
-import net.minecraftforge.event.entity.living.LivingHurtEvent
-import net.minecraftforge.eventbus.api.EventPriority
-import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.ModList
-import net.minecraftforge.fml.common.Mod
+import net.neoforged.bus.api.EventPriority
+import net.neoforged.bus.api.SubscribeEvent
+import net.neoforged.fml.ModList
+import net.neoforged.fml.common.EventBusSubscriber
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent
+
 import com.atsuishio.superbwarfare.init.ModTags.DamageTypes as SuperbWarfareDamageTypes
 import com.tacz.guns.init.ModDamageTypes as TaCZDamageTypes
 
 
-@Mod.EventBusSubscriber(modid = ScaredsFactionMod.MOD_ID)
+@EventBusSubscriber(modid = ScaredsFactionMod.MOD_ID)
 object GunModImplEvents {
 
+    @JvmStatic
 	@SubscribeEvent(priority = EventPriority.HIGH)
-	fun disableInFactionFriendlyFire(event : LivingHurtEvent) {
+	fun disableInFactionFriendlyFire(event : LivingIncomingDamageEvent) {
 		disableInFactionModFriendlyFire(event, "tacz", TaCZDamageTypes.BULLETS_TAG)
 		disableInFactionModFriendlyFire(event, "superbwarfare", SuperbWarfareDamageTypes.GUN_DAMAGE)
 	}
 
 
-	fun disableInFactionModFriendlyFire(event : LivingHurtEvent, modId : String, damageType: TagKey<DamageType>) {
+	fun disableInFactionModFriendlyFire(event : LivingIncomingDamageEvent, modId : String, damageType: TagKey<DamageType>) {
 		val victim = event.entity as? ServerPlayer ?: return
 		if (!(ModList.get().isLoaded(modId))) return
 

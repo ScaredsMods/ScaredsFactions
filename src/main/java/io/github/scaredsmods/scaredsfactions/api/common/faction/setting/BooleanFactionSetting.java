@@ -18,6 +18,7 @@ package io.github.scaredsmods.scaredsfactions.api.common.faction.setting;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 
 public class BooleanFactionSetting extends AbstractFactionSetting<Boolean, BooleanFactionSetting> {
@@ -61,7 +62,12 @@ public class BooleanFactionSetting extends AbstractFactionSetting<Boolean, Boole
 				);
 	}
 
-	public boolean invert() {
+    @Override
+    public void writeBuf(RegistryFriendlyByteBuf buf) {
+        buf.writeBoolean(this.get());
+    }
+
+    public boolean invert() {
 		return !this.get();
 	}
 }

@@ -14,14 +14,12 @@
 *  You should have received a copy of the GNU Lesser General Public License
 *  along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-package io.github.scaredsmods.scaredsfactions.api.server.network.packet
+package io.github.scaredsmods.scaredsfactions.common.config;
 
-import net.minecraft.network.FriendlyByteBuf
+import me.fzzyhmstrs.fzzy_config.api.ConfigApiJava;
+import me.fzzyhmstrs.fzzy_config.api.RegisterType;
 
-abstract class PairPacket<A, B, T : PairPacket<A, B, T>>(val first: A, val second: B, val encodeFirst: (FriendlyByteBuf, A) -> Unit, val encodeSecond: (FriendlyByteBuf, B) -> Unit) : IAbstractFactionPacket<T> {
-
-	override fun encode(packet: T, buf: FriendlyByteBuf) {
-		encodeFirst(buf, packet.first)
-		encodeSecond(buf, packet.second)
-	}
+public class ModConfigs {
+	public static ModCommonConfig commonConfig = ConfigApiJava.registerAndLoadConfig(ModCommonConfig::new, RegisterType.BOTH);
+	public static void init() {}
 }

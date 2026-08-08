@@ -18,10 +18,13 @@ package io.github.scaredsmods.scaredsfactions.client.screen.menu;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -30,6 +33,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ResolvableProfile;
 
 public class ManageFactionMenu extends AbstractContainerMenu {
 
@@ -40,21 +44,17 @@ public class ManageFactionMenu extends AbstractContainerMenu {
 
 		for (int i = 0; i < 9; ++i) {
 			ItemStack pane = new ItemStack(Items.BLACK_STAINED_GLASS_PANE);
-			pane.setHoverName(Component.literal(""));
+            pane.set(DataComponents.ITEM_NAME, Component.literal(""));
 			container.setItem(i, pane);
 		}
 
 
 		Player player = playerInventory.player;
 		GameProfile profile = player.getGameProfile();
-		CompoundTag nbtTransfer = new CompoundTag();
-		nbtTransfer.put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), profile));
 
-		CompoundTag nbtMembers = new CompoundTag();
-		nbtMembers.put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), profile));
 		addClickableSlot(container, 0, Items.NAME_TAG, "Change Name", ChatFormatting.GREEN);
-		addClickableSlot(container, 1, Items.PLAYER_HEAD, "Transfer Ownership", nbtTransfer, ChatFormatting.DARK_PURPLE);
-		addClickableSlot(container, 2, Items.PLAYER_HEAD, "View Members", nbtMembers, ChatFormatting.AQUA);
+		addClickableSlot(container, 1, Items.PLAYER_HEAD, "Transfer Ownership", profile , ChatFormatting.DARK_PURPLE);
+		addClickableSlot(container, 2, Items.PLAYER_HEAD, "View Members", profile, ChatFormatting.AQUA);
 		addClickableSlot(container, 3, Items.PAPER, "Faction Settings", ChatFormatting.GOLD);
 		addClickableSlot(container, 8, Items.RED_WOOL, "Close", ChatFormatting.DARK_RED);
 		addClickableSlot(container, 4, Items.BEACON, "Reset Beacon Position", ChatFormatting.DARK_GREEN);
@@ -89,14 +89,14 @@ public class ManageFactionMenu extends AbstractContainerMenu {
 
 	private void addClickableSlot(SimpleContainer container, int index, Item item, String name, ChatFormatting color) {
 		ItemStack stack = new ItemStack(item);
-		stack.setHoverName(Component.literal(name).withStyle(style -> style.withColor(color).withItalic(false).withBold(true)));
+		stack.set(DataComponents.ITEM_NAME, Component.literal(name).withStyle(style -> style.withColor(color).withItalic(false).withBold(true)));
 		container.setItem(index, stack);
 	}
 
-	private void addClickableSlot(SimpleContainer container, int index, Item item, String name, CompoundTag nbtData, ChatFormatting color) {
+	private void addClickableSlot(SimpleContainer container, int index, Item item, String name, GameProfile profile, ChatFormatting color) {
 		ItemStack stack = new ItemStack(item);
-		stack.setTag(nbtData);
-		stack.setHoverName(Component.literal(name).withStyle(style -> style.withColor(color).withBold(true).withItalic(false)));
+		stack.set(DataComponents.PROFILE, new ResolvableProfile(profile));
+		stack.set(DataComponents.ITEM_NAME, Component.literal(name).withStyle(style -> style.withColor(color).withBold(true).withItalic(false)));
 		container.setItem(index, stack);
 	}
 
@@ -109,4 +109,11 @@ public class ManageFactionMenu extends AbstractContainerMenu {
 	public boolean stillValid(Player pPlayer) {
 		return true;
 	}
+
+    public CompoundTag writeProfile(GameProfile profile) {
+        return (CompoundTag) ExtraCodecs.GAME_PROFILE
+                .encodeStart(NbtOps.INSTANCE, profile)
+                .result()
+                .orElseGet(CompoundTag::new);
+    }
 }

@@ -18,17 +18,16 @@ package io.github.scaredsmods.scaredsfactions.common.faction;
 
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.AbstractFactionSetting;
 import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
-import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.SyncFactionDataS2CPacket;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.SyncFactionDataS2CPacket;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -41,7 +40,7 @@ public class FactionSavedData extends SavedData {
 	private final Set<String> hardcoredFactions = new HashSet<>();
 	private final Map<String, List<String>> alliedFactions = new HashMap<>();
 
-	public static FactionSavedData load(@NotNull CompoundTag tag) {
+	public static FactionSavedData load(@NotNull CompoundTag tag, HolderLookup.Provider registries) {
 		FactionSavedData data = create();
 		ListTag factions = tag.getList("factions", Tag.TAG_COMPOUND);
 		for (int i = 0; i < factions.size(); i++) {
@@ -117,7 +116,7 @@ public class FactionSavedData extends SavedData {
 	}
 
 	@Override
-	public @NotNull CompoundTag save(@NotNull CompoundTag tag) {
+	public @NotNull CompoundTag save(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
 		ListTag factions = new ListTag();
 		for (Faction faction : this.factions.values()) {
 			CompoundTag factionsTag = new CompoundTag();
@@ -201,21 +200,9 @@ public class FactionSavedData extends SavedData {
 	public void save(ServerLevel level) {
 		this.setDirty();
 		level.getDataStorage().save();
-		this.syncToAllClients(level);
-	}
-
-	public void syncToAllClients(ServerLevel level) {
-		FactionSavedData data = FactionSavedData.getSavedData(level);
-		SyncFactionDataS2CPacket packet = new SyncFactionDataS2CPacket(data.factions);
-		for (ServerPlayer player : level.getServer().getPlayerList().getPlayers()) {
-			ModNetworks.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), packet);
-		}
-	}
-
-	public void syncToClient(ServerPlayer player) {
-		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
-		SyncFactionDataS2CPacket packet = new SyncFactionDataS2CPacket(data.getFactions());
-		ModNetworks.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), packet);
+        FactionSavedData data = FactionSavedData.getSavedData(level);
+        SyncFactionDataS2CPacket packet = new SyncFactionDataS2CPacket(data.factions);
+        PacketDistributor.sendToAllPlayers(packet);
 	}
 
 	public static FactionSavedData create() {
@@ -224,8 +211,7 @@ public class FactionSavedData extends SavedData {
 
 	public static FactionSavedData getSavedData(ServerLevel level) {
 		return level.getServer().overworld().getDataStorage().computeIfAbsent(
-				FactionSavedData::load,
-				FactionSavedData::new,
+                new Factory<>(FactionSavedData::new, FactionSavedData::load),
 				DATA_NAME
 		);
 	}
@@ -237,6 +223,10 @@ public class FactionSavedData extends SavedData {
 	public Faction getFaction(String factionName) {
 		return this.factions.get(factionName);
 	}
+
+    public boolean factionExists(String factionName) {
+        return this.factions.containsKey(factionName);
+    }
 
 
 	public void addFaction(Faction faction) {

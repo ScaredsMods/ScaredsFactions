@@ -19,12 +19,14 @@ package io.github.scaredsmods.scaredsfactions.client.screen.menu;
 import com.mojang.authlib.GameProfile;
 import io.github.scaredsmods.scaredsfactions.common.faction.Faction;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -32,7 +34,10 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.item.component.ResolvableProfile;
 
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,13 +59,13 @@ public class TransferOwnershipMenu extends AbstractContainerMenu {
 
 		for (int i = 0; i < container.getContainerSize(); i++) {
 			ItemStack pane = new ItemStack(Items.BLACK_STAINED_GLASS_PANE);
-			pane.setHoverName(Component.literal(""));
+			pane.set(DataComponents.ITEM_NAME, Component.literal(""));
 			container.setItem(i, pane);
 		}
 
 
 		ItemStack back = new ItemStack(Items.RED_WOOL);
-		back.setHoverName(Component.literal("Back").withStyle(style -> style.withColor(ChatFormatting.DARK_RED).withBold(true).withItalic(false)));
+		back.set(DataComponents.ITEM_NAME, Component.literal("Back").withStyle(style -> style.withColor(ChatFormatting.DARK_RED).withBold(true).withItalic(false)));
 		container.setItem(49, back);
 
 		int index = 0;
@@ -69,26 +74,19 @@ public class TransferOwnershipMenu extends AbstractContainerMenu {
 
 			GameProfile profile = entry.getKey();
 			Faction.Rank rank = entry.getValue();
-
 			ItemStack head = new ItemStack(Items.PLAYER_HEAD);
-			CompoundTag nbt = new CompoundTag();
-			nbt.put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), profile));
-			head.setTag(nbt);
-			head.setHoverName(Component.literal(profile.getName()).withStyle(style -> style.withColor(ChatFormatting.YELLOW).withItalic(false)));
 
-			CompoundTag display = head.getOrCreateTagElement("display");
-			ListTag lore = new ListTag();
-			lore.add(StringTag.valueOf(Component.Serializer.toJson(
-					Component.literal("Rank: " + rank.getName())
-							.withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false))
-			)));
+			head.set(DataComponents.PROFILE, new ResolvableProfile(profile));
+			head.set(DataComponents.ITEM_NAME, Component.literal(profile.getName()).withStyle(style -> style.withColor(ChatFormatting.YELLOW).withItalic(false)));
 
-			lore.add(StringTag.valueOf(Component.Serializer.toJson(
-					Component.literal("Choose this player as your successor?")
-							.withStyle(style -> style.withColor(ChatFormatting.GREEN).withItalic(false))
-			)));
+			List<Component> lore = new ArrayList<>();
+			lore.add(Component.literal("Rank: " + rank.getName())
+							.withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false)));
 
-			display.put("Lore", lore);
+			lore.add(Component.literal("Choose this player as your successor?")
+							.withStyle(style -> style.withColor(ChatFormatting.GREEN).withItalic(false)));
+            head.set(DataComponents.LORE, new ItemLore(lore));
+
 			container.setItem(index, head);
 			slots.add(entry.getKey());
 			index++;
@@ -117,16 +115,16 @@ public class TransferOwnershipMenu extends AbstractContainerMenu {
 	}
 
 
-	public static Map<GameProfile, Faction.Rank> read(FriendlyByteBuf buf) {
-		int size = buf.readInt();
-		Map<GameProfile, Faction.Rank> members = new HashMap<>();
-		for (int i = 0; i < size; i++) {
-			GameProfile profile = buf.readGameProfile();
-			Faction.Rank rank = buf.readEnum(Faction.Rank.class);
-			members.put(profile, rank);
-		}
-		return members;
-	}
+    public static Map<GameProfile, Faction.Rank> read(FriendlyByteBuf buf) {
+        int size = buf.readInt();
+        Map<GameProfile, Faction.Rank> members = new HashMap<>();
+        for (int i = 0; i < size; i++) {
+            GameProfile profile = ByteBufCodecs.GAME_PROFILE.decode(buf);
+            Faction.Rank rank = buf.readEnum(Faction.Rank.class);
+            members.put(profile, rank);
+        }
+        return members;
+    }
 
 	public Map<GameProfile, Faction.Rank> getMembers() {
 		return this.members;

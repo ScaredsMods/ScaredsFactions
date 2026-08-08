@@ -16,11 +16,12 @@
 */
 package io.github.scaredsmods.scaredsfactions.api.common.faction.setting;
 
-import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenEditStringSettingC2SPacket;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.OpenEditStringSettingC2SPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class StringFactionSetting extends AbstractFactionSetting<String, StringFactionSetting> {
 
@@ -50,7 +51,7 @@ public class StringFactionSetting extends AbstractFactionSetting<String, StringF
 
 	@Override
 	public void onClick(int mouseButton, Runnable sendUpdate) {
-		ModNetworks.CHANNEL.sendToServer(new OpenEditStringSettingC2SPacket(getNbtId()));
+		PacketDistributor.sendToServer(new OpenEditStringSettingC2SPacket(getNbtId()));
 	}
 
 	@Override
@@ -61,5 +62,10 @@ public class StringFactionSetting extends AbstractFactionSetting<String, StringF
 					.withItalic(false)
 				);
 	}
+
+    @Override
+    public void writeBuf(RegistryFriendlyByteBuf buf) {
+        buf.writeUtf(this.get());
+    }
 
 }

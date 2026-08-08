@@ -19,10 +19,9 @@ package io.github.scaredsmods.scaredsfactions.client.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.RenameFactionMenu;
-import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenC2SPacket;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.RenameFactionPacket;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.ModScreens;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.OpenScreenC2SPacket;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.RenameFactionC2SPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -34,6 +33,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
 public class RenameFactionScreen extends AbstractContainerScreen<RenameFactionMenu> {
@@ -67,8 +67,8 @@ public class RenameFactionScreen extends AbstractContainerScreen<RenameFactionMe
 
 		this.confirm = Button.builder(Component.literal("Confirm").withStyle(ChatFormatting.GREEN), btn -> {
 			String newName = this.name.getValue();
-			ModNetworks.CHANNEL.sendToServer(new RenameFactionPacket(this.name.getValue()));
-			ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.MANAGE_FACTION, Component.literal(newName.replace("&", "§"))));
+			PacketDistributor.sendToServer(new RenameFactionC2SPacket(this.name.getValue()));
+			PacketDistributor.sendToServer(new OpenScreenC2SPacket(ModScreens.MANAGE_FACTION, Component.literal(newName.replace("&", "§"))));
 		}).bounds(leftPos + 42, topPos + 53, 45, 15).build();
 
 		this.back = Button.builder(Component.literal("Back").withStyle(ChatFormatting.RED), btn -> {
@@ -83,7 +83,6 @@ public class RenameFactionScreen extends AbstractContainerScreen<RenameFactionMe
 	@Override
 	public void containerTick() {
 		super.containerTick();
-		this.name.tick();
 	}
 
 
@@ -103,7 +102,7 @@ public class RenameFactionScreen extends AbstractContainerScreen<RenameFactionMe
 
 	@Override
 	public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-		renderBackground(pGuiGraphics);
+		renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 		super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 		renderTooltip(pGuiGraphics, pMouseX, pMouseY);
 	}

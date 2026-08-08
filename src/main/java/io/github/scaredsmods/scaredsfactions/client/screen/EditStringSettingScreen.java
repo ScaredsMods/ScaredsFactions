@@ -19,10 +19,10 @@ package io.github.scaredsmods.scaredsfactions.client.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.EditStringSettingMenu;
 import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
-import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenC2SPacket;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.UpdateFactionSettingsPacket;
+
+import io.github.scaredsmods.scaredsfactions.common.network.packet.ModScreens;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.OpenScreenC2SPacket;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.UpdateFactionSettingC2SPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -35,6 +35,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
 public class EditStringSettingScreen extends AbstractContainerScreen<EditStringSettingMenu> {
@@ -71,8 +72,8 @@ public class EditStringSettingScreen extends AbstractContainerScreen<EditStringS
 			String newValue = this.newValue.getValue();
 			CompoundTag tag = new CompoundTag();
 			tag.putString(this.menu.getNbtId(), newValue);
-			ModNetworks.CHANNEL.sendToServer(new UpdateFactionSettingsPacket(this.menu.getNbtId(), tag));
-			ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.FACTION_SETTINGS, Component.literal("Faction Settings")));
+			PacketDistributor.sendToServer(new UpdateFactionSettingC2SPacket(this.menu.getNbtId(), tag));
+			PacketDistributor.sendToServer(new OpenScreenC2SPacket(ModScreens.FACTION_SETTINGS, Component.literal("Faction Settings")));
 		}).bounds(leftPos + 42, topPos + 53, 45, 15).build();
 
 		this.back = Button.builder(Component.literal("Back").withStyle(ChatFormatting.RED), btn -> {
@@ -86,7 +87,6 @@ public class EditStringSettingScreen extends AbstractContainerScreen<EditStringS
 	@Override
 	public void containerTick() {
 		super.containerTick();
-		this.newValue.tick();
 	}
 
 
@@ -100,7 +100,7 @@ public class EditStringSettingScreen extends AbstractContainerScreen<EditStringS
 
 	@Override
 	public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-		renderBackground(pGuiGraphics);
+		renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 		super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 		renderTooltip(pGuiGraphics, pMouseX, pMouseY);
 	}

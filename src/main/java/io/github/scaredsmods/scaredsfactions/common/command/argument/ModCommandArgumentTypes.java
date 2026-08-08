@@ -20,16 +20,17 @@ import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.core.registries.Registries;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
+
 
 public class ModCommandArgumentTypes {
 
 	public static final DeferredRegister<ArgumentTypeInfo<?, ?>> COMMAND_ARGUMENT_TYPES = DeferredRegister.create(Registries.COMMAND_ARGUMENT_TYPE, ScaredsFactionMod.MOD_ID);
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static final RegistryObject<ArrayEnumArgument.Info> ARRAY_ENUM_ARGUMENT_TYPE = COMMAND_ARGUMENT_TYPES.register("array_enum", () ->
+	public static final DeferredHolder<ArgumentTypeInfo<?, ?>, ArgumentTypeInfo<? , ?>> ARRAY_ENUM_ARGUMENT_TYPE = COMMAND_ARGUMENT_TYPES.register("array_enum", () ->
 			ArgumentTypeInfos.registerByClass(ArrayEnumArgument.class, new ArrayEnumArgument.Info()));
 
 	public static void register(IEventBus bus) {

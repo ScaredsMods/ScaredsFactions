@@ -17,6 +17,7 @@
 package io.github.scaredsmods.scaredsfactions.api.common.faction.setting;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 
 public class ShortFactionSetting extends NumericFactionSetting<Short, ShortFactionSetting> {
 
@@ -47,7 +48,12 @@ public class ShortFactionSetting extends NumericFactionSetting<Short, ShortFacti
 				: new ShortFactionSetting(get(), getNbtId(), getDisplayName(), getStep(), getMin(), getMax(), getLore());
 	}
 
-	@Override
+    @Override
+    public void writeBuf(RegistryFriendlyByteBuf buf) {
+        buf.writeShort(this.get());
+    }
+
+    @Override
 	public void increment() {
 		set((short) Math.min(get() + 1, Short.MAX_VALUE));
 	}

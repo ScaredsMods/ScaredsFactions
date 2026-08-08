@@ -19,14 +19,16 @@ package io.github.scaredsmods.scaredsfactions.client.screen;
 import io.github.scaredsmods.scaredsfactions.api.client.screen.AbstractConfirmScreen;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ConfirmResetBeaconPosMenu;
 import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
-import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.*;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.ModScreens;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.OpenScreenC2SPacket;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.ResetBeaconPosC2SPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class ConfirmResetBeaconPosScreen extends AbstractConfirmScreen<ConfirmResetBeaconPosMenu> {
 
@@ -49,8 +51,8 @@ public class ConfirmResetBeaconPosScreen extends AbstractConfirmScreen<ConfirmRe
 		super.init();
 
 		this.confirm = Button.builder(Component.literal("Confirm").withStyle(ChatFormatting.GREEN), btn -> {
-			ModNetworks.CHANNEL.sendToServer(new ResetBeaconPosPacket());
-			ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.MANAGE_FACTION, Component.literal("Manage Faction")));
+			PacketDistributor.sendToServer(new ResetBeaconPosC2SPacket());
+			PacketDistributor.sendToServer(new OpenScreenC2SPacket(ModScreens.MANAGE_FACTION, Component.literal("Manage Faction")));
 		})
 				.bounds(leftPos + 40, topPos + 38, 45, 15).build();
 

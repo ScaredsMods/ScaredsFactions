@@ -19,10 +19,9 @@ package io.github.scaredsmods.scaredsfactions.client.screen;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.TransferOwnershipMenu;
-import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenC2SPacket;
-import io.github.scaredsmods.scaredsfactions.server.network.packet.PendingOwnershipTransferC2SPacket;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.ModScreens;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.OpenScreenC2SPacket;
+import io.github.scaredsmods.scaredsfactions.common.network.packet.PendingOwnershipTransferC2SPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -31,6 +30,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
@@ -61,7 +61,7 @@ public class TransferOwnershipScreen extends AbstractContainerScreen<TransferOwn
 
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-		renderBackground(guiGraphics);
+		renderBackground(guiGraphics, mouseX, mouseY, partialTick);
 		super.render(guiGraphics, mouseX, mouseY, partialTick);
 		renderTooltip(guiGraphics, mouseX, mouseY);
 	}
@@ -91,8 +91,8 @@ public class TransferOwnershipScreen extends AbstractContainerScreen<TransferOwn
 		GameProfile target = getProfileForSlot(index);
 		if (target == null) return;
 		if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-			ModNetworks.CHANNEL.sendToServer(new PendingOwnershipTransferC2SPacket(target.getId()));
-			ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.CONFIRM_TRANSFER, Component.literal("Confirm Ownership Transfer?")));
+			PacketDistributor.sendToServer(new PendingOwnershipTransferC2SPacket(target.getId()));
+			PacketDistributor.sendToServer(new OpenScreenC2SPacket(ModScreens.CONFIRM_TRANSFER, Component.literal("Confirm Ownership Transfer?")));
 		}
 
 	}
