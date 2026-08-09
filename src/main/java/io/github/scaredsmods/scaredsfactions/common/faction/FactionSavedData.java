@@ -247,6 +247,13 @@ public class FactionSavedData extends SavedData {
 		this.factions.remove(faction.getName());
 	}
 
+    public void renameFaction(Faction faction, String newName) {
+        this.factions.remove(faction.getName());
+        faction.setName(newName);
+        this.factions.put(newName, faction);
+    }
+
+
 	public Faction getFactionFromPlayer(UUID uuid) {
 		for (Faction faction : this.factions.values()) {
 			if (faction.getMembers().containsKey(uuid)) {

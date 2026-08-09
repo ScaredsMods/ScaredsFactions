@@ -61,6 +61,7 @@ public record ResetBeaconPosC2SPacket() implements CustomPacketPayload {
         beacon.set(DataComponents.LORE, new ItemLore(lore));
         player.getInventory().add(beacon);
         data.save(player.serverLevel());
+        player.getServer().saveAllChunks(false, true, false);
     }
 
 

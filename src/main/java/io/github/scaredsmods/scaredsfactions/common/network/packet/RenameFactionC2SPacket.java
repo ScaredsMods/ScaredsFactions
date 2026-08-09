@@ -32,7 +32,8 @@ public record RenameFactionC2SPacket(String newName) implements CustomPacketPayl
             player.sendSystemMessage(MessageUtil.Prefix.error("You are not the owner of the faction!"));
             return;
         }
-        faction.setName(packet.newName);
+
+        data.renameFaction(faction, packet.newName);
         data.save(player.serverLevel());
     }
 

@@ -155,10 +155,12 @@ dependencies {
     implementation("thedarkcolour:kotlinforforge-neoforge:${kffVersion}")
     //annotationProcessor("org.spongepowered:mixin:0.8.5:processor")
 
-    compileOnly("curse.maven:tacz-1-21-1-1353462:8547439-sources-8547440")
-    compileOnly("top.theillusivec4.curios:curios-forge:5.4.2+1.20.1:api")
-    compileOnly("software.bernie.geckolib:geckolib-forge-1.20.1:4.4.6")
-    compileOnly("curse.maven:superb-warfare-1218165:8104860-sources-8104863")
+    implementation("curse.maven:tacz-1-21-1-1353462:8547439-sources-8547440")
+    compileOnly("top.theillusivec4.curios:curios-neoforge:9.5.1+1.21.1:api")
+    runtimeOnly("top.theillusivec4.curios:curios-neoforge:9.5.1+1.21.1")
+
+    implementation("software.bernie.geckolib:geckolib-neoforge-1.21.1:4.9.2")
+    implementation("curse.maven:superb-warfare-1218165:8104860-sources-8104863")
     implementation("com.github.NEZNAMY:TAB-API:${tabVersion}")
     compileOnly("net.luckperms:api:5.5")
 

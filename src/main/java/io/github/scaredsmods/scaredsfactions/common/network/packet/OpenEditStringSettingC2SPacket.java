@@ -1,6 +1,7 @@
 package io.github.scaredsmods.scaredsfactions.common.network.packet;
 
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.EditStringSettingMenu;
+import io.github.scaredsmods.scaredsfactions.client.screen.menu.provider.SeamlessMenuProvider;
 import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.chat.Component;
@@ -23,8 +24,8 @@ public record OpenEditStringSettingC2SPacket(String nbtId) implements CustomPack
 
     public static void handle(OpenEditStringSettingC2SPacket packet, IPayloadContext ctx) {
         ServerPlayer player = (ServerPlayer) ctx.player();
-        player.openMenu(new SimpleMenuProvider(
-                (containerId, playerInventory, player1) -> new EditStringSettingMenu(containerId, playerInventory, packet.nbtId), Component.literal("Edit Setting")));
+        player.openMenu(SeamlessMenuProvider.wrap(new SimpleMenuProvider(
+                (containerId, playerInventory, player1) -> new EditStringSettingMenu(containerId, playerInventory, packet.nbtId), Component.literal("Edit Setting"))));
     }
 
     @Override

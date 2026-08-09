@@ -25,6 +25,7 @@ import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.Abstract
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ConfirmTransferOwnershipMenu;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ManageFactionMenu;
+import io.github.scaredsmods.scaredsfactions.client.screen.menu.provider.SeamlessMenuProvider;
 import io.github.scaredsmods.scaredsfactions.common.component.ModDataComponents;
 import io.github.scaredsmods.scaredsfactions.common.component.RespawnBeaconDataComponent;
 import io.github.scaredsmods.scaredsfactions.common.config.ModConfigs;
@@ -166,9 +167,9 @@ public class FactionCommand {
 			return 0;
 		}
 
-		player.openMenu(new SimpleMenuProvider(
+		player.openMenu(SeamlessMenuProvider.wrap(new SimpleMenuProvider(
 						(pContainerId, pPlayerInventory, pPlayer) -> new ConfirmTransferOwnershipMenu(pContainerId, pPlayerInventory, UUID.fromString(targetUUID)),
-						Component.literal("Confirm Transfer?")),
+						Component.literal("Confirm Transfer?"))),
 				buf -> buf.writeUUID(UUID.fromString(targetUUID)));
 		return 1;
 	}
@@ -209,9 +210,9 @@ public class FactionCommand {
 			return 0;
 		}
 
-		player.openMenu( new SimpleMenuProvider(
+		player.openMenu(SeamlessMenuProvider.wrap(new SimpleMenuProvider(
 				(pContainerId, pPlayerInventory, pPlayer) -> new ManageFactionMenu(pContainerId, pPlayerInventory),
-				Component.literal(faction.getName().replace("&", "§"))));
+				Component.literal(faction.getName().replace("&", "§")))));
 		return 1;
 	}
 
@@ -731,9 +732,9 @@ public class FactionCommand {
 			player.closeContainer();
 			return;
 		}
-		player.openMenu(new SimpleMenuProvider(
+		player.openMenu(SeamlessMenuProvider.wrap(new SimpleMenuProvider(
 				(id, inv, p) -> screen.createMenu(id, inv, player),
-				screen.getTitle()
+				screen.getTitle())
 		), buf -> screen.writeBuf(player, buf));
 	}
 }

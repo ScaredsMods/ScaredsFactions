@@ -3,6 +3,7 @@ package io.github.scaredsmods.scaredsfactions.common.network.packet;
 import com.mojang.authlib.GameProfile;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.AbstractFactionSetting;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.*;
+import io.github.scaredsmods.scaredsfactions.client.screen.menu.provider.SeamlessMenuProvider;
 import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
 import io.github.scaredsmods.scaredsfactions.common.faction.Faction;
 import io.github.scaredsmods.scaredsfactions.common.faction.FactionSavedData;
@@ -41,24 +42,24 @@ public record OpenScreenC2SPacket(ModScreens screen, Component title) implements
                 player.closeContainer();
             }
             case MANAGE_FACTION -> {
-                player.openMenu(new SimpleMenuProvider((containerId, playerInventory, player1) -> new ManageFactionMenu(containerId, playerInventory), packet.title));
+                player.openMenu(SeamlessMenuProvider.wrap(new SimpleMenuProvider((containerId, playerInventory, player1) -> new ManageFactionMenu(containerId, playerInventory), packet.title)));
             }
             case RENAME_FACTION -> {
-                player.openMenu(new SimpleMenuProvider((containerId, playerInventory, player1) -> new RenameFactionMenu(containerId, playerInventory), packet.title));
+                player.openMenu(SeamlessMenuProvider.wrap(new SimpleMenuProvider((containerId, playerInventory, player1) -> new RenameFactionMenu(containerId, playerInventory), packet.title)));
             }
             case CONFIRM_TRANSFER -> {
                 UUID targetUUID = faction.getPendingTransfer();
                 if (targetUUID == null) return;
-                player.openMenu(new SimpleMenuProvider((containerId, playerInventory, player1) -> new ConfirmTransferOwnershipMenu(containerId, playerInventory, targetUUID), packet.title), buf -> buf.writeUUID(targetUUID));
+                player.openMenu(SeamlessMenuProvider.wrap(new SimpleMenuProvider((containerId, playerInventory, player1) -> new ConfirmTransferOwnershipMenu(containerId, playerInventory, targetUUID), packet.title)), buf -> buf.writeUUID(targetUUID));
             }
             case CONFIRM_RESET_BEACON -> {
                 if (!faction.hasBeacon()) {
                     player.sendSystemMessage(MessageUtil.Prefix.error("You must have a beacon to do this!"));
                     return;
                 }
-                player.openMenu(new SimpleMenuProvider((containerId, playerInventory, player1) -> new ConfirmResetBeaconPosMenu(containerId, playerInventory), packet.title));
+                player.openMenu(SeamlessMenuProvider.wrap(new SimpleMenuProvider((containerId, playerInventory, player1) -> new ConfirmResetBeaconPosMenu(containerId, playerInventory), packet.title)));
             }
-            case FACTION_SETTINGS -> player.openMenu(new SimpleMenuProvider((containerId, playerInventory, player1) -> new FactionSettingsMenu(containerId, playerInventory, faction.getSettings()), packet.title),
+            case FACTION_SETTINGS ->  player.openMenu(SeamlessMenuProvider.wrap(new SimpleMenuProvider((containerId, playerInventory, player1) -> new FactionSettingsMenu(containerId, playerInventory, faction.getSettings()), packet.title)),
                     buf -> {
                             buf.writeVarInt(faction.getSettings().size());
                             for (AbstractFactionSetting<? , ?> setting : faction.getSettings()) {
@@ -81,7 +82,7 @@ public record OpenScreenC2SPacket(ModScreens screen, Component title) implements
                 Map<GameProfile, Faction.Rank> filteredMembers = profileMembers.entrySet().stream()
                         .filter(entry -> entry.getValue() == Faction.Rank.FIELD_MARSHAL)
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                player.openMenu(new SimpleMenuProvider((containerId, playerInventory, player1) -> new TransferOwnershipMenu(containerId, playerInventory, filteredMembers), packet.title), buf -> {
+                player.openMenu(SeamlessMenuProvider.wrap(new SimpleMenuProvider((containerId, playerInventory, player1) -> new TransferOwnershipMenu(containerId, playerInventory, filteredMembers), packet.title)), buf -> {
                     buf.writeInt(faction.getSettings().size());
                     for (Map.Entry<GameProfile, Faction.Rank> entry : filteredMembers.entrySet()) {
                         ByteBufCodecs.GAME_PROFILE.encode(buf, entry.getKey());
@@ -101,7 +102,7 @@ public record OpenScreenC2SPacket(ModScreens screen, Component title) implements
                             : player.getServer().getProfileCache().get(entry.getKey()).orElse(new GameProfile(entry.getKey(), "Unknown"));
                     profileMembers.put(profile, entry.getValue());
                 }
-                player.openMenu(new SimpleMenuProvider((containerId, playerInventory, player1) -> new TransferOwnershipMenu(containerId, playerInventory, profileMembers), packet.title), buf -> {
+                player.openMenu(SeamlessMenuProvider.wrap(new SimpleMenuProvider((containerId, playerInventory, player1) -> new TransferOwnershipMenu(containerId, playerInventory, profileMembers), packet.title)), buf -> {
                     buf.writeInt(profileMembers.size());
                     for (Map.Entry<GameProfile, Faction.Rank> entry : profileMembers.entrySet()) {
                         ByteBufCodecs.GAME_PROFILE.encode(buf, entry.getKey());
