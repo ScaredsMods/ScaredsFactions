@@ -200,6 +200,7 @@ public class FactionSavedData extends SavedData {
 	public void save(ServerLevel level) {
 		this.setDirty();
 		level.getDataStorage().save();
+        level.getServer().saveAllChunks(false, true, false);
         FactionSavedData data = FactionSavedData.getSavedData(level);
         SyncFactionDataS2CPacket packet = new SyncFactionDataS2CPacket(data.factions);
         PacketDistributor.sendToAllPlayers(packet);
