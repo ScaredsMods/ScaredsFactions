@@ -32,9 +32,6 @@ public class InviteManager {
 		pendingInvites.remove(target);
 	}
 
-	public static boolean hasInvite(UUID target) {
-		return pendingInvites.containsKey(target);
-	}
 	public static boolean hasInvite(UUID target, String factionName) {
 		return factionName.equals(pendingInvites.get(target));
 	}

@@ -19,6 +19,7 @@ package io.github.scaredsmods.scaredsfactions.client.screen;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.TransferOwnershipMenu;
+import io.github.scaredsmods.scaredsfactions.common.ModTranslations;
 import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenC2SPacket;
@@ -92,7 +93,7 @@ public class TransferOwnershipScreen extends AbstractContainerScreen<TransferOwn
 		if (target == null) return;
 		if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
 			ModNetworks.CHANNEL.sendToServer(new PendingOwnershipTransferC2SPacket(target.getId()));
-			ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.CONFIRM_TRANSFER, Component.literal("Confirm Ownership Transfer?")));
+			ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.CONFIRM_TRANSFER, Component.translatable(ModTranslations.CONFIRM_TRANSFER_OWNERSHIP_LABEL)));
 		}
 
 	}

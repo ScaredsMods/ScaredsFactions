@@ -16,9 +16,8 @@
 */
 package io.github.scaredsmods.scaredsfactions.common.faction;
 
-import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting;
-import io.github.scaredsmods.scaredsfactions.common.ModConfigs;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.AbstractFactionSetting;
+import io.github.scaredsmods.scaredsfactions.common.util.FactionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -65,12 +64,11 @@ public class Faction {
 	}
 
 	public void setOwner(UUID newOwner) {
-		this.owner = newOwner;
-		Faction.Rank ownerRank = switch (ModConfigs.commonConfig.defaultOwnerRank.get()) {
-			case PREFER_STADHOUDER -> Faction.Rank.STADHOUDER;
-			case PREFER_GENERALISSIMUS -> Faction.Rank.GENERALISSIMUS;
-		};
-		this.members.put(newOwner, ownerRank);
+		Faction.Rank ownerRank = this.getSettingValue(FactionSettings.OWNER_RANK.getNbtId(), FactionUtil.<Rank>enumSetting());
+		if (ownerRank == null) {
+			ownerRank = Faction.Rank.GENERALISSIMUS;
+		}
+		this.setOwner(newOwner, ownerRank);
 	}
 
 	public void setOwner(UUID newOwner, Rank ownerRank) {
@@ -205,9 +203,10 @@ public class Faction {
 		return setting != null ? setting.get() : null;
 	}
 
-	public boolean getBooleanSettingValue(String nbtId, boolean defaultValue) {
-		BooleanFactionSetting setting = getSetting(nbtId, BooleanFactionSetting.class);
-		return setting != null ? setting.get() : defaultValue;
+	public <V, T extends AbstractFactionSetting<V, T>> V getPrimitiveSettingValue(String modId, Class<T> settingClass, Class<T> typeClass) {
+		T setting = getSettingByModId(modId, settingClass);
+		V value = setting.get();
+		return value != null ? setting.get() : null;
 	}
 
 	public void write(FriendlyByteBuf buf) {

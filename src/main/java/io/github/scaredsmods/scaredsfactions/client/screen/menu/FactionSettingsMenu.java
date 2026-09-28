@@ -16,6 +16,10 @@
 */
 package io.github.scaredsmods.scaredsfactions.client.screen.menu;
 
+import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting;
+import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.NumericFactionSetting;
+import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.StringFactionSetting;
+import io.github.scaredsmods.scaredsfactions.common.ModTranslations;
 import io.github.scaredsmods.scaredsfactions.common.faction.FactionSettings;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.AbstractFactionSetting;
 import net.minecraft.ChatFormatting;
@@ -56,7 +60,7 @@ public class FactionSettingsMenu extends AbstractContainerMenu {
 
 
 		ItemStack back = new ItemStack(Items.RED_WOOL);
-		back.setHoverName(Component.literal("Back").withStyle(style -> style.withColor(ChatFormatting.DARK_RED).withBold(true).withItalic(false)));
+		back.setHoverName(Component.translatable(ModTranslations.BACK_ITEM_NAME).withStyle(style -> style.withColor(ChatFormatting.DARK_RED).withBold(true).withItalic(false)));
 		container.setItem(49, back);
 
 
@@ -67,25 +71,33 @@ public class FactionSettingsMenu extends AbstractContainerMenu {
 			ItemStack settingStack = new ItemStack(Items.PAPER);
 			CompoundTag display = settingStack.getOrCreateTagElement("display");
 
-			display.putString("Name", Component.Serializer.toJson(Component.literal(setting.getDisplayName()).withStyle(style -> style.withColor(ChatFormatting.YELLOW).withItalic(false))));
+			display.putString("Name", Component.Serializer.toJson(setting.getDisplayName()));
 
 			ListTag lore = new ListTag();
-			for (String loreLine : setting.getLore()) {
-				lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.literal(loreLine).withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false)))));
+			for (Component loreLine : setting.getLore()) {
+				lore.add(StringTag.valueOf(Component.Serializer.toJson(loreLine)));
 			}
 
 			lore.add(StringTag.valueOf(Component.Serializer.toJson(
-					Component.literal("Current value: ")
+					Component.translatable(ModTranslations.CURRENT_VALUE)
 							.withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false))
 							.append(setting.getCurrentValueAsComponent())
 			)));
 
-			lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.literal("Click to change setting!").withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false)))));
+			if (setting instanceof NumericFactionSetting<?,?>) {
+				lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.translatable(ModTranslations.NUMERIC_SETTING_INCREMENT).withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false)))));
+				lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.translatable(ModTranslations.NUMERIC_SETTING_DECREMENT).withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false)))));
+			} else if (setting instanceof BooleanFactionSetting ) {
+				lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.translatable(ModTranslations.BOOLEAN_SETTING_TOGGLE).withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false)))));
+			} else if (setting instanceof StringFactionSetting) {
+				lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.translatable(ModTranslations.STRING_SETTING_EDIT).withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false)))));
+			}
+
 			display.put("Lore", lore);
 			container.setItem(i, settingStack);
 		}
 
-		// Actually player head slots
+		// This GUI's slots
 		for (int j = 0; j < 6; j++) {
 			for (int k = 0; k < 9; k++) {
 				this.addSlot(new Slot(container, k + j * 9, 8 + k * 18, 18 + j * 18) {
@@ -96,18 +108,8 @@ public class FactionSettingsMenu extends AbstractContainerMenu {
 				});
 			}
 		}
-
-		// Player inventory
-		for (int row = 0; row < 3; row++) {
-			for (int col = 0; col < 9; col++) {
-				this.addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 140 + row * 18));
-			}
-		}
-
-		// Hotbar
-		for (int col = 0; col < 9; col++) {
-			this.addSlot(new Slot(playerInventory, col, 8 + col * 18, 198));
-		}
+		addPlayerHotBar(playerInventory);
+		addPlayerInventory(playerInventory);
 	}
 
 	public List<AbstractFactionSetting<?, ?>> getSettings() {
@@ -138,5 +140,19 @@ public class FactionSettingsMenu extends AbstractContainerMenu {
 	@Override
 	public boolean stillValid(Player pPlayer) {
 		return true;
+	}
+
+	public void addPlayerHotBar(Inventory playerInventory) {
+		for (int col = 0; col < 9; col++) {
+			this.addSlot(new Slot(playerInventory, col, 8 + col * 18, 198));
+		}
+	}
+
+	public void addPlayerInventory(Inventory playerInventory) {
+		for (int row = 0; row < 3; row++) {
+			for (int col = 0; col < 9; col++) {
+				this.addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 140 + row * 18));
+			}
+		}
 	}
 }

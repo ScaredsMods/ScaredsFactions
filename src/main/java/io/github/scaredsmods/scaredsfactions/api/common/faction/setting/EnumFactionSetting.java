@@ -27,13 +27,13 @@ public class EnumFactionSetting<E extends Enum<E>> extends AbstractFactionSettin
 	private final Class<E> enumClass;
 	private final E[] allowedValues;
 
-	public EnumFactionSetting(E defaultValue, String nbtId, String displayName, Class<E> enumClass, E[] allowedValues, String... lore) {
+	public EnumFactionSetting(E defaultValue, String nbtId, Component displayName, Class<E> enumClass, E[] allowedValues, Component... lore) {
 		super(defaultValue, nbtId, displayName, lore);
 		this.enumClass = enumClass;
 		this.allowedValues = allowedValues;
 	}
 
-	public EnumFactionSetting(E defaultValue, String nbtId, String displayName, boolean isModdedSetting, String modId, Class<E> enumClass, E[] allowedValues, String... lore) {
+	public EnumFactionSetting(E defaultValue, String nbtId, Component displayName, boolean isModdedSetting, String modId, Class<E> enumClass, E[] allowedValues, Component... lore) {
 		super(defaultValue, nbtId, displayName, isModdedSetting, modId, lore);
 		this.enumClass = enumClass;
 		this.allowedValues = allowedValues;

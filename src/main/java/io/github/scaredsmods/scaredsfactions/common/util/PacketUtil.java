@@ -21,7 +21,6 @@ import io.github.scaredsmods.scaredsfactions.api.server.network.packet.IAbstract
 
 public class PacketUtil {
 
-
 	public static <T extends IAbstractFactionPacket<T>> void registerMessage(int id, Class<T> clazz, IAbstractFactionPacket.Decoder<T> decoder) {
 		ModNetworks.CHANNEL.registerMessage(id, clazz,
 				(packet, buf) -> packet.encode(packet, buf), decoder::decode,

@@ -16,7 +16,7 @@
 */
 package io.github.scaredsmods.scaredsfactions.common.command.argument;
 
-import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
+import io.github.scaredsmods.scaredsfactions.common.FactionMod;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.core.registries.Registries;
@@ -26,7 +26,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 public class ModCommandArgumentTypes {
 
-	public static final DeferredRegister<ArgumentTypeInfo<?, ?>> COMMAND_ARGUMENT_TYPES = DeferredRegister.create(Registries.COMMAND_ARGUMENT_TYPE, ScaredsFactionMod.MOD_ID);
+	public static final DeferredRegister<ArgumentTypeInfo<?, ?>> COMMAND_ARGUMENT_TYPES = DeferredRegister.create(Registries.COMMAND_ARGUMENT_TYPE, FactionMod.MOD_ID);
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static final RegistryObject<ArrayEnumArgument.Info> ARRAY_ENUM_ARGUMENT_TYPE = COMMAND_ARGUMENT_TYPES.register("array_enum", () ->

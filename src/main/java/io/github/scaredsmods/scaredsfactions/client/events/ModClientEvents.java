@@ -16,7 +16,7 @@
 */
 package io.github.scaredsmods.scaredsfactions.client.events;
 
-import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
+import io.github.scaredsmods.scaredsfactions.common.FactionMod;
 import io.github.scaredsmods.scaredsfactions.client.screen.*;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ModMenuTypes;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -25,9 +25,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
-import java.awt.*;
-
-@Mod.EventBusSubscriber(modid = ScaredsFactionMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = FactionMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ModClientEvents {
 
 	@SubscribeEvent

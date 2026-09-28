@@ -19,10 +19,16 @@ package io.github.scaredsmods.scaredsfactions.common.util;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
+import java.util.List;
+
 public class MessageUtil {
 
 	public static Component info(String message) {
-		return Component.literal(message).withStyle(ChatFormatting.GRAY);
+		return Component.translatable(message).withStyle(ChatFormatting.GRAY);
+	}
+
+	public static Component helpDescription(String command, String translationKey) {
+		return Component.literal(command).withStyle(ChatFormatting.GRAY).append(Component.translatable(translationKey).withStyle(ChatFormatting.GRAY));
 	}
 
 	public static class Prefix {
@@ -37,20 +43,20 @@ public class MessageUtil {
 				.append(Component.literal("ScaredsFactions").withStyle(ChatFormatting.LIGHT_PURPLE))
 				.append(Component.literal("]").withStyle(ChatFormatting.GRAY));
 
-		public static Component info(String message) {
-			return PREFIX.copy().append(Component.literal(message).withStyle(ChatFormatting.GRAY));
+		public static Component info(String key, Object... args) {
+			return PREFIX.copy().append(Component.translatable(key, args).withStyle(ChatFormatting.GRAY));
 		}
 
-		public static Component error(String error) {
-			return PREFIX.copy().append(Component.literal(error).withStyle(ChatFormatting.RED));
+		public static Component error(String key, Object... args) {
+			return PREFIX.copy().append(Component.translatable(key, args).withStyle(ChatFormatting.RED));
 		}
 
-		public static Component success(String success) {
-			return PREFIX.copy().append(Component.literal(success).withStyle(ChatFormatting.GREEN));
+		public static Component success(String key, Object... args) {
+			return PREFIX.copy().append(Component.translatable(key, args).withStyle(ChatFormatting.GREEN));
 		}
 
-		public static Component formattedMessage(String message, ChatFormatting... extraStyles) {
-			return PREFIX.copy().append(Component.literal(message).withStyle(extraStyles));
+		public static Component formattedMessage(String key, List<ChatFormatting> extraStyles, Object... args) {
+			return PREFIX.copy().append(Component.translatable(key, args).withStyle(extraStyles.toArray(ChatFormatting[]::new)));
 		}
 	}
 }

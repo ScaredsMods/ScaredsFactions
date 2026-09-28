@@ -26,10 +26,6 @@ public class ClientFactionSavedData {
 
 	public static Map<String, Faction> factions = new ConcurrentHashMap<>();
 
-	public static void addFaction(Faction faction) {
-		factions.put(faction.getName(), faction);
-	}
-
 	public static Faction getFactionFromPlayer(UUID uuid) {
 		for (Faction faction : factions.values()) {
 			if (faction.getMembers().containsKey(uuid)) {
@@ -42,14 +38,6 @@ public class ClientFactionSavedData {
 	public static void putAll(Map<String, Faction> newFactions) {
 		factions.clear();
 		factions.putAll(newFactions);
-	}
-
-	public static void clear() {
-		factions.clear();
-	}
-
-	public static Faction getFaction(String factionName) {
-		return factions.get(factionName);
 	}
 
 	public static boolean isEqualFaction(UUID targetUUID) {

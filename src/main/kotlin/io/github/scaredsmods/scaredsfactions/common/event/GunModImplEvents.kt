@@ -17,7 +17,8 @@
 package io.github.scaredsmods.scaredsfactions.common.event;
 
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting
-import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod
+import io.github.scaredsmods.scaredsfactions.common.ModConfigs
+import io.github.scaredsmods.scaredsfactions.common.FactionMod
 import io.github.scaredsmods.scaredsfactions.common.faction.Faction
 import io.github.scaredsmods.scaredsfactions.common.faction.FactionSavedData
 import io.github.scaredsmods.scaredsfactions.common.util.MessageUtil
@@ -33,7 +34,7 @@ import com.atsuishio.superbwarfare.init.ModTags.DamageTypes as SuperbWarfareDama
 import com.tacz.guns.init.ModDamageTypes as TaCZDamageTypes
 
 
-@Mod.EventBusSubscriber(modid = ScaredsFactionMod.MOD_ID)
+@Mod.EventBusSubscriber(modid = FactionMod.MOD_ID)
 object GunModImplEvents {
 
 	@SubscribeEvent(priority = EventPriority.HIGH)
@@ -61,10 +62,17 @@ object GunModImplEvents {
 		if (!victimFaction.name.equals(attackerFaction.name, true)) return
 
 		// If these lines get reached, it doesn't matter which faction is used for getting the setting because they are the same
-		val isModdedPvpEnabled : Boolean? = victimFaction.getSettingValueByModId(modId, BooleanFactionSetting::class.java)
-		if (isModdedPvpEnabled == true) return
+		val overrides = ModConfigs.commonConfig.factionSettingOverrides
+		val isModdedPvpEnabled : Boolean = when (modId) {
+			"tacz" -> if (overrides.doOverrideEnableTACZFriendlyFire.get()) overrides.overrideEnableTACZFriendlyFire.get()
+			else victimFaction.getSettingValueByModId(modId, BooleanFactionSetting::class.java) == true
+			"superbwarfare" -> if (overrides.doOverrideEnableSBWFriendlyFire.get()) overrides.overrideEnableSBWFriendlyFire.get()
+			else victimFaction.getSettingValueByModId(modId, BooleanFactionSetting::class.java) == true
+			else -> victimFaction.getSettingValueByModId(modId, BooleanFactionSetting::class.java) == true
+		}
+
+		if (isModdedPvpEnabled) return
 		attacker.sendSystemMessage(MessageUtil.Prefix.error("You cannot attack your own faction members!"));
-		event.isCanceled = true
 	}
 
 

@@ -16,19 +16,20 @@
 */
 package io.github.scaredsmods.scaredsfactions.api.common.faction.setting;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 
 public abstract class AbstractFactionSetting<T, S extends AbstractFactionSetting<T, S>> {
 	private final String nbtId;
-	private final String displayName;
-	private final String[] lore;
+	private final Component displayName;
+	private final Component[] lore;
 	private final T defaultValue;
 	private T value;
 	private boolean isModdedSetting;
 	private String modId;
 
-	public AbstractFactionSetting(T defaultValue, String nbtId, String displayName, String... lore) {
+	public AbstractFactionSetting(T defaultValue, String nbtId, Component displayName, Component... lore) {
 		this.nbtId = nbtId;
 		this.displayName = displayName;
 		this.lore = lore;
@@ -36,7 +37,7 @@ public abstract class AbstractFactionSetting<T, S extends AbstractFactionSetting
 		this.value = defaultValue;
 	}
 
-	public AbstractFactionSetting(T defaultValue, String nbtId, String displayName, boolean isModdedSetting, String modId, String... lore) {
+	public AbstractFactionSetting(T defaultValue, String nbtId, Component displayName, boolean isModdedSetting, String modId, Component... lore) {
 		this(defaultValue, nbtId, displayName, lore);
 		this.modId = modId;
 		this.isModdedSetting = isModdedSetting;
@@ -48,11 +49,11 @@ public abstract class AbstractFactionSetting<T, S extends AbstractFactionSetting
 		return this.nbtId;
 	}
 
-	public String getDisplayName() {
+	public Component getDisplayName() {
 		return this.displayName;
 	}
 
-	public String[] getLore() {
+	public Component[] getLore() {
 		return this.lore;
 	}
 
@@ -74,11 +75,17 @@ public abstract class AbstractFactionSetting<T, S extends AbstractFactionSetting
 
 	public abstract void save(CompoundTag tag);
 
-	@SuppressWarnings("UnusedReturnValue")
 	public abstract S load(CompoundTag tag);
 	public abstract S copy();
 	public abstract void onClick(int mouseButton, Runnable sendUpdate);
-	public abstract Component getCurrentValueAsComponent();
+
+	public Component getCurrentValueAsComponent() {
+		return Component.literal(get().toString())
+				.withStyle(style -> style
+						.withColor(ChatFormatting.YELLOW)
+						.withItalic(false)
+				);
+	}
 
 	public boolean compare(T compareValue) {
 		return this.get().equals(compareValue);

@@ -16,7 +16,7 @@
 */
 package io.github.scaredsmods.scaredsfactions.client.screen.menu;
 
-import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
+import io.github.scaredsmods.scaredsfactions.common.FactionMod;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.common.extensions.IForgeMenuType;
@@ -26,11 +26,9 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-import java.awt.*;
-
 public class ModMenuTypes {
 
-	public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, ScaredsFactionMod.MOD_ID);
+	public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, FactionMod.MOD_ID);
 
 	public static final RegistryObject<MenuType<ManageFactionMenu>> MANAGE_FACTION =
 			registerMenuType("manage_faction", ManageFactionMenu::new);

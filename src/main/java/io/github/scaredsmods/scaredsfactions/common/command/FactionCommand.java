@@ -21,13 +21,13 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import io.github.scaredsmods.scaredsfactions.common.ModTranslations;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.AbstractFactionSetting;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ConfirmTransferOwnershipMenu;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ManageFactionMenu;
 import io.github.scaredsmods.scaredsfactions.common.ModConfigs;
 import io.github.scaredsmods.scaredsfactions.common.command.argument.ArrayEnumArgument;
-import io.github.scaredsmods.scaredsfactions.common.config.LanguageOptions;
 import io.github.scaredsmods.scaredsfactions.common.faction.Faction;
 import io.github.scaredsmods.scaredsfactions.common.faction.FactionSavedData;
 import io.github.scaredsmods.scaredsfactions.common.faction.FactionSettings;
@@ -162,13 +162,13 @@ public class FactionCommand {
 	private static int openConfirmTransferScreen(CommandContext<CommandSourceStack> ctx, String targetUUID) {
 		ServerPlayer player = ctx.getSource().getPlayer();
 		if (player == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You must be a player to execute this command!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NOT_A_PLAYER));
 			return 0;
 		}
 
 		NetworkHooks.openScreen(player, new SimpleMenuProvider(
 						(pContainerId, pPlayerInventory, pPlayer) -> new ConfirmTransferOwnershipMenu(pContainerId, pPlayerInventory, UUID.fromString(targetUUID)),
-						Component.literal("Confirm Transfer?")),
+						Component.translatable(ModTranslations.CONFIRM_TRANSFER)),
 				buf -> buf.writeUUID(UUID.fromString(targetUUID)));
 		return 1;
 	}
@@ -176,7 +176,7 @@ public class FactionCommand {
 	private static int openScreenDebugCommand(CommandContext<CommandSourceStack> ctx, ModScreens screen) {
 		ServerPlayer player = ctx.getSource().getPlayer();
 		if (player == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You must be a player to execute this command!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NOT_A_PLAYER));
 			return 0;
 		}
 
@@ -192,20 +192,20 @@ public class FactionCommand {
 	private static int manage(CommandContext<CommandSourceStack> ctx) {
 		ServerPlayer player = ctx.getSource().getPlayer();
 		if (player == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You must be a player to execute this command!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NOT_A_PLAYER));
 			return 0;
 		}
 
 		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
 		Faction faction = data.getFactionFromPlayer(player.getUUID());
 		if (faction == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You must be in a faction to execute this command!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NO_FACTION));
 			return 0;
 		}
 
 		Faction.Rank playerRank = faction.getMembers().get(player.getUUID());
 		if (playerRank != Faction.Rank.GENERALISSIMUS && playerRank != Faction.Rank.STADHOUDER) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You don't have the required rank to do this!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.INSUFFICIENT_RANK));
 			return 0;
 		}
 
@@ -216,45 +216,51 @@ public class FactionCommand {
 	}
 
 	private static int kickPlayer(CommandContext<CommandSourceStack> ctx, ServerPlayer target) {
+		return kickPlayer(ctx, target, true);
+	}
+
+	private static int kickPlayer(CommandContext<CommandSourceStack> ctx, ServerPlayer target, boolean sendMessage) {
 		ServerPlayer player = ctx.getSource().getPlayer();
 		if (player == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You must be a player to execute this command!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NOT_A_PLAYER));
 			return 0;
 		}
 
 		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
 		Faction faction = data.getFactionFromPlayer(player.getUUID());
 		if (faction == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You must be in a faction to execute this command!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NO_FACTION));
 			return 0;
 		}
 
 		Faction.Rank playerRank = faction.getMembers().get(player.getUUID());
 		if ((playerRank != Faction.Rank.GENERALISSIMUS && playerRank != Faction.Rank.STADHOUDER)) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("Only the leader of the faction can kick players from the faction!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.OWNER_KICK));
 			return 0;
 		}
 
 		if (target.getUUID().equals(player.getUUID())) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You cannot kick yourself!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.SELF_KICK));
 			return 0;
 		}
 
 		if (!faction.getMembers().containsKey(target.getUUID())) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("That player is not in your faction!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.PLAYER_NOT_IN_FACTION));
 			return 0;
 		}
 
 		faction.getMembers().remove(target.getUUID());
 		data.save(player.serverLevel());
-		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success(String.format("Successfully kicked %s from the faction!", target.getDisplayName().getString())), false);
+		if (sendMessage && !target.getUUID().equals(player.getUUID())) {
+			ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success(ModTranslations.KICK_SUCCESS, target.getDisplayName().getString()), false);
+		}
 		return 1;
 	}
 
 	private static int promotePlayer(CommandContext<CommandSourceStack> ctx, ServerPlayer target) {
 		ServerPlayer player = ctx.getSource().getPlayer();
 		if (player == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You need to be a player to use this command!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NOT_A_PLAYER));
 			return 0;
 		}
 
@@ -262,11 +268,11 @@ public class FactionCommand {
 		Faction faction = data.getFactionFromPlayer(player.getUUID());
 
 		if (faction == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You are not in a faction!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NO_FACTION));
 			return 0;
 		}
 		if (!faction.getMembers().containsKey(target.getUUID())) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("Can't promote a player that isn't under your command!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.PLAYER_NOT_IN_FACTION_PROMOTE));
 			return 0;
 		}
 
@@ -274,19 +280,19 @@ public class FactionCommand {
 		Faction.Rank targetRank = faction.getMembers().get(target.getUUID());
 
 		if (!Arrays.asList(playerRank.getManageableRanks()).contains(targetRank)) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You cannot manage players of equal or higher rank!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.EQUAL_RANK_PROMOTE));
 			return 0;
 		}
 
 		int newRankId = targetRank.getId() + 1;
 		if (!Arrays.asList(playerRank.getManageableRanks()).contains(Faction.Rank.getRankById(newRankId))) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You cannot manage players of equal or higher rank!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.EQUAL_RANK_PROMOTE));
 			return 0;
 		}
 
 		faction.getMembers().put(target.getUUID(), Faction.Rank.getRankById(newRankId));
 		data.save(player.serverLevel());
-		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success(String.format("You successfully promoted §7%s §ato %s!", target.getDisplayName(), Faction.Rank.getRankById(newRankId).getName())) , false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success(ModTranslations.PROMOTE_SUCCESS, target.getDisplayName(), Faction.Rank.getRankById(newRankId).getName()) , false);
 		return 1;
 	}
 
@@ -295,7 +301,7 @@ public class FactionCommand {
 
 		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
 		if (data.getFactions().isEmpty()) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("No factions exist yet!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NO_EXISTING_FACTIONS));
 			return 1;
 		}
 
@@ -305,7 +311,7 @@ public class FactionCommand {
 				.toList();
 
 		if (visibleFactions.isEmpty()) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("There are no visible factions!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NO_VISIBLE_FACTIONS));
 			return 0;
 		}
 
@@ -319,7 +325,7 @@ public class FactionCommand {
 				.collect(Collectors.joining(", "));
 
 		if (factionList.isEmpty()) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("There are no visible factions!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NO_VISIBLE_FACTIONS));
 			return 0;
 		}
 
@@ -332,46 +338,46 @@ public class FactionCommand {
 	private static int leaveFaction(CommandContext<CommandSourceStack> ctx) {
 		ServerPlayer player = ctx.getSource().getPlayer();
 		if (player == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You need to be a player to use this command!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NOT_A_PLAYER));
 			return 0;
 		}
 
 		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
 		Faction faction = data.getFactionFromPlayer(player.getUUID());
 		if (faction == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You need to be in a faction to use this command!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NO_FACTION));
 			return 0;
 		}
 
 		if (faction.getOwner().equals(player.getUUID())) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You are the owner of this faction! Disband the faction or transfer ownership first!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.LEAVE_TRANSFER_OWNERSHIP));
 			return 0;
 		}
 
 		faction.getMembers().remove(player.getUUID());
 		data.save(player.serverLevel());
-		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success("You left " + faction.getName().replace("&", "§") + "§a!"), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success(ModTranslations.LEAVE_SUCCESS, faction.getName().replace("&", "§")), false);
 		return 1;
 	}
 
 	private static int teleportToBeacon(CommandContext<CommandSourceStack> ctx) {
 		ServerPlayer player = ctx.getSource().getPlayer();
 		if (player == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You need to be a player to use this command!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NOT_A_PLAYER));
 			return 0;
 		}
 
 		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
 		Faction faction = data.getFactionFromPlayer(player.getUUID());
 		if (faction == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You need to be in a faction to use this command!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NO_FACTION));
 			return 0;
 		}
 
 		BlockPos beaconPos = faction.getBeaconPos();
 
 		if (!faction.hasBeacon()) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("Your faction doesn't have their beacon placed down yet!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NO_BEACON));
 			return 0;
 		}
 
@@ -384,7 +390,7 @@ public class FactionCommand {
 				long hours = remainingTime / 3600;
 				long minutes = (remainingTime % 3600) / 60;
 				long seconds = remainingTime % 60;
-				ctx.getSource().sendFailure(MessageUtil.Prefix.error(String.format("You must wait another %s:%s:%s before using this command again!", hours, minutes, seconds)));
+				ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.HOME_COOLDOWN, hours, minutes, seconds));
 			}
 			faction.setHomeCooldown(player.getUUID(), currentTime);
 		}
@@ -396,7 +402,7 @@ public class FactionCommand {
 				beaconPos.getZ() + 0.5,
 				player.getYRot(),
 				player.getXRot());
-		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success("Successfully teleported to your faction's beacon!"), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success(ModTranslations.HOME_SUCCESS), false);
 		return 1;
 	}
 	private static int factionInfo(CommandContext<CommandSourceStack> ctx, String factionName) {
@@ -405,12 +411,12 @@ public class FactionCommand {
 		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
 		Faction faction = data.getFactionByStrippedName(factionName);
 		if (faction == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("That faction does not exist!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NO_FACTION));
 			return 0;
 		}
 
 		if (!faction.getSettingValue(FactionSettings.INFO_VISIBLE.getNbtId(), BooleanFactionSetting.class)) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("That faction wants to be private!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.PRIVATE_FACTION));
 			return 0;
 		}
 		Component divider = Component.literal("====== ")
@@ -431,8 +437,8 @@ public class FactionCommand {
 		String alliesStr = faction.getAllies().isEmpty() ? "None" : String.join(", ", faction.getAllies());
 
 		ctx.getSource().sendSuccess(() -> divider, false);
-		ctx.getSource().sendSuccess(() -> Component.literal("Faction: " + faction.getName().replace("&" , "§")).withStyle(ChatFormatting.GRAY), false);
-		ctx.getSource().sendSuccess(() -> Component.literal("Members: " + membersStr).withStyle(ChatFormatting.GRAY), false);
+		ctx.getSource().sendSuccess(() -> Component.translatable(ModTranslations.FACTION_INFO_FACTION_NAME, faction.getName().replace("&" , "§")).withStyle(ChatFormatting.GRAY), false);
+		ctx.getSource().sendSuccess(() -> Component.translatable(ModTranslations.FACTION_INFO_FACTION_MEMBERS, membersStr).withStyle(ChatFormatting.GRAY), false);
 		//ctx.getSource().sendSuccess(() -> Component.literal("Allies: " + alliesStr).withStyle(ChatFormatting.GRAY), false);
 		ctx.getSource().sendSuccess(() -> divider, false);
 		return 1;
@@ -441,42 +447,42 @@ public class FactionCommand {
 	private static int invitePlayer(CommandContext<CommandSourceStack> ctx, ServerPlayer target) {
 		ServerPlayer player = ctx.getSource().getPlayer();
 		if (player == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You need to be a player to use this command!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NOT_A_PLAYER));
 			return 0;
 		}
 
 		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
 		Faction faction = data.getFactionFromPlayer(player.getUUID());
 		if (faction == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You need to be in a faction to use this command!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NO_FACTION));
 			return 0;
 		}
 		Faction.Rank playerRank = faction.getMembers().get(player.getUUID());
 		if (playerRank == Faction.Rank.PRIVATE) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You don't have permission to invite players!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.INSUFFICIENT_RANK));
 			return 0;
 		}
 		if (data.getFactionFromPlayer(target.getUUID()) != null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("That player is already in a faction!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.TARGET_PLAYER_IN_FACTION));
 			return 0;
 		}
 
 		if (faction.getMembers().size() >= ModConfigs.commonConfig.maxMembers.get()) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("Your faction has reached the maximum number of members!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.MAX_MEMBERS));
 			return 0;
 		}
 
 		InviteManager.invite(target.getUUID(), faction.getName());
 		data.save(player.serverLevel());
-		target.sendSystemMessage(MessageUtil.Prefix.success("You have been invited to join " + faction.getName().replace("&", "§") + "§a. Use /faction invite accept " + faction.getName().replace("&", "§") + "§a to accept!"), false);
-		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.formattedMessage("Invited " + target.getName().getString() + " to your faction.", ChatFormatting.GOLD), false);
+		target.sendSystemMessage(MessageUtil.Prefix.success(ModTranslations.INVITED_PLAYER_MESSAGE, faction.getName().replace("&", "§"), faction.getName().replace("&", "§")), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success(ModTranslations.INVITING_PLAYER_MESSAGE, target.getName().getString()), false);
 		return 1;
 	}
 
 	private static int disbandFaction(CommandContext<CommandSourceStack> ctx, String factionName) {
 		ServerPlayer player = ctx.getSource().getPlayer();
 		if (player == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You need to be a player to use this command!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NOT_A_PLAYER));
 			return 0;
 		}
 
@@ -484,7 +490,7 @@ public class FactionCommand {
 		Faction faction = data.getFactionByStrippedName(factionName);
 
 		if (faction == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("This faction doesn't exist!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.TARGETED_FACTION_DOESNT_EXIST));
 			return 0;
 		}
 
@@ -498,21 +504,21 @@ public class FactionCommand {
 		for (UUID memberUUID : faction.getMembers().keySet()) {
 			ServerPlayer member = ctx.getSource().getServer().getPlayerList().getPlayer(memberUUID);
 			if (member != null) {
-				member.sendSystemMessage(MessageUtil.Prefix.error("Your faction has been disbanded by an admin!"));
+				member.sendSystemMessage(MessageUtil.Prefix.error(ModTranslations.FACTION_DISBANDED_BY_ADMIN));
 				member.setRespawnPosition(Level.OVERWORLD, null, 0.0F, true, false);
-				kickPlayer(ctx, member);
+				kickPlayer(ctx, member, false);
 			}
 		}
 
 		data.removeFaction(faction, player.serverLevel());
-		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success("Faction " + faction.getName().replace("&", "§") + "§r has been disbanded!"), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success(ModTranslations.FACTION_DISBAND_SUCCESS_ADMIN, faction.getName().replace("&", "§")), false);
 		return 1;
 	}
 
 	private static int disbandFaction(CommandContext<CommandSourceStack> ctx) {
 		ServerPlayer player = ctx.getSource().getPlayer();
 		if (player == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You need to be a player to use this command!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NOT_A_PLAYER));
 			return 0;
 		}
 
@@ -520,7 +526,7 @@ public class FactionCommand {
 		Faction faction = data.getFactionFromPlayer(player.getUUID());
 
 		if (faction == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You are not in a faction!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NO_FACTION));
 			return 0;
 		}
 
@@ -528,7 +534,7 @@ public class FactionCommand {
 		boolean isLeader = playerRank == Faction.Rank.GENERALISSIMUS || playerRank == Faction.Rank.STADHOUDER;
 		boolean isOwner = faction.getOwner().equals(player.getUUID());
 		if (!isLeader && !isOwner) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("Only the faction leader can disband the faction!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.FACTION_OWNER_CAN_DISBAND));
 			return 0;
 		}
 
@@ -543,22 +549,22 @@ public class FactionCommand {
 			ServerPlayer member = ctx.getSource().getServer().getPlayerList().getPlayer(memberUUID);
 			if (member != null) {
 				if (!member.getUUID().equals(player.getUUID())) {
-					member.sendSystemMessage(MessageUtil.Prefix.error("Your faction has been disbanded!"));
-					kickPlayer(ctx, member);
+					member.sendSystemMessage(MessageUtil.Prefix.error(ModTranslations.FACTION_DISBANDED_MEMBER));
+					kickPlayer(ctx, member, true);
 				}
 				member.setRespawnPosition(Level.OVERWORLD, null, 0.0F, true, false);
 			}
 		}
 
 		data.removeFaction(faction, player.serverLevel());
-		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success("You have disbanded your faction!"), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success(ModTranslations.FACTION_DISBAND_SUCCESS), false);
 		return 1;
 	}
 
 	private static int demotePlayer(CommandContext<CommandSourceStack> ctx, ServerPlayer target) {
 		ServerPlayer player = ctx.getSource().getPlayer();
 		if (player == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You need to be a player to use this command!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NOT_A_PLAYER));
 			return 0;
 		}
 
@@ -566,11 +572,11 @@ public class FactionCommand {
 		Faction faction = data.getFactionFromPlayer(player.getUUID());
 
 		if (faction == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You are not in a faction!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NO_FACTION));
 			return 0;
 		}
 		if (!faction.getMembers().containsKey(target.getUUID())) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("That player is not in your faction!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.PLAYER_NOT_IN_FACTION));
 			return 0;
 		}
 
@@ -578,31 +584,31 @@ public class FactionCommand {
 		Faction.Rank targetRank = faction.getMembers().get(target.getUUID());
 
 		if (!Arrays.asList(playerRank.getManageableRanks()).contains(targetRank)) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You cannot demote this player!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.INSUFFICIENT_RANK));
 			return 0;
 		}
 
 		int newRankId = targetRank.getId() - 1;
 		if (newRankId < 0) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("This player is already the lowest rank!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.PLAYER_AT_LOWEST_RANK));
 			return 0;
 		}
 
 		if (!Arrays.asList(playerRank.getManageableRanks()).contains(Faction.Rank.getRankById(newRankId))) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You cannot demote this player to that rank!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.INSUFFICIENT_RANK));
 			return 0;
 		}
 
 		faction.getMembers().put(target.getUUID(), Faction.Rank.getRankById(newRankId));
 		data.save(player.serverLevel());
-		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success(String.format("You successfully demoted §7%s §ato %s", target.getDisplayName(), Faction.Rank.getRankById(newRankId).getName())), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success(ModTranslations.DEMOTE_SUCCESS, target.getDisplayName(), Faction.Rank.getRankById(newRankId).getName()), false);
 		return 1;
 	}
 
 	private static int createFaction(CommandContext<CommandSourceStack> ctx, String name) {
 		ServerPlayer player = ctx.getSource().getPlayer();
 		if (player == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You need to be a player to use this command!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NOT_A_PLAYER));
 			return 0;
 		}
 
@@ -613,7 +619,7 @@ public class FactionCommand {
 		for (Faction faction : data.getFactions().values()) {
 			String existingNamesStripped = faction.getName().replaceAll("§[0-9a-fk-or]", "");
 			if (existingNamesStripped.equalsIgnoreCase(strippedName)) {
-				ctx.getSource().sendFailure(MessageUtil.Prefix.error("This faction already exists! Please choose another name!"));
+				ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NAME_TAKEN));
 				return 0;
 			}
 		}
@@ -621,13 +627,11 @@ public class FactionCommand {
 		List<AbstractFactionSetting<?, ?>> settings = Faction.createDefaultSettings();
 
 		Faction faction = new Faction(formattedName, player.getUUID(), settings);
-		Faction.Rank rank = (ModConfigs.commonConfig.defaultOwnerRank.get() == LanguageOptions.PREFER_STADHOUDER) ? Faction.Rank.STADHOUDER : Faction.Rank.GENERALISSIMUS;
-		faction.getMembers().put(player.getUUID(), rank);
-
+		faction.setOwner(player.getUUID());
 
 		ItemStack beacon = new ItemStack(Items.BEACON);
 		beacon.getOrCreateTag().putBoolean("respawn_beacon", true);
-		beacon.setHoverName(Component.literal("Respawn Beacon")
+		beacon.setHoverName(Component.translatable(ModTranslations.RESPAWN_BEACON_NAME)
 				.withStyle(style -> style
 						.withBold(true)
 						.withColor(ChatFormatting.RED)
@@ -635,20 +639,20 @@ public class FactionCommand {
 		CompoundTag display = beacon.getOrCreateTagElement("display");
 		ListTag lore = new ListTag();
 		lore.add(StringTag.valueOf(Component.Serializer.toJson(
-				Component.literal("This is your faction's respawn beacon!")
+				Component.translatable(ModTranslations.RESPAWN_BEACON_LORE_LINE_1)
 						.withStyle(style -> style
 								.withColor(ChatFormatting.GRAY)
 								.withItalic(false))
 		)));
 		lore.add(StringTag.valueOf(Component.Serializer.toJson(
-				Component.literal("It functions as your bed, and lifeline!")
+				Component.translatable(ModTranslations.RESPAWN_BEACON_LORE_LINE_2)
 						.withStyle(style -> style
 								.withColor(ChatFormatting.GRAY)
 								.withItalic(false))
 		)));
 
 		lore.add(StringTag.valueOf(Component.Serializer.toJson(
-				Component.literal("Hide it well: If other factions get a hold of it, you can no longer respawn!")
+				Component.translatable(ModTranslations.RESPAWN_BEACON_LORE_LINE_3)
 						.withStyle(style -> style
 								.withBold(false)
 								.withItalic(false)
@@ -658,10 +662,7 @@ public class FactionCommand {
 		display.put("Lore", lore);
 		player.getInventory().add(beacon);
 		data.addFaction(faction, player.serverLevel());
-		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success("Faction ")
-				.copy()
-				.append(Component.literal(formattedName))
-				.append(Component.literal(" created!").withStyle(ChatFormatting.GREEN)), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success(ModTranslations.CREATE_FACTION_SUCCESS, formattedName), false);
 		return 1;
 	}
 
@@ -672,23 +673,24 @@ public class FactionCommand {
 		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
 
 		if (data.getFactionFromPlayer(player.getUUID()) != null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You are already in a faction! Leave your current faction first before joining a new one!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.PLAYER_IN_FACTION));
 			return 0;
 		}
 
 		Faction faction = data.getFactionByStrippedName(name);
-		if (faction == null) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("This faction does not exist! Are you sure you spelled it correctly?"));
-			return 0;
-		}
 
-		if (!InviteManager.hasInvite(player.getUUID(), name)) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("You don't have any invites!"));
+		if (faction == null) {
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.FACTION_NOT_EXISTING));
 			return 0;
 		}
 
 		if (faction.getMembers().size() >= ModConfigs.commonConfig.maxMembers.get()) {
-			ctx.getSource().sendFailure(MessageUtil.Prefix.error("Your faction has reached the maximum number of members!"));
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.MAX_MEMBERS));
+			return 0;
+		}
+
+		if (!InviteManager.hasInvite(player.getUUID(), name)) {
+			ctx.getSource().sendFailure(MessageUtil.Prefix.error(ModTranslations.NO_INVITES));
 			return 0;
 		}
 
@@ -696,8 +698,8 @@ public class FactionCommand {
 		InviteManager.cancelInvite(player.getUUID());
 		data.save(player.serverLevel());
 
-		Objects.requireNonNull(Objects.requireNonNull(ctx.getSource().getPlayer().getServer()).getPlayerList().getPlayer(faction.getOwner())).sendSystemMessage(MessageUtil.Prefix.info(String.format("§f%s §ahas joined your faction", player.getGameProfile().getName())));
-		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success(String.format("You successfully joined %s!", name.replace("&", "§"))), false);
+		Objects.requireNonNull(Objects.requireNonNull(ctx.getSource().getPlayer().getServer()).getPlayerList().getPlayer(faction.getOwner())).sendSystemMessage(MessageUtil.Prefix.info(ModTranslations.ACCEPT_SUCCESS_FACTION_OWNER, player.getGameProfile().getName()));
+		ctx.getSource().sendSuccess(() -> MessageUtil.Prefix.success(ModTranslations.ACCEPT_SUCCESS, name.replace("&", "§")), false);
 		return 1;
 	}
 
@@ -713,20 +715,20 @@ public class FactionCommand {
 
 		ctx.getSource().sendSuccess(() -> divider, false);
 		//ctx.getSource().sendSuccess(() -> MessageUtil.info("/faction ally <name> - Formally create an alliance with another faction. (WIP)"), false);
-		ctx.getSource().sendSuccess(() -> MessageUtil.info("/faction create <name> - Creates a faction and takes in a name as argument"), false);
-		ctx.getSource().sendSuccess(() -> MessageUtil.info("/faction demote <player> - Demotes a player. (WIP)"), false);
-		ctx.getSource().sendSuccess(() -> MessageUtil.info("/faction disband - Disbands your current faction if you are the leader (general)."), false);
-		ctx.getSource().sendSuccess(() -> MessageUtil.info("/faction disband <name> - An admin command to remove any faction."), false);
-		ctx.getSource().sendSuccess(() -> MessageUtil.info("/faction help - Shows this message"), false);
-		ctx.getSource().sendSuccess(() -> MessageUtil.info("/faction home - Teleports the player to their respawn beacon."), false);
-		ctx.getSource().sendSuccess(() -> MessageUtil.info("/faction info <name> - Displays information about a faction."), false);
-		ctx.getSource().sendSuccess(() -> MessageUtil.info("/faction invite <player> - Invite a player that isn't in a faction to join your faction."), false);
-		ctx.getSource().sendSuccess(() -> MessageUtil.info("/faction invite accept <name> - Accept an invite from a faction"), false);
-		ctx.getSource().sendSuccess(() -> MessageUtil.info("/faction kick - Kicks a player from the faction. Only executable by the leader."), false);
-		ctx.getSource().sendSuccess(() -> MessageUtil.info("/faction leave - Leave your current faction."), false);
-		ctx.getSource().sendSuccess(() -> MessageUtil.info("/faction list - List all factions"), false);
-		ctx.getSource().sendSuccess(() -> MessageUtil.info("/faction manage - Manage your faction if you are their leader."), false);
-		ctx.getSource().sendSuccess(() -> MessageUtil.info("/faction promote <name> - Promotes a player to a new rank. (WIP)"), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.helpDescription("/faction create <name> - ", ModTranslations.HELP_COMMAND_CREATE), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.helpDescription("/faction demote <player> - ", ModTranslations.HELP_COMMAND_DEMOTE), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.helpDescription("/faction disband - ", ModTranslations.HELP_COMMAND_DISBAND), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.helpDescription("/faction disband <name> - ", ModTranslations.HELP_COMMAND_DISBAND_BY_ADMIN), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.helpDescription("/faction help - ", ModTranslations.HELP_COMMAND_HELP), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.helpDescription("/faction home - ", ModTranslations.HELP_COMMAND_HOME), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.helpDescription("/faction info <name> - ", ModTranslations.HELP_COMMAND_INFO), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.helpDescription("/faction invite <player> - ", ModTranslations.HELP_COMMAND_INVITE), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.helpDescription("/faction invite accept <name> - ", ModTranslations.HELP_COMMAND_INVITE_ACCEPT), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.helpDescription("/faction kick - ", ModTranslations.HELP_COMMAND_KICK), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.helpDescription("/faction leave - ", ModTranslations.HELP_COMMAND_LEAVE), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.helpDescription("/faction list - ", ModTranslations.HELP_COMMAND_LIST), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.helpDescription("/faction manage - ", ModTranslations.HELP_COMMAND_MANAGE), false);
+		ctx.getSource().sendSuccess(() -> MessageUtil.helpDescription("/faction promote <name> - ", ModTranslations.HELP_COMMAND_PROMOTE), false);
 		//ctx.getSource().sendSuccess(() -> MessageUtil.info("/faction unally <name> - Terminate the formal alliance"), false);
 		ctx.getSource().sendSuccess(() -> divider, false);
 		return 1;

@@ -16,17 +16,18 @@
 */
 package io.github.scaredsmods.scaredsfactions.api.common.faction.setting;
 
+import io.github.scaredsmods.scaredsfactions.common.ModTranslations;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 
 public class BooleanFactionSetting extends AbstractFactionSetting<Boolean, BooleanFactionSetting> {
 
-	public BooleanFactionSetting(Boolean defaultValue, String nbtId, String displayName, String... lore) {
+	public BooleanFactionSetting(Boolean defaultValue, String nbtId, Component displayName, Component... lore) {
 		super(defaultValue, nbtId, displayName, lore);
 	}
 
-	public BooleanFactionSetting(Boolean defaultValue, String nbtId, String displayName, boolean isModdedSetting, String modId, String... lore) {
+	public BooleanFactionSetting(Boolean defaultValue, String nbtId, Component displayName, boolean isModdedSetting, String modId, Component... lore) {
 		super(defaultValue, nbtId, displayName, isModdedSetting, modId, lore);
 	}
 
@@ -54,7 +55,7 @@ public class BooleanFactionSetting extends AbstractFactionSetting<Boolean, Boole
 
 	@Override
 	public Component getCurrentValueAsComponent() {
-		return Component.literal(get() ? "Enabled" : "Disabled")
+		return Component.translatable(get() ? ModTranslations.BOOLEAN_SETTING_VALUE_AS_COMPONENT_ENABLED : ModTranslations.BOOLEAN_SETTING_VALUE_AS_COMPONENT_DISABLED)
 				.withStyle(style -> style
 						.withColor(get() ? ChatFormatting.GREEN : ChatFormatting.RED)
 						.withItalic(false)

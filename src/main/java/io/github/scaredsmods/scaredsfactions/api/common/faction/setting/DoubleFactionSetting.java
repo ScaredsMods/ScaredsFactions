@@ -17,15 +17,16 @@
 package io.github.scaredsmods.scaredsfactions.api.common.faction.setting;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 
 public class DoubleFactionSetting extends NumericFactionSetting<Double, DoubleFactionSetting>{
 
 
-	public DoubleFactionSetting(Double defaultValue, String nbtId, String displayName, Double step, Double min, Double max, String... lore) {
+	public DoubleFactionSetting(Double defaultValue, String nbtId, Component displayName, Double step, Double min, Double max, Component... lore) {
 		super(defaultValue, nbtId, displayName, step, min, max, lore);
 	}
 
-	public DoubleFactionSetting(Double defaultValue, String nbtId, String displayName, boolean isModdedSetting, String modId, Double step, Double min, Double max, String... lore) {
+	public DoubleFactionSetting(Double defaultValue, String nbtId, Component displayName, boolean isModdedSetting, String modId, Double step, Double min, Double max, Component... lore) {
 		super(defaultValue, nbtId, displayName, isModdedSetting, modId, step, min, max, lore);
 	}
 

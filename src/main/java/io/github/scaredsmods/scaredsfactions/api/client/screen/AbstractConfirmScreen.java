@@ -19,7 +19,7 @@ package io.github.scaredsmods.scaredsfactions.api.client.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.scaredsmods.scaredsfactions.api.client.menu.AbstractConfirmMenu;
 import io.github.scaredsmods.scaredsfactions.client.screen.ManageFactionScreen;
-import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
+import io.github.scaredsmods.scaredsfactions.common.FactionMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -32,7 +32,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 public abstract class AbstractConfirmScreen<T extends AbstractConfirmMenu> extends AbstractContainerScreen<T> {
 
-	private static final ResourceLocation TEXTURE = ScaredsFactionMod.id("textures/gui/container/confirm_transfer.png");
+	private static final ResourceLocation TEXTURE = FactionMod.id("textures/gui/container/confirm_transfer.png");
 	public Screen parent;
 	private Button confirm;
 	private Button back;

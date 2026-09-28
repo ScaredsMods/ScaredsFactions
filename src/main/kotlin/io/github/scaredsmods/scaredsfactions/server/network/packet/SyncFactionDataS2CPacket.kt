@@ -17,14 +17,12 @@
 package io.github.scaredsmods.scaredsfactions.server.network.packet
 
 import io.github.scaredsmods.scaredsfactions.api.server.network.packet.IAbstractFactionPacket
-import io.github.scaredsmods.scaredsfactions.api.server.network.packet.MapPacket
 import io.github.scaredsmods.scaredsfactions.common.faction.ClientFactionSavedData
 import io.github.scaredsmods.scaredsfactions.common.faction.Faction
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.fml.DistExecutor
 import net.minecraftforge.network.NetworkEvent
-import java.util.UUID
 import java.util.function.Supplier
 
 class SyncFactionDataS2CPacket(val factions: Map<String, Faction>) : IAbstractFactionPacket<SyncFactionDataS2CPacket> {

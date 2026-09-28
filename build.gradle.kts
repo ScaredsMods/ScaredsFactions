@@ -2,7 +2,8 @@ import net.minecraftforge.gradle.common.util.ModConfig
 import net.minecraftforge.gradle.common.util.RunConfig
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "2.0.0"
+    kotlin("jvm") version "2.0.0"
+    kotlin("kapt") version "2.4.10"
     id("java")
     id("idea")
     id("net.minecraftforge.gradle") version "6.0.54"
@@ -119,7 +120,6 @@ minecraft {
         create("client") {
             property("forge.enabledGameTestNamespaces", modId)
             val uuid = "67e129a0-7954-4ad0-bc39-d2ecf97e7a1a"
-
             args("--username", "ScaredRabbitNL", "--uuid", uuid)
         }
 
@@ -149,6 +149,8 @@ minecraft {
         val data: RunConfig by creating {
             workingDirectory(project.file("run-data"))
 
+            arg("mixin.env.remapRefMap=true")
+            arg("mixin.env.refMapRemappingFile=${projectDir}/build/createSrgToMcp/output.srg")
             args(
                 "--mod", modId,
                 "--all",
@@ -170,6 +172,7 @@ dependencies {
     implementation("thedarkcolour:kotlinforforge:${kffVersion}")
     minecraft("net.minecraftforge:forge:${minecraftVersion}-${forgeVersion}")
     annotationProcessor("org.spongepowered:mixin:0.8.5:processor")
+    //kapt("org.spongepowered:mixin:0.8.5:processor")
 
     compileOnly("curse.maven:timeless-and-classics-zero-1028108:7745481-sources-7745491")
     compileOnly(("top.theillusivec4.curios:curios-forge:5.4.2+1.20.1:api"))

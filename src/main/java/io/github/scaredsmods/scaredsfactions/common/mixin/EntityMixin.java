@@ -14,7 +14,7 @@
 *  You should have received a copy of the GNU Lesser General Public License
 *  along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-package io.github.scaredsmods.scaredsfactions.common.mixin.client;
+package io.github.scaredsmods.scaredsfactions.common.mixin;
 
 
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting;
@@ -29,6 +29,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+/*
+This code has been inspired by <a href="https://github.com/Emafire003/ColoredGlowLib/blob/main/src/main/java/me/emafire003/dev/coloredglowlib/mixin/EntityColorMixin.java">
+It isn't a 1:1 copy, but I did get some inspiration from this mod.
+ */
 
 @Mixin(Entity.class)
 public abstract class EntityMixin {

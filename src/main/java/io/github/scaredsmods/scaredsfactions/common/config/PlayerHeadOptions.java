@@ -14,14 +14,10 @@
 *  You should have received a copy of the GNU Lesser General Public License
 *  along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-package io.github.scaredsmods.scaredsfactions.api.server.network.packet
+package io.github.scaredsmods.scaredsfactions.common.config;
 
-import net.minecraft.network.FriendlyByteBuf
-
-abstract class MapPacket<A, B, T : MapPacket<A, B, T>>(val first: A, val second: B, val encodeFirst: (FriendlyByteBuf, A) -> Unit, val encodeSecond: (FriendlyByteBuf, B) -> Unit)  : IAbstractFactionPacket<T> {
-
-	override fun encode(packet: T, buf: FriendlyByteBuf) {
-		encodeFirst(buf, packet.first)
-		encodeSecond(buf, packet.second)
-	}
+public enum PlayerHeadOptions {
+	DROP_AT_GROUND,
+	PLACE_AT_DEATH_LOCATION,
+	ADD_TO_ATTACKER
 }

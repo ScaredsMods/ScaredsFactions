@@ -17,6 +17,7 @@
 package io.github.scaredsmods.scaredsfactions.client.screen.menu;
 
 import com.mojang.authlib.GameProfile;
+import io.github.scaredsmods.scaredsfactions.common.ModTranslations;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
@@ -44,7 +45,6 @@ public class ManageFactionMenu extends AbstractContainerMenu {
 			container.setItem(i, pane);
 		}
 
-
 		Player player = playerInventory.player;
 		GameProfile profile = player.getGameProfile();
 		CompoundTag nbtTransfer = new CompoundTag();
@@ -52,12 +52,13 @@ public class ManageFactionMenu extends AbstractContainerMenu {
 
 		CompoundTag nbtMembers = new CompoundTag();
 		nbtMembers.put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), profile));
-		addClickableSlot(container, 0, Items.NAME_TAG, "Change Name", ChatFormatting.GREEN);
-		addClickableSlot(container, 1, Items.PLAYER_HEAD, "Transfer Ownership", nbtTransfer, ChatFormatting.DARK_PURPLE);
-		addClickableSlot(container, 2, Items.PLAYER_HEAD, "View Members", nbtMembers, ChatFormatting.AQUA);
-		addClickableSlot(container, 3, Items.PAPER, "Faction Settings", ChatFormatting.GOLD);
-		addClickableSlot(container, 8, Items.RED_WOOL, "Close", ChatFormatting.DARK_RED);
-		addClickableSlot(container, 4, Items.BEACON, "Reset Beacon Position", ChatFormatting.DARK_GREEN);
+		addClickableSlot(container, 0, Items.NAME_TAG, ModTranslations.MANAGE_MENU_ITEM_RENAME, ChatFormatting.GREEN);
+		addClickableSlot(container, 1, Items.PLAYER_HEAD, ModTranslations.MANAGE_MENU_ITEM_TRANSFER_OWNERSHIP, nbtTransfer, ChatFormatting.DARK_PURPLE);
+		addClickableSlot(container, 2, Items.PLAYER_HEAD, ModTranslations.MANAGE_MENU_ITEM_VIEW_MEMBERS, nbtMembers, ChatFormatting.AQUA);
+		addClickableSlot(container, 3, Items.PAPER, ModTranslations.MANAGE_MENU_ITEM_FACTION_SETTINGS, ChatFormatting.GOLD);
+		addClickableSlot(container, 4, Items.BEACON, ModTranslations.MANAGE_MENU_ITEM_RESET_BEACON_POS, ChatFormatting.DARK_GREEN);
+		addClickableSlot(container, 8, Items.RED_WOOL, ModTranslations.MANAGE_MENU_CLOSE, ChatFormatting.DARK_RED);
+
 
 		for (int colum = 0; colum < 9; colum++) {
 			this.addSlot(new Slot(container, colum, 8 + colum * 18, 18) {
@@ -72,15 +73,8 @@ public class ManageFactionMenu extends AbstractContainerMenu {
 				}
 			});
 		}
-
-		for (int row = 0; row < 3; row++) {
-			for (int col = 0; col < 9; col++) {
-				this.addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 49 + row * 18));
-			}
-		}
-		for (int col = 0; col < 9; col++) {
-			this.addSlot(new Slot(playerInventory, col, 8 + col * 18, 107));
-		}
+		addPlayerHotBar(playerInventory);
+		addPlayerInventory(playerInventory);
 	}
 
 	public ManageFactionMenu(int containerId, Inventory inventory, FriendlyByteBuf friendlyByteBuf) {
@@ -89,14 +83,14 @@ public class ManageFactionMenu extends AbstractContainerMenu {
 
 	private void addClickableSlot(SimpleContainer container, int index, Item item, String name, ChatFormatting color) {
 		ItemStack stack = new ItemStack(item);
-		stack.setHoverName(Component.literal(name).withStyle(style -> style.withColor(color).withItalic(false).withBold(true)));
+		stack.setHoverName(Component.translatable(name).withStyle(style -> style.withColor(color).withItalic(false).withBold(true)));
 		container.setItem(index, stack);
 	}
 
 	private void addClickableSlot(SimpleContainer container, int index, Item item, String name, CompoundTag nbtData, ChatFormatting color) {
 		ItemStack stack = new ItemStack(item);
 		stack.setTag(nbtData);
-		stack.setHoverName(Component.literal(name).withStyle(style -> style.withColor(color).withBold(true).withItalic(false)));
+		stack.setHoverName(Component.translatable(name).withStyle(style -> style.withColor(color).withBold(true).withItalic(false)));
 		container.setItem(index, stack);
 	}
 
@@ -108,5 +102,19 @@ public class ManageFactionMenu extends AbstractContainerMenu {
 	@Override
 	public boolean stillValid(Player pPlayer) {
 		return true;
+	}
+
+	public void addPlayerHotBar(Inventory playerInventory) {
+        for (int col = 0; col < 9; col++) {
+            this.addSlot(new Slot(playerInventory, col, 8 + col * 18, 107));
+        }
+	}
+
+	public void addPlayerInventory(Inventory playerInventory) {
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 9; col++) {
+                this.addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 49 + row * 18));
+            }
+        }
 	}
 }

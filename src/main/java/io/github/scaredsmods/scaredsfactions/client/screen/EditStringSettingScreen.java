@@ -18,7 +18,8 @@ package io.github.scaredsmods.scaredsfactions.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.EditStringSettingMenu;
-import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
+import io.github.scaredsmods.scaredsfactions.common.FactionMod;
+import io.github.scaredsmods.scaredsfactions.common.ModTranslations;
 import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenC2SPacket;
@@ -39,7 +40,7 @@ import org.lwjgl.glfw.GLFW;
 
 public class EditStringSettingScreen extends AbstractContainerScreen<EditStringSettingMenu> {
 
-	private static final ResourceLocation TEXTURE = ScaredsFactionMod.id("textures/gui/container/edit_string_value.png");
+	private static final ResourceLocation TEXTURE = FactionMod.id("textures/gui/container/edit_string_value.png");
 
 	public Screen parent;
 	private EditBox newValue;
@@ -57,7 +58,7 @@ public class EditStringSettingScreen extends AbstractContainerScreen<EditStringS
 	@Override
 	public void init() {
 		super.init();
-		this.newValue = new EditBox(this.font, leftPos + 37, topPos + 39, 106, 12, Component.literal("Rename Faction"));
+		this.newValue = new EditBox(this.font, leftPos + 37, topPos + 39, 106, 12, Component.translatable(ModTranslations.RENAME_FACTION_LABEL));
 		this.newValue.setEditable(true);
 		this.newValue.setValue("");
 		this.newValue.setTextColor(-1);
@@ -67,15 +68,15 @@ public class EditStringSettingScreen extends AbstractContainerScreen<EditStringS
 		this.setInitialFocus(this.newValue);
 		this.addRenderableWidget(this.newValue);
 
-		this.confirm = Button.builder(Component.literal("Confirm").withStyle(ChatFormatting.GREEN), btn -> {
+		this.confirm = Button.builder(Component.translatable(ModTranslations.BUTTON_CONFIRM).withStyle(ChatFormatting.GREEN), btn -> {
 			String newValue = this.newValue.getValue();
 			CompoundTag tag = new CompoundTag();
 			tag.putString(this.menu.getNbtId(), newValue);
 			ModNetworks.CHANNEL.sendToServer(new UpdateFactionSettingsPacket(this.menu.getNbtId(), tag));
-			ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.FACTION_SETTINGS, Component.literal("Faction Settings")));
+			ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.FACTION_SETTINGS, Component.translatable(ModTranslations.FACTION_SETTINGS_LABEL)));
 		}).bounds(leftPos + 42, topPos + 53, 45, 15).build();
 
-		this.back = Button.builder(Component.literal("Back").withStyle(ChatFormatting.RED), btn -> {
+		this.back = Button.builder(Component.translatable(ModTranslations.BUTTON_BACK).withStyle(ChatFormatting.RED), btn -> {
 			this.onClose();
 		}).bounds(leftPos + 92, topPos + 53, 45,15).build();
 

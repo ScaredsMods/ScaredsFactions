@@ -17,6 +17,7 @@
 package io.github.scaredsmods.scaredsfactions.client.screen.menu;
 
 import com.mojang.authlib.GameProfile;
+import io.github.scaredsmods.scaredsfactions.common.ModTranslations;
 import io.github.scaredsmods.scaredsfactions.common.faction.Faction;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
@@ -60,7 +61,7 @@ public class TransferOwnershipMenu extends AbstractContainerMenu {
 
 
 		ItemStack back = new ItemStack(Items.RED_WOOL);
-		back.setHoverName(Component.literal("Back").withStyle(style -> style.withColor(ChatFormatting.DARK_RED).withBold(true).withItalic(false)));
+		back.setHoverName(Component.translatable(ModTranslations.BACK_ITEM_NAME).withStyle(style -> style.withColor(ChatFormatting.DARK_RED).withBold(true).withItalic(false)));
 		container.setItem(49, back);
 
 		int index = 0;
@@ -79,12 +80,12 @@ public class TransferOwnershipMenu extends AbstractContainerMenu {
 			CompoundTag display = head.getOrCreateTagElement("display");
 			ListTag lore = new ListTag();
 			lore.add(StringTag.valueOf(Component.Serializer.toJson(
-					Component.literal("Rank: " + rank.getName())
+					Component.translatable(String.format(ModTranslations.TRANSFER_OWNERSHIP_MENU_PLAYER_ITEM_LORE_LINE_1, rank.getName()))
 							.withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false))
 			)));
 
 			lore.add(StringTag.valueOf(Component.Serializer.toJson(
-					Component.literal("Choose this player as your successor?")
+					Component.translatable(ModTranslations.TRANSFER_OWNERSHIP_MENU_PLAYER_ITEM_LORE_LINE_2)
 							.withStyle(style -> style.withColor(ChatFormatting.GREEN).withItalic(false))
 			)));
 
@@ -105,15 +106,8 @@ public class TransferOwnershipMenu extends AbstractContainerMenu {
 			}
 		}
 
-		for (int row = 0; row < 3; row++) {
-			for (int col = 0; col < 9; col++) {
-				this.addSlot(new Slot(playerInv, col + row * 9 + 9, 8 + col * 18, 140 + row * 18));
-			}
-		}
-
-		for (int col = 0; col < 9; col++) {
-			this.addSlot(new Slot(playerInv, col, 8 + col * 18, 198));
-		}
+		addPlayerHotBar(playerInv);
+		addPlayerInventory(playerInv);
 	}
 
 
@@ -144,5 +138,19 @@ public class TransferOwnershipMenu extends AbstractContainerMenu {
 	@Override
 	public boolean stillValid(Player pPlayer) {
 		return true;
+	}
+
+	public void addPlayerHotBar(Inventory playerInventory) {
+		for (int col = 0; col < 9; col++) {
+			this.addSlot(new Slot(playerInventory, col, 8 + col * 18, 198));
+		}
+	}
+
+	public void addPlayerInventory(Inventory playerInventory) {
+		for (int row = 0; row < 3; row++) {
+			for (int col = 0; col < 9; col++) {
+				this.addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 140 + row * 18));
+			}
+		}
 	}
 }

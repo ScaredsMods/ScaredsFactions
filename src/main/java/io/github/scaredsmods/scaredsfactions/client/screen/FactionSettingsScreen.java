@@ -20,6 +20,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.FactionSettingsMenu;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.AbstractFactionSetting;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.StringFactionSetting;
+import io.github.scaredsmods.scaredsfactions.common.ModTranslations;
 import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenEditStringSettingC2SPacket;
@@ -101,7 +102,7 @@ public class FactionSettingsScreen extends AbstractContainerScreen<FactionSettin
 			setting.save(tag);
 
 			ModNetworks.CHANNEL.sendToServer(new UpdateFactionSettingsPacket(setting.getNbtId(), tag));
-			ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.FACTION_SETTINGS, Component.literal("Settings")));
+			ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.FACTION_SETTINGS, Component.translatable(ModTranslations.FACTION_SETTINGS_LABEL)));
 		});
 	}
 

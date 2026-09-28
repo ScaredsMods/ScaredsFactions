@@ -18,6 +18,7 @@ package io.github.scaredsmods.scaredsfactions.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ManageFactionMenu;
+import io.github.scaredsmods.scaredsfactions.common.ModTranslations;
 import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.OpenScreenC2SPacket;
@@ -78,11 +79,11 @@ public class ManageFactionScreen extends AbstractContainerScreen<ManageFactionMe
 
 	private void onSlotClick(int index) {
 		switch (index) {
-			case 0 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.RENAME_FACTION, Component.literal("Rename Faction")));
-			case 1 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.TRANSFER_OWNERSHIP, Component.literal("Transfer Ownership")));
-			case 2 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.VIEW_MEMBERS, Component.literal("View Members")));
-			case 3 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.FACTION_SETTINGS, Component.literal("Settings")));
-			case 4 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.CONFIRM_RESET_BEACON, Component.literal("Confirm Reset Beacon Pos")));
+			case 0 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.RENAME_FACTION, Component.translatable(ModTranslations.RENAME_FACTION_LABEL)));
+			case 1 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.TRANSFER_OWNERSHIP, Component.translatable(ModTranslations.TRANSFER_OWNERSHIP_LABEL)));
+			case 2 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.VIEW_MEMBERS, Component.translatable(ModTranslations.VIEW_MEMBERS_LABEL)));
+			case 3 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.FACTION_SETTINGS, Component.translatable(ModTranslations.FACTION_SETTINGS_LABEL)));
+			case 4 -> ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.CONFIRM_RESET_BEACON, Component.translatable(ModTranslations.RESET_BEACON_POS_LABEL)));
 			case 8 -> this.onClose();
 		}
 	}

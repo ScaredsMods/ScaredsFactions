@@ -20,6 +20,7 @@ package io.github.scaredsmods.scaredsfactions.common.mixin.client;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting;
 import io.github.scaredsmods.scaredsfactions.common.faction.ClientFactionSavedData;
 import io.github.scaredsmods.scaredsfactions.common.faction.Faction;
+import io.github.scaredsmods.scaredsfactions.common.faction.FactionSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -36,7 +37,7 @@ public class MinecraftMixin {
 		if (entity instanceof Player player && ClientFactionSavedData.isEqualFaction(player.getUUID())) {
 			Faction faction = ClientFactionSavedData.getFactionFromPlayer(player.getUUID());
 			if (faction != null) {
-				Boolean glowEnabled = faction.getSettingValue("enableFriendlyGlow", BooleanFactionSetting.class);
+				Boolean glowEnabled = faction.getSettingValue(FactionSettings.ENABLE_FRIENDLY_GLOWING.getNbtId(), BooleanFactionSetting.class);
 				if (glowEnabled != null && glowEnabled) {
 					cir.setReturnValue(true);
 				}

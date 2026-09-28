@@ -19,6 +19,7 @@ package io.github.scaredsmods.scaredsfactions.client.screen;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ViewMembersMenu;
+import io.github.scaredsmods.scaredsfactions.common.ModTranslations;
 import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.DemotePlayerPacket;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.ModScreens;
@@ -79,10 +80,10 @@ public class ViewMembersScreen extends AbstractContainerScreen<ViewMembersMenu> 
 			if (targetProfile != null) {
 				if (pButton == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
 					ModNetworks.CHANNEL.sendToServer(new PromotePlayerPacket(targetProfile.getId()));
-					ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.VIEW_MEMBERS, Component.literal("View Members")));
+					ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.VIEW_MEMBERS, Component.translatable(ModTranslations.VIEW_MEMBERS_LABEL)));
 				} else if (pButton == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
 					ModNetworks.CHANNEL.sendToServer(new DemotePlayerPacket(targetProfile.getId()));
-					ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.VIEW_MEMBERS, Component.literal("View Members")));
+					ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.VIEW_MEMBERS, Component.translatable(ModTranslations.VIEW_MEMBERS_LABEL)));
 
 				}
 			}

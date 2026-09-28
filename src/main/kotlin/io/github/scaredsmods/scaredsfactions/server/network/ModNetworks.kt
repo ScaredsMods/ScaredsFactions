@@ -16,7 +16,7 @@
 */
 package io.github.scaredsmods.scaredsfactions.server.network;
 
-import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod
+import io.github.scaredsmods.scaredsfactions.common.FactionMod
 import io.github.scaredsmods.scaredsfactions.server.network.packet.*
 import io.github.scaredsmods.scaredsfactions.common.util.PacketUtil.registerMessage
 import net.minecraftforge.network.NetworkRegistry
@@ -24,11 +24,10 @@ import net.minecraftforge.network.simple.SimpleChannel
 
 object ModNetworks {
 
-
 	private const val PROTOCOL_VERSION: String = "1.0.0"
 	@JvmField
 	val CHANNEL: SimpleChannel = NetworkRegistry.newSimpleChannel(
-		ScaredsFactionMod.id("main"),
+		FactionMod.id("main"),
 		{ PROTOCOL_VERSION },
 		{ it == PROTOCOL_VERSION },
 		{ it == PROTOCOL_VERSION }

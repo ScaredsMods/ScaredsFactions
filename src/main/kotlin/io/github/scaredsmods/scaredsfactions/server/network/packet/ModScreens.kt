@@ -51,7 +51,7 @@ enum class ModScreens {
 		override fun writeBuf(player: ServerPlayer, buf: FriendlyByteBuf) {
 			val data = FactionSavedData.getSavedData(player.serverLevel())
 			val faction = data.getFactionFromPlayer(player.uuid) ?: return
-			val profileMembers = buildProfileMap(faction, player)
+			val profileMembers = makePlayerMap(faction, player)
 			buf.writeInt(profileMembers.size)
 			profileMembers.forEach { (profile: GameProfile, rank: Faction.Rank) ->
 				buf.writeGameProfile(profile)
@@ -62,7 +62,7 @@ enum class ModScreens {
 		override fun createMenu(id: Int, inv: Inventory?, player: ServerPlayer): AbstractContainerMenu {
 			val data = FactionSavedData.getSavedData(player.serverLevel())
 			val faction = data.getFactionFromPlayer(player.uuid) ?: throw IllegalStateException("Player is not in a faction")
-			val profileMembers = buildProfileMap(faction, player)
+			val profileMembers = makePlayerMap(faction, player)
 			return TransferOwnershipMenu(id, inv, profileMembers)
 		}
 	},
@@ -71,7 +71,7 @@ enum class ModScreens {
 		override fun writeBuf(player: ServerPlayer, buf: FriendlyByteBuf) {
 			val data = FactionSavedData.getSavedData(player.serverLevel())
 			val faction = data.getFactionFromPlayer(player.uuid) ?: return
-			val profileMembers = buildProfileMap(faction, player)
+			val profileMembers = makePlayerMap(faction, player)
 			buf.writeInt(profileMembers.size)
 			profileMembers.forEach { (profile, rank) ->
 				buf.writeGameProfile(profile)
@@ -82,7 +82,7 @@ enum class ModScreens {
 		override fun createMenu(id: Int, inv: Inventory?, player: ServerPlayer): AbstractContainerMenu {
 			val data = FactionSavedData.getSavedData(player.serverLevel())
 			val faction = data.getFactionFromPlayer(player.uuid) ?: throw IllegalStateException("Player is not in a faction")
-			val profileMembers = buildProfileMap(faction, player)
+			val profileMembers = makePlayerMap(faction, player)
 			return ViewMembersMenu(id, inv, profileMembers)
 		}
 	},
@@ -129,7 +129,6 @@ enum class ModScreens {
 		}
 	};
 
-
 	fun getTitle(): Component {
 		return Component.literal(name.replace("_", " "))
 	}
@@ -137,9 +136,8 @@ enum class ModScreens {
 	abstract fun createMenu(id: Int, inv: Inventory?, player: ServerPlayer): AbstractContainerMenu
 	open fun writeBuf(player: ServerPlayer, buf: FriendlyByteBuf) {}
 
-
 	companion object {
-		fun buildProfileMap(faction: Faction, player: ServerPlayer): Map<GameProfile, Faction.Rank> {
+		fun makePlayerMap(faction: Faction, player: ServerPlayer): Map<GameProfile, Faction.Rank> {
 			val result = mutableMapOf<GameProfile, Faction.Rank>()
 			for ((uuid, rank) in faction.members) {
 				val onlineMember = player.server.playerList.getPlayer(uuid)

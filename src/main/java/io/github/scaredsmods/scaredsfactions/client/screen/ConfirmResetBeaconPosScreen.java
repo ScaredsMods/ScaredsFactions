@@ -18,7 +18,8 @@ package io.github.scaredsmods.scaredsfactions.client.screen;
 
 import io.github.scaredsmods.scaredsfactions.api.client.screen.AbstractConfirmScreen;
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.ConfirmResetBeaconPosMenu;
-import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
+import io.github.scaredsmods.scaredsfactions.common.FactionMod;
+import io.github.scaredsmods.scaredsfactions.common.ModTranslations;
 import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.*;
 import net.minecraft.ChatFormatting;
@@ -30,11 +31,10 @@ import net.minecraft.world.entity.player.Inventory;
 
 public class ConfirmResetBeaconPosScreen extends AbstractConfirmScreen<ConfirmResetBeaconPosMenu> {
 
-	private static final ResourceLocation TEXTURE = ScaredsFactionMod.id("textures/gui/container/confirm_transfer.png");
+	private static final ResourceLocation TEXTURE = FactionMod.id("textures/gui/container/confirm_transfer.png");
 	public Screen parent;
 	private Button confirm;
 	private Button back;
-
 
 	public ConfirmResetBeaconPosScreen(ConfirmResetBeaconPosMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
 		super(pMenu, pPlayerInventory, pTitle);
@@ -48,13 +48,13 @@ public class ConfirmResetBeaconPosScreen extends AbstractConfirmScreen<ConfirmRe
 	public void init() {
 		super.init();
 
-		this.confirm = Button.builder(Component.literal("Confirm").withStyle(ChatFormatting.GREEN), btn -> {
+		this.confirm = Button.builder(Component.translatable(ModTranslations.BUTTON_CONFIRM).withStyle(ChatFormatting.GREEN), btn -> {
 			ModNetworks.CHANNEL.sendToServer(new ResetBeaconPosPacket());
-			ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.MANAGE_FACTION, Component.literal("Manage Faction")));
+			ModNetworks.CHANNEL.sendToServer(new OpenScreenC2SPacket(ModScreens.MANAGE_FACTION, Component.translatable(ModTranslations.MANAGE_FACTION_LABEL)));
 		})
 				.bounds(leftPos + 40, topPos + 38, 45, 15).build();
 
-		this.back = Button.builder(Component.literal("Back").withStyle(ChatFormatting.RED), btn -> this.onClose())
+		this.back = Button.builder(Component.translatable(ModTranslations.BUTTON_BACK).withStyle(ChatFormatting.RED), btn -> this.onClose())
 				.bounds(leftPos + 90, topPos + 38, 45,15).build();
 
 		this.addRenderableWidget(this.back);

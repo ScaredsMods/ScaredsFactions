@@ -26,6 +26,7 @@ run-data
 /server
 /run2
 
+src/generated/resources/.cache
 repo
 
 .kotlin

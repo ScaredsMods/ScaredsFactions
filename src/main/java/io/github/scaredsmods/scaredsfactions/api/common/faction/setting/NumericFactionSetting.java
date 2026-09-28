@@ -16,7 +16,6 @@
 */
 package io.github.scaredsmods.scaredsfactions.api.common.faction.setting;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
 public abstract class NumericFactionSetting<N extends Number, T extends NumericFactionSetting<N, T>> extends AbstractFactionSetting<N, T> {
@@ -26,14 +25,14 @@ public abstract class NumericFactionSetting<N extends Number, T extends NumericF
 	private final N min;
 	private final N max;
 
-	public NumericFactionSetting(N defaultValue, String nbtId, String displayName, N step, N min, N max, String... lore) {
+	public NumericFactionSetting(N defaultValue, String nbtId, Component displayName, N step, N min, N max, Component... lore) {
 		super(defaultValue, nbtId, displayName, lore);
 		this.step = step;
 		this.min = min;
 		this.max = max;
 	}
 
-	public NumericFactionSetting(N defaultValue, String nbtId, String displayName, boolean isModdedSetting, String modId, N step, N min, N max, String... lore) {
+	public NumericFactionSetting(N defaultValue, String nbtId, Component displayName, boolean isModdedSetting, String modId, N step, N min, N max, Component... lore) {
 		super(defaultValue, nbtId, displayName, isModdedSetting, modId, lore);
 		this.step = step;
 		this.min = min;
@@ -62,12 +61,4 @@ public abstract class NumericFactionSetting<N extends Number, T extends NumericF
 		return max;
 	}
 
-	@Override
-	public Component getCurrentValueAsComponent() {
-		return Component.literal(get().toString())
-				.withStyle(style -> style
-						.withColor(ChatFormatting.YELLOW)
-						.withItalic(false)
-				);
-	}
 }

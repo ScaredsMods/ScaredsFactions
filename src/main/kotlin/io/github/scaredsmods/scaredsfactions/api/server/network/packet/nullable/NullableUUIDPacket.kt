@@ -20,5 +20,5 @@ import io.github.scaredsmods.scaredsfactions.api.server.network.packet.NullableP
 import io.github.scaredsmods.scaredsfactions.api.server.network.packet.UUIDPacket
 import java.util.UUID
 
-abstract class NullableUUIDPacket<C : NullableUUIDPacket<C>>(private var key: UUID?) : NullablePacket<UUID, C>(key, {buf, uuid -> buf.writeUUID(uuid)}) {
+abstract class NullableUUIDPacket<C : NullableUUIDPacket<C>>(key: UUID?) : NullablePacket<UUID, C>(key, { buf, uuid -> buf.writeUUID(uuid)}) {
 }

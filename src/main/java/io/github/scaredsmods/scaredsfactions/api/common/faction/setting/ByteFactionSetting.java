@@ -17,14 +17,15 @@
 package io.github.scaredsmods.scaredsfactions.api.common.faction.setting;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 
 public class ByteFactionSetting extends NumericFactionSetting<Byte, ByteFactionSetting> {
 
-	public ByteFactionSetting(Byte defaultValue, String nbtId, String displayName, Byte step, Byte min, Byte max, String... lore) {
+	public ByteFactionSetting(Byte defaultValue, String nbtId, Component displayName, Byte step, Byte min, Byte max, Component... lore) {
 		super(defaultValue, nbtId, displayName, step, min, max, lore);
 	}
 
-	public ByteFactionSetting(Byte defaultValue, String nbtId, String displayName, boolean isModdedSetting, String modId, Byte step, Byte min, Byte max, String... lore) {
+	public ByteFactionSetting(Byte defaultValue, String nbtId, Component displayName, boolean isModdedSetting, String modId, Byte step, Byte min, Byte max, Component... lore) {
 		super(defaultValue, nbtId, displayName, isModdedSetting, modId, step, min, max, lore);
 	}
 

@@ -31,13 +31,13 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
 
-@Mod(ScaredsFactionMod.MOD_ID)
-public class ScaredsFactionMod
+@Mod(FactionMod.MOD_ID)
+public class FactionMod
 {
 	public static final String MOD_ID = "scaredsfactions";
 	public static final Logger LOGGER = LogUtils.getLogger();
 
-	public ScaredsFactionMod(FMLJavaModLoadingContext context) {
+	public FactionMod(FMLJavaModLoadingContext context) {
 		FactionSettings.init();
 		IEventBus modEventBus = context.getModEventBus();
 		ModConfigs.init();
@@ -55,6 +55,7 @@ public class ScaredsFactionMod
 		return MOD_ID + "." + perm;
 	}
 
-
-
+	public static String translation(String translatable) {
+		return MOD_ID + "." + translatable;
+	}
 }

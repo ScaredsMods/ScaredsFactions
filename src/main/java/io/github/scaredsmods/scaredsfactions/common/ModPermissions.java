@@ -18,22 +18,22 @@ package io.github.scaredsmods.scaredsfactions.common;
 
 public class ModPermissions {
 
-	public static final String ALL = ScaredsFactionMod.permission("admin");
+	public static final String ALL = FactionMod.permission("admin");
 
-	public static final String CAN_USE_ROOT = ScaredsFactionMod.permission("command.faction");
-	public static final String CAN_CREATE_FACTION = ScaredsFactionMod.permission("command.faction.create");
-	public static final String CAN_DEMOTE_PLAYER = ScaredsFactionMod.permission("command.faction.demote");
-	public static final String CAN_DISBAND_FACTION =  ScaredsFactionMod.permission("command.faction.disband");
-	public static final String CAN_USE_DISBAND_BY_NAME = ScaredsFactionMod.permission("command.faction.disband.name");
-	public static final String CAN_USE_HELP = ScaredsFactionMod.permission("command.faction.help");
-	public static final String CAN_TELEPORT_TO_BEACON = ScaredsFactionMod.permission("command.faction.home");
-	public static final String CAN_GET_FACTION_INFO = ScaredsFactionMod.permission("command.faction.info");
-	public static final String CAN_INVITE_PLAYER_TO_FACTION = ScaredsFactionMod.permission("command.faction.invite");
-	public static final String CAN_KICK_PLAYER_FROM_FACTION = ScaredsFactionMod.permission("command.faction.kick");
-	public static final String CAN_LEAVE_FACTION = ScaredsFactionMod.permission("command.faction.leave");
-	public static final String CAN_LIST_FACTIONS = ScaredsFactionMod.permission("command.faction.list");
-	public static final String CAN_MANAGE_FACTION = ScaredsFactionMod.permission("command.faction.manage");
-	public static final String CAN_PROMOTE_PLAYER = ScaredsFactionMod.permission("command.faction.promote");
-	public static final String CAN_ACCEPT_INVITE =  ScaredsFactionMod.permission("command.faction.invite.accept");
-	public static final String CAN_DEBUG = ScaredsFactionMod.permission("command.faction.debug");
+	public static final String CAN_USE_ROOT = FactionMod.permission("command.faction");
+	public static final String CAN_CREATE_FACTION = FactionMod.permission("command.faction.create");
+	public static final String CAN_DEMOTE_PLAYER = FactionMod.permission("command.faction.demote");
+	public static final String CAN_DISBAND_FACTION =  FactionMod.permission("command.faction.disband");
+	public static final String CAN_USE_DISBAND_BY_NAME = FactionMod.permission("command.faction.disband.name");
+	public static final String CAN_USE_HELP = FactionMod.permission("command.faction.help");
+	public static final String CAN_TELEPORT_TO_BEACON = FactionMod.permission("command.faction.home");
+	public static final String CAN_GET_FACTION_INFO = FactionMod.permission("command.faction.info");
+	public static final String CAN_INVITE_PLAYER_TO_FACTION = FactionMod.permission("command.faction.invite");
+	public static final String CAN_KICK_PLAYER_FROM_FACTION = FactionMod.permission("command.faction.kick");
+	public static final String CAN_LEAVE_FACTION = FactionMod.permission("command.faction.leave");
+	public static final String CAN_LIST_FACTIONS = FactionMod.permission("command.faction.list");
+	public static final String CAN_MANAGE_FACTION = FactionMod.permission("command.faction.manage");
+	public static final String CAN_PROMOTE_PLAYER = FactionMod.permission("command.faction.promote");
+	public static final String CAN_ACCEPT_INVITE =  FactionMod.permission("command.faction.invite.accept");
+	public static final String CAN_DEBUG = FactionMod.permission("command.faction.debug");
 }

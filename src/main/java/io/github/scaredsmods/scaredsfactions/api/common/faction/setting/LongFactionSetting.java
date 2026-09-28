@@ -17,14 +17,15 @@
 package io.github.scaredsmods.scaredsfactions.api.common.faction.setting;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 
 public class LongFactionSetting extends NumericFactionSetting<Long, LongFactionSetting> {
 
-	public LongFactionSetting(Long defaultValue, String nbtId, String displayName, Long step, Long min, Long max, String... lore) {
+	public LongFactionSetting(Long defaultValue, String nbtId, Component displayName, Long step, Long min, Long max, Component... lore) {
 		super(defaultValue, nbtId, displayName, step, min, max, lore);
 	}
 
-	public LongFactionSetting(Long defaultValue, String nbtId, String displayName, boolean isModdedSetting, String modId, Long step, Long min, Long max, String... lore) {
+	public LongFactionSetting(Long defaultValue, String nbtId, Component displayName, boolean isModdedSetting, String modId, Long step, Long min, Long max, Component... lore) {
 		super(defaultValue, nbtId, displayName, isModdedSetting, modId, step, min, max, lore);
 	}
 

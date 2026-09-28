@@ -18,11 +18,14 @@ package io.github.scaredsmods.scaredsfactions.common.event;
 
 import com.mojang.authlib.GameProfile;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting;
+import io.github.scaredsmods.scaredsfactions.common.FactionMod;
 import io.github.scaredsmods.scaredsfactions.common.ModConfigs;
-import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
+import io.github.scaredsmods.scaredsfactions.common.ModTags;
+import io.github.scaredsmods.scaredsfactions.common.ModTranslations;
 import io.github.scaredsmods.scaredsfactions.common.command.FactionCommand;
 import io.github.scaredsmods.scaredsfactions.common.faction.Faction;
 import io.github.scaredsmods.scaredsfactions.common.faction.FactionSavedData;
+import io.github.scaredsmods.scaredsfactions.common.faction.FactionSettings;
 import io.github.scaredsmods.scaredsfactions.common.util.MessageUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -31,6 +34,8 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -38,7 +43,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.SkullBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -53,7 +62,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = ScaredsFactionMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@Mod.EventBusSubscriber(modid = FactionMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ModEvents {
 
 	@SubscribeEvent
@@ -78,8 +87,10 @@ public class ModEvents {
 		if (attackerFaction == null || victimFaction == null) return;
 		if (!attackerFaction.getName().equals(victimFaction.getName())) return;
 
-		Boolean factionSetting = victimFaction.getSettingValue("enableVanillaFriendlyFire", BooleanFactionSetting.class);
-		boolean isVanillaPvpEnabled = (factionSetting != null && factionSetting);
+		boolean setting = victimFaction.getSettingValue(FactionSettings.VANILLA_FRIENDLY_FIRE.getNbtId(), BooleanFactionSetting.class);
+		boolean isVanillaPvpEnabled = ModConfigs.commonConfig.factionSettingOverrides.doOverrideEnableVanillaFriendlyFire.get() ? ModConfigs.commonConfig.factionSettingOverrides.overrideEnableVanillaFriendlyFire.get() :
+				setting;
+
 		if (isVanillaPvpEnabled) return;
 		event.setCanceled(true);
 	}
@@ -89,7 +100,6 @@ public class ModEvents {
 	public static void onBeaconInteract(PlayerInteractEvent.RightClickBlock event) {
 		if (!(event.getEntity() instanceof ServerPlayer player)) return;
 		if (event.getLevel().getBlockState(event.getPos()).getBlock() != Blocks.BEACON) return;
-
 		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
 		String factionName = data.getFactionByBeaconPosition(event.getPos());
 		if (factionName == null) return;
@@ -111,33 +121,51 @@ public class ModEvents {
 		faction.eliminatePlayer(player.getUUID());
 		data.save(player.serverLevel());
 		player.setGameMode(GameType.SPECTATOR);
-		player.sendSystemMessage(MessageUtil.Prefix.error("Your faction's beacon was destroyed before you died. Nothing is anchoring you to life anymore."));
+		player.sendSystemMessage(MessageUtil.Prefix.error(ModTranslations.BEACON_DESTROYED_ON_RESPAWN));
 	}
 
 	@SubscribeEvent
 	public static void onPlayerDeath(LivingDeathEvent event) {
 		if (!(event.getEntity() instanceof ServerPlayer player)) return;
+		if (!(event.getSource().getEntity() instanceof ServerPlayer attacker)) return;
+
 		GameProfile profile = player.getGameProfile();
 		ItemStack stack = new ItemStack(Items.PLAYER_HEAD);
 		CompoundTag nbt = new CompoundTag();
 		nbt.put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), profile));
 		stack.setTag(nbt);
-		player.addItem(stack);
+
+		switch (ModConfigs.commonConfig.playerHeadOptions.get()) {
+			case ADD_TO_ATTACKER -> {
+				attacker.addItem(stack);
+			}
+			case DROP_AT_GROUND -> player.spawnAtLocation(stack);
+			case PLACE_AT_DEATH_LOCATION -> {
+				BlockPos playerPos = player.blockPosition();
+				ServerLevel level = player.serverLevel();
+				level.setBlock(playerPos, Blocks.PLAYER_HEAD.defaultBlockState(), 3);
+				BlockEntity blockEntity = level.getBlockEntity(playerPos);
+				if (blockEntity instanceof SkullBlockEntity playerHead) {
+					playerHead.setOwner(profile);
+					playerHead.setChanged();
+					level.sendBlockUpdated(playerPos, level.getBlockState(playerPos), level.getBlockState(playerPos), 3);
+				}
+			}
+		}
 	}
 
 	@SubscribeEvent
 	public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
 		if (!(event.getEntity() instanceof ServerPlayer player)) return;
 		FactionSavedData data = FactionSavedData.getSavedData(player.serverLevel());
-		data.syncToClient(player);
 		Faction faction = data.getFactionFromPlayer(player.getUUID());
-
+		data.syncToClient(player);
 		if (faction == null) return;
 
 		if (!data.isHardcored(faction.getName())) return;
 		if (faction.isEliminated(player.getUUID())) {
 			player.setGameMode(GameType.SPECTATOR);
-			player.sendSystemMessage(MessageUtil.Prefix.info("You were previously eliminated! Spectate your team!"));
+			player.sendSystemMessage(MessageUtil.Prefix.info(ModTranslations.BEACON_DESTROYED_ON_JOIN));
 			return;
 		}
 
@@ -148,6 +176,7 @@ public class ModEvents {
 				}
 			});
 		}
+
 	}
 
 	@SubscribeEvent
@@ -156,7 +185,7 @@ public class ModEvents {
 		if (event.getPlacedBlock().getBlock() != Blocks.BEACON) return;
 
 		if (player.getUsedItemHand() != InteractionHand.MAIN_HAND) {
-			player.sendSystemMessage(MessageUtil.Prefix.error("You must hold the beacon in your main hand to place it!"));
+			player.sendSystemMessage(MessageUtil.Prefix.error(ModTranslations.BEACON_NOT_IN_MAIN_HAND_ON_PLACE));
 			return;
 		}
 
@@ -166,13 +195,13 @@ public class ModEvents {
 
 		if (!(player.serverLevel().dimension().equals(Level.OVERWORLD))) {
 			event.setCanceled(true);
-			player.sendSystemMessage(MessageUtil.Prefix.error("You can only place your beacon in the overworld!"));
+			player.sendSystemMessage(MessageUtil.Prefix.error(ModTranslations.BEACON_NOT_IN_OVERWORLD_ON_PLACE));
 			return;
 		}
 
 		if (player.gameMode.isCreative()) {
 			event.setCanceled(true);
-			player.sendSystemMessage(MessageUtil.Prefix.error("You must be in survival to place your beacon!"));
+			player.sendSystemMessage(MessageUtil.Prefix.error(ModTranslations.PLAYER_NOT_IN_SURVIVAL_ON_PLACE));
 			return;
 		}
 
@@ -182,26 +211,32 @@ public class ModEvents {
 		if (faction == null) return;
 		if (!faction.getOwner().equals(player.getUUID())) {
 			event.setCanceled(true);
-			player.sendSystemMessage(MessageUtil.Prefix.error("Only the faction leader can do this!"));
+			player.sendSystemMessage(MessageUtil.Prefix.error(ModTranslations.INSUFFICIENT_RANK));
 			return;
 		}
 		if (faction.hasBeacon()) {
 			event.setCanceled(true);
-			player.sendSystemMessage(MessageUtil.Prefix.error("Your faction already has a beacon!"));
+			player.sendSystemMessage(MessageUtil.Prefix.error(ModTranslations.FACTION_HAS_BEACON_ON_PLACE));
 			return;
 		}
 
 		BlockPos pos = event.getPos();
+
+        if (!player.serverLevel().canSeeSky(pos)) {
+            event.setCanceled(true);
+            player.sendSystemMessage(MessageUtil.Prefix.error(ModTranslations.BEACON_NOT_VISIBLE));
+            return;
+        }
+
 		faction.setBeaconPos(pos);
 
 		for (UUID memberUUID : faction.getMembers().keySet()) {
 			ServerPlayer member = player.getServer().getPlayerList().getPlayer(memberUUID);
 			if (member != null) {
-				member.sendSystemMessage(MessageUtil.Prefix.success("Your faction's respawn beacon has been placed!"));
+				member.sendSystemMessage(MessageUtil.Prefix.success(ModTranslations.PLACE_SUCCESS));
 			}
 		}
 		data.save(player.serverLevel());
-        player.getServer().saveAllChunks(false, true, false);
 	}
 
 
@@ -221,13 +256,13 @@ public class ModEvents {
 
 		if (breakerFaction == null) {
 			event.setCanceled(true);
-			player.sendSystemMessage(MessageUtil.Prefix.error("You aren't in a faction! You are considered neutral and cannot break a faction's beacon!"));
+			player.sendSystemMessage(MessageUtil.Prefix.error(ModTranslations.PLAYER_NOT_IN_FACTION_ON_BREAK));
 			return;
 		}
 
 		if (breakerFaction.getName().equals(beaconFactionName)) {
 			event.setCanceled(true);
-			player.sendSystemMessage(MessageUtil.Prefix.error("Use /faction manage to move your beacon!"));
+			player.sendSystemMessage(MessageUtil.Prefix.error(ModTranslations.SAME_FACTION_ON_BREAK));
 			return;
 		}
 
@@ -241,7 +276,7 @@ public class ModEvents {
 			}
 			if (onlinePlayers.isEmpty()) {
 				event.setCanceled(true);
-				player.sendSystemMessage(MessageUtil.Prefix.error("There must be at least one player of this faction online to break this faction's beacon. Currently, no one of this faction is online!"));
+				player.sendSystemMessage(MessageUtil.Prefix.error(ModTranslations.NO_FACTION_MEMBERS_ONLINE_ON_BREAK));
 				return;
 			}
 		}
@@ -249,27 +284,59 @@ public class ModEvents {
 		event.setCanceled(true);
 		ServerLevel level = (ServerLevel) event.getLevel();
 		level.setBlock(beaconFaction.getBeaconPos(), Blocks.AIR.defaultBlockState(), 3);
-
 		beaconFaction.removeBeacon();
 
 		for (UUID memberUUID : beaconFaction.getMembers().keySet()) {
 			ServerPlayer member = player.getServer().getPlayerList().getPlayer(memberUUID);
 			if (member != null) {
-				member.sendSystemMessage(MessageUtil.Prefix.error("Your faction's respawn beacon was destroyed! You are on your last life!"));
+				member.sendSystemMessage(MessageUtil.Prefix.error(ModTranslations.BREAK_SUCCESS_MEMBER));
 			}
 		}
 
 		for (ServerPlayer onlinePlayer : player.getServer().getPlayerList().getPlayers()) {
 			if (!onlinePlayer.getUUID().equals(player.getUUID())) {
 				onlinePlayer.sendSystemMessage(MessageUtil.Prefix.formattedMessage(
-						String.format("%s's beacon has been broken! Finish them!", beaconFactionName),
-						ChatFormatting.AQUA, ChatFormatting.BOLD));
+						ModTranslations.BREAK_SUCCESS_BROADCAST,
+						List.of(ChatFormatting.AQUA, ChatFormatting.BOLD), beaconFactionName));
 			}
 		}
 
 		data.hardcoreFaction(beaconFactionName, level);
-        player.getServer().saveAllChunks(false, true, false);
-		player.sendSystemMessage(MessageUtil.Prefix.success(String.format("You just destroyed %s's beacon. Kill them to knock them out!", beaconFactionName)));
+		player.sendSystemMessage(MessageUtil.Prefix.success(ModTranslations.BREAK_SUCCESS, beaconFactionName));
 	}
+
+    public static boolean searchForBlockInSphere(Block block, Level level, BlockPos center, int radius, int blocksAmount) {
+        BlockPos min = center.offset(-radius, -radius, -radius);
+        BlockPos max = center.offset(radius, radius, radius);
+        int radiusSq =  radius * radius;
+
+        int count = 0;
+        for (BlockPos pos : BlockPos.betweenClosed(min, max)) {
+            if (pos.distSqr(center) <= radiusSq && level.getBlockState(pos).is(block)) {
+                count++;
+                if (count >= blocksAmount) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean searchForBlockInSphere(TagKey<Block> block, Level level, BlockPos center, int radius, int blocksAmount) {
+        BlockPos min = center.offset(-radius, -radius, -radius);
+        BlockPos max = center.offset(radius, radius, radius);
+        int radiusSq =  radius * radius;
+
+        int count = 0;
+        for (BlockPos pos : BlockPos.betweenClosed(min, max)) {
+            if (pos.distSqr(center) <= radiusSq && level.getBlockState(pos).is(block)) {
+                count++;
+                if (count >= blocksAmount) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
 }

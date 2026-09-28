@@ -17,7 +17,7 @@
 package io.github.scaredsmods.scaredsfactions.common.faction;
 
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.AbstractFactionSetting;
-import io.github.scaredsmods.scaredsfactions.common.ScaredsFactionMod;
+import io.github.scaredsmods.scaredsfactions.common.FactionMod;
 import io.github.scaredsmods.scaredsfactions.server.network.ModNetworks;
 import io.github.scaredsmods.scaredsfactions.server.network.packet.SyncFactionDataS2CPacket;
 import net.minecraft.core.BlockPos;
@@ -37,7 +37,7 @@ public class FactionSavedData extends SavedData {
 
 	private final Map<String, Faction> factions = new HashMap<>();
 	public static final String DATA_NAME = "scaredsfactions_faction_data";
-	public static final ResourceLocation DATA_LOCATION = ScaredsFactionMod.id(DATA_NAME);
+	public static final ResourceLocation DATA_LOCATION = FactionMod.id(DATA_NAME);
 	private final Set<String> hardcoredFactions = new HashSet<>();
 	private final Map<String, List<String>> alliedFactions = new HashMap<>();
 
@@ -200,7 +200,6 @@ public class FactionSavedData extends SavedData {
 
 	public void save(ServerLevel level) {
 		this.setDirty();
-		level.getDataStorage().save();
 		this.syncToAllClients(level);
 	}
 
@@ -295,22 +294,6 @@ public class FactionSavedData extends SavedData {
 		return this.hardcoredFactions;
 	}
 
-	public void addAlliance(String factionA, String factionB) {
-		getFaction(factionA).addAlly(factionB);
-		getFaction(factionB).addAlly(factionA);
-		alliedFactions.computeIfAbsent(factionA, k -> new ArrayList<>()).add(factionB);
-		alliedFactions.computeIfAbsent(factionB, k -> new ArrayList<>()).add(factionA);
-		setDirty();
-	}
-
-	public void removeAlliance(String factionA, String factionB) {
-		getFaction(factionA).removeAlly(factionB);
-		getFaction(factionB).removeAlly(factionA);
-		alliedFactions.getOrDefault(factionA, new ArrayList<>()).remove(factionB);
-		alliedFactions.getOrDefault(factionB, new ArrayList<>()).remove(factionA);
-		setDirty();
-	}
-
 	public boolean isAllied(String factionA, String factionB) {
 		return alliedFactions.getOrDefault(factionA, new ArrayList<>()).contains(factionB);
 	}
@@ -318,7 +301,5 @@ public class FactionSavedData extends SavedData {
 	public Map<String, List<String>> getAlliedFactions() {
 		return this.alliedFactions;
 	}
-
-
 
 }

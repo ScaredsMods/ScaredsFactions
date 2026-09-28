@@ -17,6 +17,7 @@
 package io.github.scaredsmods.scaredsfactions.server.network.packet
 
 import io.github.scaredsmods.scaredsfactions.api.server.network.packet.IAbstractFactionPacket
+import io.github.scaredsmods.scaredsfactions.common.ModTranslations
 import io.github.scaredsmods.scaredsfactions.common.faction.Faction
 import io.github.scaredsmods.scaredsfactions.common.faction.FactionSavedData
 import io.github.scaredsmods.scaredsfactions.common.util.MessageUtil
@@ -51,7 +52,7 @@ class ResetBeaconPosPacket : IAbstractFactionPacket<ResetBeaconPosPacket> {
 			val data : FactionSavedData = FactionSavedData.getSavedData(player.serverLevel())
 			val faction : Faction = data.getFactionFromPlayer(player.uuid) ?: return@enqueueWork
 			if (!faction.hasBeacon()) {
-				player.sendSystemMessage(MessageUtil.Prefix.error("You must have a beacon to do this!"))
+				player.sendSystemMessage(MessageUtil.Prefix.error(ModTranslations.RESET_BEACON_POS_PACKET_MESSAGE))
 				return@enqueueWork
 			}
 			player.serverLevel().destroyBlock(faction.beaconPos, false)
@@ -60,7 +61,7 @@ class ResetBeaconPosPacket : IAbstractFactionPacket<ResetBeaconPosPacket> {
 			val beacon = ItemStack(Items.BEACON)
 			beacon.getOrCreateTag().putBoolean("respawn_beacon", true)
 			beacon.setHoverName(
-				Component.literal("Respawn Beacon")
+				Component.translatable(ModTranslations.RESPAWN_BEACON_NAME)
 					.withStyle(UnaryOperator { style: Style? ->
 						style!!
 							.withBold(true)
@@ -73,7 +74,7 @@ class ResetBeaconPosPacket : IAbstractFactionPacket<ResetBeaconPosPacket> {
 			lore.add(
 				StringTag.valueOf(
 					Component.Serializer.toJson(
-						Component.literal("This is your faction's respawn beacon!")
+						Component.translatable(ModTranslations.RESPAWN_BEACON_LORE_LINE_1)
 							.withStyle(UnaryOperator { style: Style? ->
 								style!!
 									.withColor(ChatFormatting.GRAY)
@@ -85,7 +86,7 @@ class ResetBeaconPosPacket : IAbstractFactionPacket<ResetBeaconPosPacket> {
 			lore.add(
 				StringTag.valueOf(
 					Component.Serializer.toJson(
-						Component.literal("It functions as your bed, and lifeline!")
+						Component.translatable(ModTranslations.RESPAWN_BEACON_LORE_LINE_2)
 							.withStyle(UnaryOperator { style: Style? ->
 								style!!
 									.withColor(ChatFormatting.GRAY)
@@ -98,7 +99,7 @@ class ResetBeaconPosPacket : IAbstractFactionPacket<ResetBeaconPosPacket> {
 			lore.add(
 				StringTag.valueOf(
 					Component.Serializer.toJson(
-						Component.literal("Hide it well: If other factions get a hold of it, you can no longer respawn!")
+						Component.translatable(ModTranslations.RESPAWN_BEACON_LORE_LINE_3)
 							.withStyle(UnaryOperator { style: Style? ->
 								style!!
 									.withBold(false)
@@ -112,7 +113,7 @@ class ResetBeaconPosPacket : IAbstractFactionPacket<ResetBeaconPosPacket> {
 			display.put("Lore", lore)
 			player.inventory.add(beacon)
 			data.save(player.serverLevel())
-            player.server.saveAllChunks(false, true, false)
+			player.server.saveAllChunks(false, true, false)
 		}
 		ctx.get().packetHandled = true
 	}

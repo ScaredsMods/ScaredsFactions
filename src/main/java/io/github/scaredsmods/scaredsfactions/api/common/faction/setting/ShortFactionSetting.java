@@ -17,15 +17,16 @@
 package io.github.scaredsmods.scaredsfactions.api.common.faction.setting;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 
 public class ShortFactionSetting extends NumericFactionSetting<Short, ShortFactionSetting> {
 
 
-	public ShortFactionSetting(Short defaultValue, String nbtId, String displayName, Short step, Short min, Short max, String... lore) {
+	public ShortFactionSetting(Short defaultValue, String nbtId, Component displayName, Short step, Short min, Short max, Component... lore) {
 		super(defaultValue, nbtId, displayName, step, min, max, lore);
 	}
 
-	public ShortFactionSetting(Short defaultValue, String nbtId, String displayName, boolean isModdedSetting, String modId, Short step, Short min, Short max, String... lore) {
+	public ShortFactionSetting(Short defaultValue, String nbtId, Component displayName, boolean isModdedSetting, String modId, Short step, Short min, Short max, Component... lore) {
 		super(defaultValue, nbtId, displayName, isModdedSetting, modId, step, min, max, lore);
 	}
 

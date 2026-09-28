@@ -24,11 +24,11 @@ import net.minecraft.network.chat.Component;
 
 public class StringFactionSetting extends AbstractFactionSetting<String, StringFactionSetting> {
 
-	public StringFactionSetting(String defaultValue, String nbtId, String displayName, String... lore) {
+	public StringFactionSetting(String defaultValue, String nbtId, Component displayName, Component... lore) {
 		super(defaultValue, nbtId, displayName, lore);
 	}
 
-	public StringFactionSetting(String defaultValue, String nbtId, String displayName, boolean isModdedSetting, String modId, String... lore) {
+	public StringFactionSetting(String defaultValue, String nbtId, Component displayName, boolean isModdedSetting, String modId, Component... lore) {
 		super(defaultValue, nbtId, displayName, isModdedSetting, modId, lore);
 	}
 

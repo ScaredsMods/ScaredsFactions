@@ -58,13 +58,13 @@ class OpenScreenC2SPacket(private val screen : ModScreens, private val title: Co
 				ModScreens.MANAGE_FACTION -> NetworkHooks.openScreen(
 					player, SimpleMenuProvider(
 						MenuConstructor { id, inv, _ -> ManageFactionMenu(id, inv) },
-						title
+						packet.title
 					)
 				)
 				ModScreens.RENAME_FACTION -> NetworkHooks.openScreen(
 					player, SimpleMenuProvider(
 						MenuConstructor { id, inv, _ -> RenameFactionMenu(id, inv) },
-						Component.literal("Rename Faction")
+						packet.title
 					)
 				)
 				ModScreens.TRANSFER_OWNERSHIP -> {
@@ -80,7 +80,7 @@ class OpenScreenC2SPacket(private val screen : ModScreens, private val title: Co
 					val filteredMembers = profileMembers.filter { (_, rank) -> rank == Rank.FIELD_MARSHAL }
 					NetworkHooks.openScreen(player, SimpleMenuProvider(
 						MenuConstructor { id, inv, _ -> TransferOwnershipMenu(id, inv, filteredMembers) },
-						Component.literal("Transfer Ownership")
+						packet.title
 					), Consumer { buf ->
 						buf!!.writeInt(filteredMembers.size)
 						for (entry in filteredMembers.entries) {
@@ -103,7 +103,7 @@ class OpenScreenC2SPacket(private val screen : ModScreens, private val title: Co
 					}
 					NetworkHooks.openScreen(player, SimpleMenuProvider(
 						MenuConstructor { id, inv, _ -> ViewMembersMenu(id, inv, profileMembers) },
-						Component.literal("View Members")
+						packet.title
 					), Consumer { buf ->
 						buf!!.writeInt(profileMembers.size)
 						for (entry in profileMembers.entries) {
@@ -116,7 +116,7 @@ class OpenScreenC2SPacket(private val screen : ModScreens, private val title: Co
 					val faction = data.getFactionFromPlayer(player.uuid) ?: return@enqueueWork
 					NetworkHooks.openScreen(player, SimpleMenuProvider(
 						MenuConstructor { id, inv, _ -> FactionSettingsMenu(id, inv, faction.settings) },
-						Component.literal("Faction Settings")
+						packet.title
 					), Consumer { buf ->
 						buf!!.writeVarInt(faction.settings.size)
 						for (setting in faction.settings) {

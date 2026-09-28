@@ -1,6 +1,10 @@
-
 # 0.2.3
 - Fixed a (huge) data saving issue
+- Renamed ``ScaredsFactionMod`` to ``FactionMod``
+- Changed ``AbstractFactionSetting#displayName`` to be of type ``Component``
+- Changed ``AbstractFactionSetting#lore`` to be of type ``Component[]``
+- Added translation data gen. Only english for right now
+- Started work on a work in progress feature of a way to locate faction beacons
 
 # 0.2.2.1
 - Fixed a server issue with glow colours appearing as the wrong colour or not appearing at all

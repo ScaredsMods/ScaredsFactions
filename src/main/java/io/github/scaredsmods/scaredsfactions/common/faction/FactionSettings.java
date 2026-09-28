@@ -17,11 +17,13 @@
 package io.github.scaredsmods.scaredsfactions.common.faction;
 
 import io.github.scaredsmods.scaredsfactions.common.ModConfigs;
+import io.github.scaredsmods.scaredsfactions.common.ModTranslations;
 import io.github.scaredsmods.scaredsfactions.common.config.LanguageOptions;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.AbstractFactionSetting;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.BooleanFactionSetting;
 import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.EnumFactionSetting;
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,34 +33,53 @@ public class FactionSettings {
 
 	public static List<AbstractFactionSetting<?, ?>> settings = new ArrayList<>();
 
-	public static final BooleanFactionSetting INFO_VISIBLE = register(new BooleanFactionSetting(true, "isInfoVisible", "Show Faction Info", "When set to true, this faction is discoverable with /faction list and /faction info <name>."));
-	public static final BooleanFactionSetting VANILLA_FRIENDLY_FIRE = register(new BooleanFactionSetting(false, "enableVanillaFriendlyFire", "Enable Vanilla Friendly Fire", "When set to true, vanilla pvp (axes, swords, etc) within this faction will be enabled.", "This setting is dependent on the mod configuration!"));
-	public static final BooleanFactionSetting TACZ_FRIENDLY_FIRE = register(new BooleanFactionSetting(false, "enableTACZFriendlyFire", "Enable Timeless and Classics: Zero Friendly Fire", true, "tacz", "When set to true, pvp with guns from Timeless and Classics: Zero will be enabled.", "This setting does nothing when the mod Timeless and Classics: Zero is not installed and when it is installed, this setting is dependent on this mod's (ScaredsFactions) configuration!"));
-	public static final BooleanFactionSetting SBW_FRIENDLY_FIRE = register(new BooleanFactionSetting(false, "enableSBWFriendlyFire", "Enable Superbwarfare Friendly FIre", true, "superbwarfare","When set to true, pvp with guns from Superbwarfare will be enabled.", "This setting does nothing when the mod Superbwarfare is not installed and when it is installed, this setting is dependent on this mod's (ScaredsFactions) configuration!"));
+	public static final BooleanFactionSetting INFO_VISIBLE = register(new BooleanFactionSetting(true, "isInfoVisible", translatableDisplayNameComponent(ModTranslations.INFO_VISIBLE_DISPLAY_NAME), translatableLoreComponent(ModTranslations.INFO_VISIBLE_LORE_LINE_1)));
+	public static final BooleanFactionSetting VANILLA_FRIENDLY_FIRE = register(new BooleanFactionSetting(ModConfigs.commonConfig.factionSettingOverrides.doOverrideEnableVanillaFriendlyFire.get() && ModConfigs.commonConfig.factionSettingOverrides.overrideEnableVanillaFriendlyFire.get(),
+			"enableVanillaFriendlyFire", translatableDisplayNameComponent(ModTranslations.VANILLA_FRIENDLY_FIRE_DISPLAY_NAME), translatableLoreComponent(ModTranslations.VANILLA_FRIENDLY_FIRE_LORE_LINE_1), translatableLoreComponent(ModTranslations.VANILLA_FRIENDLY_FIRE_LORE_LINE_2)));
+	public static final BooleanFactionSetting TACZ_FRIENDLY_FIRE = register(new BooleanFactionSetting(ModConfigs.commonConfig.factionSettingOverrides.doOverrideEnableTACZFriendlyFire.get() && ModConfigs.commonConfig.factionSettingOverrides.overrideEnableTACZFriendlyFire.get(),
+			"enableTACZFriendlyFire", translatableDisplayNameComponent(ModTranslations.TACZ_FRIENDLY_FIRE_DISPLAY_NAME), true, "tacz", translatableLoreComponent(ModTranslations.TACZ_FRIENDLY_FIRE_LORE_LINE_1), translatableLoreComponent(ModTranslations.TACZ_FRIENDLY_FIRE_LORE_LINE_2), translatableLoreComponent(ModTranslations.TACZ_FRIENDLY_FIRE_LORE_LINE_3)));
+	public static final BooleanFactionSetting SBW_FRIENDLY_FIRE = register(new BooleanFactionSetting(ModConfigs.commonConfig.factionSettingOverrides.doOverrideEnableSBWFriendlyFire.get() && ModConfigs.commonConfig.factionSettingOverrides.overrideEnableSBWFriendlyFire.get(),
+			"enableSBWFriendlyFire", translatableDisplayNameComponent(ModTranslations.SBW_FRIENDLY_FIRE_DISPLAY_NAME), true, "superbwarfare", translatableLoreComponent(ModTranslations.SBW_FRIENDLY_FIRE_LORE_LINE_1), translatableLoreComponent(ModTranslations.SBW_FRIENDLY_FIRE_LORE_LINE_2), translatableLoreComponent(ModTranslations.SBW_FRIENDLY_FIRE_LORE_LINE_3)));
 	public static final EnumFactionSetting<Faction.Rank> OWNER_RANK = register(new EnumFactionSetting<>(
-			ModConfigs.commonConfig.defaultOwnerRank.get() == LanguageOptions.PREFER_STADHOUDER
-					? Faction.Rank.STADHOUDER
-					: Faction.Rank.GENERALISSIMUS,
+			ModConfigs.commonConfig.factionSettingOverrides.doOverrideDefaultOwnerRank.get() == true ? ModConfigs.commonConfig.factionSettingOverrides.overrideDefaultOwnerRank.get() == LanguageOptions.PREFER_STADHOUDER ? Faction.Rank.STADHOUDER : Faction.Rank.GENERALISSIMUS : Faction.Rank.GENERALISSIMUS,
 			"ownerRank",
-			"Owner Rank",
+			translatableDisplayNameComponent(ModTranslations.OWNER_RANK_SETTING_DISPLAY_NAME),
 			Faction.Rank.class,
 			new Faction.Rank[] { Faction.Rank.GENERALISSIMUS,  Faction.Rank.STADHOUDER },
-			"This setting determines which rank is the highest, Stadhouder or Generalissimus.", "This setting is semi-dependent on the global settings.", "It's default value is whatever the server owner has set in the config. It can be changed, or not!"));
+			translatableLoreComponent(ModTranslations.OWNER_RANK_SETTING_LORE_LINE_1), translatableLoreComponent(ModTranslations.OWNER_RANK_SETTING_LORE_LINE_2), translatableLoreComponent(ModTranslations.OWNER_RANK_SETTING_LORE_LINE_3)));
 
-	public static final BooleanFactionSetting ENABLE_FRIENDLY_GLOWING = register(new BooleanFactionSetting(true, "enableFriendlyGlow", "Enable Friendly Player Glowing", "Enables a glowing effect for friendlies, in case you have turned on friendly fire."));
+	public static final BooleanFactionSetting ENABLE_FRIENDLY_GLOWING = register(new BooleanFactionSetting(
+			!ModConfigs.commonConfig.factionSettingOverrides.doOverrideGlowing.get() || ModConfigs.commonConfig.factionSettingOverrides.overrideFriendlyGlowing.get(), "enableFriendlyGlow", translatableDisplayNameComponent(ModTranslations.ENABLE_FRIENDLY_GLOWING_DISPLAY_NAME), translatableLoreComponent(ModTranslations.ENABLE_FRIENDLY_GLOWING_LORE_LINE_1)));
 	public static final EnumFactionSetting<ChatFormatting> GLOW_COLOUR = register(new EnumFactionSetting<>(
-			ChatFormatting.GREEN,
+			ModConfigs.commonConfig.factionSettingOverrides.doOverrideFriendlyColour.get() && ModConfigs.commonConfig.factionSettingOverrides.overrideFriendlyColour.get().isColor()
+					? ModConfigs.commonConfig.factionSettingOverrides.overrideFriendlyColour.get()
+					: ChatFormatting.GREEN,
 			"glowColour",
-			"Friendly Player Glow Color",
+			translatableDisplayNameComponent(ModTranslations.GLOW_COLOUR_DISPLAY_NAME),
 			ChatFormatting.class,
 			Arrays.stream(ChatFormatting.values()).filter(ChatFormatting::isColor).toArray(ChatFormatting[]::new),
-			"This setting determines which colour appears as an outline if Enable Friendly Player Glowing is enabled."
+			translatableLoreComponent(ModTranslations.GLOW_COLOUR_LORE_LINE_1)
 	));
-
 
 	public static <T, S extends AbstractFactionSetting<T, S>> S register(S setting) {
 		settings.add(setting);
 		return setting;
+	}
+
+	public static <V, T extends AbstractFactionSetting<V, T>> T getSettingByNbtId(String nbtId, Class<T> settingClass) {
+		return settings.stream()
+				.filter(s -> s.getNbtId().equals(nbtId) && settingClass.isInstance(s))
+				.map(settingClass::cast)
+				.findFirst()
+				.orElse(null);
+	}
+
+	public static Component translatableLoreComponent(String translationKey) {
+		return Component.translatable(translationKey).withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false));
+	}
+
+	public static Component translatableDisplayNameComponent(String translationKey) {
+		return Component.translatable(translationKey).withStyle(style -> style.withColor(ChatFormatting.YELLOW).withItalic(false));
 	}
 
 	public static void init() {

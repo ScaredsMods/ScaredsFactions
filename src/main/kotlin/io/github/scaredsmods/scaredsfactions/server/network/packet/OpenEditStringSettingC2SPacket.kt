@@ -16,9 +16,12 @@
 */
 package io.github.scaredsmods.scaredsfactions.server.network.packet
 
+import io.github.scaredsmods.scaredsfactions.api.common.faction.setting.StringFactionSetting
 import io.github.scaredsmods.scaredsfactions.api.server.network.packet.IAbstractFactionPacket
 import io.github.scaredsmods.scaredsfactions.api.server.network.packet.StringPacket
 import io.github.scaredsmods.scaredsfactions.client.screen.menu.EditStringSettingMenu
+import io.github.scaredsmods.scaredsfactions.common.ModTranslations
+import io.github.scaredsmods.scaredsfactions.common.faction.FactionSettings
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.Component
 import net.minecraft.world.SimpleMenuProvider
@@ -33,8 +36,8 @@ class OpenEditStringSettingC2SPacket(private val nbtId: String) : StringPacket<O
 			val player = ctx.get().sender ?: return@enqueueWork
 			NetworkHooks.openScreen(player, SimpleMenuProvider(
 				{ containerId, inv, _ -> EditStringSettingMenu(containerId, inv, packet.nbtId) },
-				Component.literal("Edit Setting")
-			)
+				Component.translatable(ModTranslations.EDIT_STRING_SETTING_LABEL).append(": " + FactionSettings.getSettingByNbtId(packet.nbtId,
+					StringFactionSetting::class.java)))
 			) { buf -> buf.writeUtf(packet.nbtId) }
 		}
 		ctx.get().packetHandled = true
