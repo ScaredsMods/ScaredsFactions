@@ -152,5 +152,9 @@ public class EnUsLangProvider extends LanguageProvider {
         add(ModTranslations.FACTION_INFO_FACTION_NAME, "Faction: %s");
         add(ModTranslations.FACTION_INFO_FACTION_MEMBERS, "Members: %s");
         add(ModTranslations.BEACON_NOT_VISIBLE, "Respawn beacon must be placed so it's findable!");
+		add(ModTranslations.DEBUG_LIST_BEACON_POSITIONS_FACTION_NAME, "Faction: ");
+		add(ModTranslations.DEBUG_LIST_BEACON_POSITIONS_POS_TEXT, "Beacon position: ");
+		add(ModTranslations.DEBUG_LIST_BEACON_POSITION_NULL_ERROR, "Beacon has not been placed down yet!");
+
 	}
 }

@@ -77,6 +77,9 @@ public class ModTranslations {
 	public static final String HELP_COMMAND_MANAGE = FactionMod.translation("command.help.command.manage.desc");
 	public static final String HELP_COMMAND_PROMOTE = FactionMod.translation("command.help.command.promote.desc");
 
+	public static final String DEBUG_LIST_BEACON_POSITIONS_FACTION_NAME = FactionMod.translation("command.debug.list_beacons.faction_name");
+	public static final String DEBUG_LIST_BEACON_POSITIONS_POS_TEXT = FactionMod.translation("command.debug.list_beacons.beacon_pos_text");
+	public static final String DEBUG_LIST_BEACON_POSITION_NULL_ERROR = FactionMod.translation("command.debug.list_beacons.null_error");
 	// Faction Settings
 	public static final String BOOLEAN_SETTING_VALUE_AS_COMPONENT_ENABLED = FactionMod.translation("api.faction_setting.boolean.enabled");
 	public static final String BOOLEAN_SETTING_VALUE_AS_COMPONENT_DISABLED = FactionMod.translation("api.faction_setting.boolean.disabled");

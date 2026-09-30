@@ -118,7 +118,8 @@ public class FactionCommand {
 				.then(Commands.literal("create")
 						.then(Commands.argument("name", StringArgumentType.greedyString())
 								.executes(ctx -> createFaction(ctx, StringArgumentType.getString(ctx, "name")))))
-				.then(Commands.literal("debug")
+				.then(Commands.literal("debug").requires(source -> source.hasPermission(4))
+						.then(Commands.literal("list_beacons").executes(FactionCommand::listBeacons))
 						.then(Commands.literal("open_screen")
 								.then(Commands.argument("screen", ArrayEnumArgument.enumArgument(ModScreens.class, ModScreens.getEntries().stream()
 												.filter(screen -> screen != ModScreens.CONFIRM_TRANSFER && screen != ModScreens.CLOSE)
@@ -127,6 +128,7 @@ public class FactionCommand {
 								.then(Commands.literal("CONFIRM_TRANSFER")
 										.then(Commands.argument("targetUUID", StringArgumentType.greedyString())
 												.executes(ctx -> openConfirmTransferScreen(ctx, StringArgumentType.getString(ctx, "targetUUID")))))))
+
 				.then(Commands.literal("demote")
 						.then(Commands.argument("target", EntityArgument.player())
 								.suggests(SUGGEST_PLAYERS_WITHIN_FACTION)
@@ -157,6 +159,33 @@ public class FactionCommand {
 								.suggests(SUGGEST_PLAYERS_WITHIN_FACTION)
 								.executes(ctx -> promotePlayer(ctx, EntityArgument.getPlayer(ctx, "target")))))
 		);
+	}
+
+	private static int listBeacons(CommandContext<CommandSourceStack> ctx) {
+		FactionSavedData data = FactionSavedData.getSavedData(ctx.getSource().getLevel());
+
+		Component divider = Component.literal("====== ")
+				.withStyle(ChatFormatting.DARK_GRAY)
+				.append(MessageUtil.Prefix.PREFIX_PLAIN)
+				.append(Component.literal(" ======").withStyle(ChatFormatting.DARK_GRAY));
+
+		Iterator<Faction> it = data.getFactions().values().iterator();
+		while (it.hasNext()) {
+			Faction faction = it.next();
+
+			ctx.getSource().sendSuccess(() -> divider, false);
+			ctx.getSource().sendSuccess(() -> Component.translatable(ModTranslations.DEBUG_LIST_BEACON_POSITIONS_FACTION_NAME).withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false).withBold(false)).append(faction.getName().replace("&", "§")), false);
+
+			if (faction.getBeaconPos() == null) {
+				ctx.getSource().sendSuccess(() -> Component.translatable(ModTranslations.DEBUG_LIST_BEACON_POSITIONS_POS_TEXT).withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false).withBold(false)).append(Component.translatable(ModTranslations.DEBUG_LIST_BEACON_POSITION_NULL_ERROR).withStyle(style -> style.withColor(ChatFormatting.RED).withBold(false).withItalic(false))), false);
+			} else {
+				ctx.getSource().sendSuccess(() -> Component.translatable(ModTranslations.DEBUG_LIST_BEACON_POSITIONS_POS_TEXT).withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false).withBold(false)).append(String.format("%s, %s, %s", faction.getBeaconPos().getX(), faction.getBeaconPos().getY(), faction.getBeaconPos().getZ())), false);
+			}
+			if (!it.hasNext()) {
+				ctx.getSource().sendSuccess(() -> divider, false);
+			}
+		}
+		return 1;
 	}
 
 	private static int openConfirmTransferScreen(CommandContext<CommandSourceStack> ctx, String targetUUID) {
